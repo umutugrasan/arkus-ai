@@ -1,0 +1,252 @@
+{
+  "seller": {
+    "id": "S001",
+    "name": "TechStore TR",
+    "owner": "Mehmet Yilmaz",
+    "member_since": "2022-03-15"
+  },
+  "marketplaces": {
+    "trendyol": {
+      "store_name": "TechStore Official",
+      "store_rating": 4.2,
+      "commission_rate": 12.5,
+      "ad_spend_30d": 45000,
+      "products": [
+        {
+          "id": "P001",
+          "name": "Kablosuz Bluetooth Kulaklik Pro Max",
+          "category": "Elektronik > Kulaklik",
+          "price": 899.99,
+          "cost": 420,
+          "stock": 145,
+          "sales_30d": 312,
+          "shipping_cost": 18,
+          "rating": 4.3,
+          "review_count": 1847,
+          "return_rate": 5.2,
+          "competitors": [
+            {"name": "SesDunyasi", "price": 849.99, "rating": 4.5, "review_count": 2340, "sales_30d": 410},
+            {"name": "AudioTR", "price": 929.99, "rating": 4.1, "review_count": 890, "sales_30d": 185},
+            {"name": "MelodiShop", "price": 879.99, "rating": 4.4, "review_count": 1560, "sales_30d": 295}
+          ]
+        },
+        {
+          "id": "P002",
+          "name": "Akilli Saat Fitness Tracker",
+          "category": "Elektronik > Akilli Saat",
+          "price": 1299.99,
+          "cost": 580,
+          "stock": 67,
+          "sales_30d": 178,
+          "shipping_cost": 20,
+          "rating": 3.8,
+          "review_count": 923,
+          "return_rate": 9.8,
+          "competitors": [
+            {"name": "SaatDunyasi", "price": 1199.99, "rating": 4.2, "review_count": 1890, "sales_30d": 320},
+            {"name": "FitTech", "price": 1349.99, "rating": 4.0, "review_count": 670, "sales_30d": 145}
+          ]
+        },
+        {
+          "id": "P003",
+          "name": "USB-C Hizli Sarj Kablosu 2m",
+          "category": "Elektronik > Kablo",
+          "price": 149.99,
+          "cost": 25,
+          "stock": 890,
+          "sales_30d": 567,
+          "shipping_cost": 8,
+          "rating": 4.6,
+          "review_count": 3420,
+          "return_rate": 2.1,
+          "competitors": [
+            {"name": "KabloMarket", "price": 129.99, "rating": 4.5, "review_count": 5670, "sales_30d": 890},
+            {"name": "TeknoKablo", "price": 159.99, "rating": 4.3, "review_count": 2100, "sales_30d": 340}
+          ]
+        },
+        {
+          "id": "P004",
+          "name": "Tasinabilir Bluetooth Hoparlor",
+          "category": "Elektronik > Hoparlor",
+          "price": 649.99,
+          "cost": 290,
+          "stock": 34,
+          "sales_30d": 89,
+          "shipping_cost": 22,
+          "rating": 4.1,
+          "review_count": 456,
+          "return_rate": 4.5,
+          "competitors": [
+            {"name": "SesShop", "price": 599.99, "rating": 4.4, "review_count": 1230, "sales_30d": 210}
+          ]
+        },
+        {
+          "id": "P005",
+          "name": "Laptop Standi Aluminyum",
+          "category": "Bilgisayar > Aksesuar",
+          "price": 449.99,
+          "cost": 150,
+          "stock": 210,
+          "sales_30d": 104,
+          "shipping_cost": 25,
+          "rating": 4.7,
+          "review_count": 2890,
+          "return_rate": 1.8,
+          "competitors": [
+            {"name": "MasaUstu", "price": 479.99, "rating": 4.3, "review_count": 980, "sales_30d": 76}
+          ]
+        }
+      ]
+    },
+    "hepsiburada": {
+      "store_name": "TechStore HB",
+      "store_rating": 4.0,
+      "commission_rate": 14.2,
+      "ad_spend_30d": 55000,
+      "products": [
+        {
+          "id": "P001",
+          "name": "Kablosuz Bluetooth Kulaklik Pro Max",
+          "category": "Elektronik > Kulaklik",
+          "price": 949.99,
+          "cost": 420,
+          "stock": 89,
+          "sales_30d": 187,
+          "shipping_cost": 20,
+          "rating": 4.1,
+          "review_count": 920,
+          "return_rate": 6.8,
+          "competitors": [
+            {"name": "SesEvim", "price": 919.99, "rating": 4.3, "review_count": 1450, "sales_30d": 260}
+          ]
+        },
+        {
+          "id": "P002",
+          "name": "Akilli Saat Fitness Tracker",
+          "category": "Elektronik > Akilli Saat",
+          "price": 1399.99,
+          "cost": 580,
+          "stock": 45,
+          "sales_30d": 95,
+          "shipping_cost": 20,
+          "rating": 3.6,
+          "review_count": 410,
+          "return_rate": 11.2,
+          "competitors": [
+            {"name": "SaatMerkezi", "price": 1249.99, "rating": 4.1, "review_count": 890, "sales_30d": 180}
+          ]
+        },
+        {
+          "id": "P003",
+          "name": "USB-C Hizli Sarj Kablosu 2m",
+          "category": "Elektronik > Kablo",
+          "price": 169.99,
+          "cost": 25,
+          "stock": 560,
+          "sales_30d": 398,
+          "shipping_cost": 8,
+          "rating": 4.4,
+          "review_count": 1870,
+          "return_rate": 3.2,
+          "competitors": [
+            {"name": "HBKablo", "price": 139.99, "rating": 4.6, "review_count": 3200, "sales_30d": 720}
+          ]
+        },
+        {
+          "id": "P005",
+          "name": "Laptop Standi Aluminyum",
+          "category": "Bilgisayar > Aksesuar",
+          "price": 499.99,
+          "cost": 150,
+          "stock": 120,
+          "sales_30d": 100,
+          "shipping_cost": 25,
+          "rating": 4.5,
+          "review_count": 1340,
+          "return_rate": 2.4,
+          "competitors": []
+        }
+      ]
+    },
+    "amazon_tr": {
+      "store_name": "TechStore TR Amazon",
+      "store_rating": 4.4,
+      "commission_rate": 15.0,
+      "ad_spend_30d": 35000,
+      "products": [
+        {
+          "id": "P001",
+          "name": "Kablosuz Bluetooth Kulaklik Pro Max",
+          "category": "Elektronik > Kulaklik",
+          "price": 879.99,
+          "cost": 420,
+          "stock": 200,
+          "sales_30d": 230,
+          "shipping_cost": 0,
+          "rating": 4.5,
+          "review_count": 670,
+          "return_rate": 4.1,
+          "competitors": [
+            {"name": "AudioPro", "price": 859.99, "rating": 4.6, "review_count": 1200, "sales_30d": 380}
+          ]
+        },
+        {
+          "id": "P003",
+          "name": "USB-C Hizli Sarj Kablosu 2m",
+          "category": "Elektronik > Kablo",
+          "price": 139.99,
+          "cost": 25,
+          "stock": 1200,
+          "sales_30d": 190,
+          "shipping_cost": 0,
+          "rating": 4.7,
+          "review_count": 890,
+          "return_rate": 1.5,
+          "competitors": []
+        }
+      ]
+    }
+  },
+  "reviews": {
+    "P001": [
+      {"marketplace": "trendyol", "rating": 5, "text": "Ses kalitesi harika, bas sesleri cok iyi.", "date": "2026-05-01"},
+      {"marketplace": "trendyol", "rating": 1, "text": "Kargo 5 gun surdu, kutu ezilmis geldi.", "date": "2026-05-02"},
+      {"marketplace": "trendyol", "rating": 2, "text": "Bluetooth baglantisi surekli kopuyor.", "date": "2026-05-03"},
+      {"marketplace": "trendyol", "rating": 4, "text": "Fiyat performans urunu. Sarji uzun gidiyor.", "date": "2026-05-04"},
+      {"marketplace": "trendyol", "rating": 1, "text": "Kargo cok gec geldi. Yanlis renk gondermisler.", "date": "2026-05-05"},
+      {"marketplace": "trendyol", "rating": 5, "text": "Noise cancelling super. En iyi kulaklik.", "date": "2026-05-06"},
+      {"marketplace": "trendyol", "rating": 3, "text": "Idare eder, plastik kalitesi dusuk.", "date": "2026-05-07"},
+      {"marketplace": "trendyol", "rating": 1, "text": "1 haftada bozuldu. Sag taraf ses vermiyor.", "date": "2026-05-08"},
+      {"marketplace": "trendyol", "rating": 2, "text": "Kargo gecikmesi yasadim, 7 is gunu surdu.", "date": "2026-04-28"},
+      {"marketplace": "trendyol", "rating": 4, "text": "Guzel urun, kulak ustu rahat oturuyor.", "date": "2026-04-25"},
+      {"marketplace": "hepsiburada", "rating": 3, "text": "Fiyati Trendyolda daha ucuzmus, fazla odemisim.", "date": "2026-05-01"},
+      {"marketplace": "hepsiburada", "rating": 5, "text": "Muthis ses kalitesi. Sarj 20 saat gidiyor.", "date": "2026-05-03"},
+      {"marketplace": "hepsiburada", "rating": 1, "text": "Sahte urun geldi, orjinal degil. Iade ettim.", "date": "2026-05-04"},
+      {"marketplace": "hepsiburada", "rating": 2, "text": "Kargo kutusu acilmis geldi. Guven vermiyor.", "date": "2026-05-05"},
+      {"marketplace": "hepsiburada", "rating": 4, "text": "Guzel urun ama sarj kablosu eksik.", "date": "2026-05-06"},
+      {"marketplace": "amazon_tr", "rating": 5, "text": "En ucuz buradaydi. Prime ile ertesi gun geldi.", "date": "2026-05-02"},
+      {"marketplace": "amazon_tr", "rating": 5, "text": "Noise cancelling bu fiyata inanilmaz.", "date": "2026-05-04"},
+      {"marketplace": "amazon_tr", "rating": 4, "text": "Guzel ama biraz agir, uzun sure yoruyor.", "date": "2026-05-06"}
+    ],
+    "P002": [
+      {"marketplace": "trendyol", "rating": 2, "text": "Saat surekli donuyor, yazilimi cok kotu.", "date": "2026-05-01"},
+      {"marketplace": "trendyol", "rating": 1, "text": "Nabiz olcer yanlis degerler gosteriyor.", "date": "2026-05-02"},
+      {"marketplace": "trendyol", "rating": 3, "text": "Tasarimi guzel ama batarya 1 gun gitmiyor.", "date": "2026-05-03"},
+      {"marketplace": "trendyol", "rating": 2, "text": "Ekran guneste hic okunmuyor.", "date": "2026-05-04"},
+      {"marketplace": "trendyol", "rating": 4, "text": "Adim sayar ve uyku takibi guzel calisiyor.", "date": "2026-05-05"},
+      {"marketplace": "trendyol", "rating": 1, "text": "Kargo gecikti, kutu hasarliydi, iade ettim.", "date": "2026-05-06"},
+      {"marketplace": "hepsiburada", "rating": 2, "text": "Uygulama Turkce degil, Ingilizce kullaniyorum.", "date": "2026-05-02"},
+      {"marketplace": "hepsiburada", "rating": 1, "text": "2 haftada kayis koptu. Kalite cok dusuk.", "date": "2026-05-04"},
+      {"marketplace": "hepsiburada", "rating": 3, "text": "Idare eder, bu fiyata cok sey beklememek lazim.", "date": "2026-05-06"}
+    ]
+  },
+  "suppliers": [
+    {"name": "AliExpress - TechParts", "product": "Bluetooth Kulaklik", "current_price": 420, "min_order": 50, "shipping_days": 15, "discount_pct": 0},
+    {"name": "Alibaba - ShenZhen Audio", "product": "Bluetooth Kulaklik", "current_price": 380, "min_order": 100, "shipping_days": 20, "discount_pct": 5},
+    {"name": "Toptanci TR - Istanbul", "product": "Bluetooth Kulaklik", "current_price": 450, "min_order": 20, "shipping_days": 3, "discount_pct": 0},
+    {"name": "AliExpress - SmartWatch Factory", "product": "Akilli Saat", "current_price": 580, "min_order": 30, "shipping_days": 18, "discount_pct": 0},
+    {"name": "Alibaba - GZ Wearables", "product": "Akilli Saat", "current_price": 510, "min_order": 200, "shipping_days": 25, "discount_pct": 12},
+    {"name": "Toptanci TR - Ankara", "product": "USB-C Kablo", "current_price": 25, "min_order": 500, "shipping_days": 2, "discount_pct": 0},
+    {"name": "Alibaba - Cable King", "product": "USB-C Kablo", "current_price": 12, "min_order": 2000, "shipping_days": 22, "discount_pct": 8}
+  ]
+}
