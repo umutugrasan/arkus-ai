@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from app.dependencies import get_current_user
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.gemini_service import ask_gemini
 import json
@@ -7,11 +8,11 @@ router = APIRouter()
 
 
 def _get_competitors(product_id: str):
-    marketplaces = fetch_all_marketplaces()
+    marketplaces = fetch_all_marketplaces(user.id)
     result = []
 
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if not mp_data:
             continue
         for p in mp_data["products"]:
@@ -36,7 +37,7 @@ def _get_competitors(product_id: str):
 
 
 @router.get("/{product_id}")
-def get_competitors(product_id: str):
+def get_competitors(product_id: str, user = Depends(get_current_user)):
     comps = _get_competitors(product_id)
     if not comps:
         raise HTTPException(status_code=404, detail="Rakip bulunamadi")
@@ -68,7 +69,7 @@ Su basliklarda analiz yap:
 
 
 @router.get("/{product_id}/price-map")
-def price_map(product_id: str):
+def price_map(product_id: str, user = Depends(get_current_user)):
     comps = _get_competitors(product_id)
     if not comps:
         raise HTTPException(status_code=404, detail="Rakip bulunamadi")

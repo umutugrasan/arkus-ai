@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from app.dependencies import get_current_user
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces, fetch_suppliers
 import json
 import os
@@ -21,20 +22,20 @@ def _save_notifications(notifs):
 
 
 @router.get("/")
-def list_notifications(token: str = ""):
+def list_notifications(token: str = "", user = Depends(get_current_user)):
     notifs = _load_notifications()
     return {"notifications": notifs}
 
 
 @router.get("/unread-count")
-def unread_count(token: str = ""):
+def unread_count(token: str = "", user = Depends(get_current_user)):
     notifs = _load_notifications()
     count = len([n for n in notifs if not n.get("read", False)])
     return {"unread_count": count}
 
 
 @router.put("/{notif_id}/read")
-def mark_read(notif_id: str):
+def mark_read(notif_id: str, user = Depends(get_current_user)):
     notifs = _load_notifications()
     for n in notifs:
         if n["id"] == notif_id:
@@ -45,7 +46,7 @@ def mark_read(notif_id: str):
 
 
 @router.put("/read-all")
-def mark_all_read(token: str = ""):
+def mark_all_read(token: str = "", user = Depends(get_current_user)):
     notifs = _load_notifications()
     for n in notifs:
         n["read"] = True
@@ -54,15 +55,15 @@ def mark_all_read(token: str = ""):
 
 
 @router.post("/generate")
-def generate_notifications():
+def generate_notifications(user = Depends(get_current_user)):
     notifs = _load_notifications()
     new_notifs = []
     next_id = len(notifs) + 1
 
     # Stok uyarisi
-    marketplaces = fetch_all_marketplaces()
+    marketplaces = fetch_all_marketplaces(user.id)
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if not mp_data:
             continue
         for p in mp_data["products"]:
@@ -82,7 +83,7 @@ def generate_notifications():
 
     # Yorum puani dususu
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if not mp_data:
             continue
         for p in mp_data["products"]:

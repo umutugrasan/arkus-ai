@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from app.dependencies import get_current_user
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
 from app.services.gemini_service import ask_gemini
@@ -8,13 +9,13 @@ router = APIRouter()
 
 
 def _calculate_scores():
-    marketplaces = fetch_all_marketplaces()
+    marketplaces = fetch_all_marketplaces(user.id)
     all_metrics = {}
     all_ratings = []
     total_products = 0
 
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if mp_data:
             all_metrics[mp] = calculate_marketplace_metrics(mp_data)
             all_ratings.append(mp_data["store_rating"])
@@ -53,13 +54,13 @@ def _calculate_scores():
 
 
 @router.get("/score")
-def get_score():
+def get_score(user = Depends(get_current_user)):
     total, scores, metrics = _calculate_scores()
     return {"total_score": total, "scores": scores, "metrics": metrics}
 
 
 @router.get("/breakdown")
-def get_breakdown():
+def get_breakdown(user = Depends(get_current_user)):
     total, scores, metrics = _calculate_scores()
 
     max_scores = {
@@ -110,7 +111,7 @@ Su basliklarda yanit ver:
 
 
 @router.get("/history")
-def score_history():
+def score_history(user = Depends(get_current_user)):
     return {
         "history": [
             {"week": "Hafta 1", "score": 65},

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from app.dependencies import get_current_user
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_product_metrics, calculate_arbitrage
 
@@ -6,11 +7,11 @@ router = APIRouter()
 
 
 def _get_all_products_with_metrics():
-    marketplaces = fetch_all_marketplaces()
+    marketplaces = fetch_all_marketplaces(user.id)
     all_products = {}
 
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if not mp_data:
             continue
         commission = mp_data["commission_rate"]
@@ -53,7 +54,7 @@ def _get_all_products_with_metrics():
 
 
 @router.get("/list")
-def list_products():
+def list_products(user = Depends(get_current_user)):
     products = _get_all_products_with_metrics()
     result = []
     for pid, data in products.items():
@@ -71,7 +72,7 @@ def list_products():
 
 
 @router.get("/top-sellers")
-def top_sellers():
+def top_sellers(user = Depends(get_current_user)):
     products = _get_all_products_with_metrics()
     result = []
     for pid, data in products.items():
@@ -87,7 +88,7 @@ def top_sellers():
 
 
 @router.get("/low-stock")
-def low_stock():
+def low_stock(user = Depends(get_current_user)):
     products = _get_all_products_with_metrics()
     alerts = []
 
@@ -112,7 +113,7 @@ def low_stock():
 
 
 @router.get("/{product_id}")
-def get_product(product_id: str):
+def get_product(product_id: str, user = Depends(get_current_user)):
     products = _get_all_products_with_metrics()
     if product_id not in products:
         raise HTTPException(status_code=404, detail="Urun bulunamadi")
@@ -121,7 +122,7 @@ def get_product(product_id: str):
 
 
 @router.get("/{product_id}/compare")
-def compare_product(product_id: str):
+def compare_product(product_id: str, user = Depends(get_current_user)):
     products = _get_all_products_with_metrics()
     if product_id not in products:
         raise HTTPException(status_code=404, detail="Urun bulunamadi")

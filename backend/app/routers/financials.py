@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from app.dependencies import get_current_user
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
 from app.services.gemini_service import ask_gemini
@@ -8,24 +9,24 @@ router = APIRouter()
 
 
 def _get_all_metrics():
-    marketplaces = fetch_all_marketplaces()
+    marketplaces = fetch_all_marketplaces(user.id)
     all_metrics = {}
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if mp_data:
             all_metrics[mp] = calculate_marketplace_metrics(mp_data)
     return all_metrics
 
 
 @router.get("/overview")
-def financial_overview():
+def financial_overview(user = Depends(get_current_user)):
     all_metrics = _get_all_metrics()
     overall = calculate_overall_metrics(all_metrics)
     return {"overall": overall}
 
 
 @router.get("/by-marketplace")
-def by_marketplace():
+def by_marketplace(user = Depends(get_current_user)):
     all_metrics = _get_all_metrics()
     result = []
     for mp, metrics in all_metrics.items():
@@ -44,7 +45,7 @@ def by_marketplace():
 
 
 @router.get("/by-product")
-def by_product():
+def by_product(user = Depends(get_current_user)):
     all_metrics = _get_all_metrics()
     products = {}
     for mp, metrics in all_metrics.items():
@@ -64,7 +65,7 @@ def by_product():
 
 
 @router.get("/expenses")
-def expense_breakdown():
+def expense_breakdown(user = Depends(get_current_user)):
     all_metrics = _get_all_metrics()
     overall = calculate_overall_metrics(all_metrics)
 
@@ -81,7 +82,7 @@ def expense_breakdown():
 
 
 @router.get("/cash-flow")
-def cash_flow():
+def cash_flow(user = Depends(get_current_user)):
     all_metrics = _get_all_metrics()
     overall = calculate_overall_metrics(all_metrics)
 

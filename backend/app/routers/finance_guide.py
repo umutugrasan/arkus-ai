@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from app.dependencies import get_current_user
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
 from app.services.gemini_service import ask_gemini
@@ -61,10 +62,10 @@ FINANCE_OPTIONS = [
 
 
 def _get_seller_profile():
-    marketplaces = fetch_all_marketplaces()
+    marketplaces = fetch_all_marketplaces(user.id)
     all_metrics = {}
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if mp_data:
             all_metrics[mp] = calculate_marketplace_metrics(mp_data)
 
@@ -83,7 +84,7 @@ def _get_seller_profile():
 
 
 @router.get("/options")
-def get_options():
+def get_options(user = Depends(get_current_user)):
     profile = _get_seller_profile()
 
     eligible = []
@@ -108,7 +109,7 @@ def get_options():
 
 
 @router.get("/eligibility")
-def check_eligibility():
+def check_eligibility(user = Depends(get_current_user)):
     profile = _get_seller_profile()
 
     eligible_count = sum(

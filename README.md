@@ -30,19 +30,21 @@ Basiret AI, tüm pazaryerlerindeki verileri birleştirir ve Gemini AI ile analiz
 ## 🏗️ Teknik Mimari
 
 ```
-┌─────────────┐     REST API      ┌──────────────┐     ┌────────────┐
-│   React +   │ ◄──────────────► │   FastAPI    │ ◄──► │ Gemini API │
-│  Tailwind   │                   │   Backend    │     └────────────┘
-│  Recharts   │                   │              │
+┌─────────────┐     REST API      ┌──────────────┐    Tool Calling   ┌───────────────────┐
+│   React +   │ ◄──────────────► │   FastAPI    │ ◄───────────────► │ Gemini 3.5 Flash  │
+│  Tailwind   │                   │   Backend    │                   │  (Basiret Agent)  │
+│  Recharts   │                   │              │                   └───────────────────┘
 └─────────────┘                   │  ┌─────────┐ │
-                                  │  │Mock Data│ │
+                                  │  │Postgre- │ │
+                                  │  │  SQL    │ │
                                   │  └─────────┘ │
                                   └──────────────┘
 ```
 
 ## ⚡ Hızlı Başlangıç (Quick Start)
 
-Jüri üyelerinin projeyi en hızlı ve sorunsuz şekilde test edebilmesi için tüm sistemi **Dockerize** ettik. Tek bir komutla hem Frontend hem de Backend hazır hale gelir.
+Jüri üyelerinin projeyi en hızlı ve sorunsuz şekilde test edebilmesi için tüm sistemi (Frontend, Backend, PostgreSQL DB) **Dockerize** ettik. Tek bir komutla tüm mikroservisler hazır hale gelir.
+*Not: Veritabanı boş gelmez, ilk kurulumda otomatik olarak "Seed" (tohumlama) işlemiyle e-ticaret verileriyle doldurulur.*
 
 ### 🐳 Docker ile Tek Komutta Kurulum
 
@@ -100,10 +102,11 @@ npm run dev
 
 ## 🛠️ Teknolojiler
 
-- **Frontend:** React, Tailwind CSS, Recharts
-- **Backend:** Python, FastAPI
-- **AI:** Google Gemini API
-- **Veri:** Mock Data (JSON)
+- **Frontend:** React, Tailwind CSS v4, Recharts
+- **Backend:** Python, FastAPI, SQLAlchemy
+- **AI:** Google Gemini API (Otonom Agentic Tool-Calling Mimarisi)
+- **Veri:** PostgreSQL (Docker üzerinde tam izole, startup'ta otomatik Seeded)
+- **Altyapı:** Docker Compose (Multi-container architecture)
 
 ## 👥 Takım
 

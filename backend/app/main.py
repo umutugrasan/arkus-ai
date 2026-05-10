@@ -6,10 +6,30 @@ from app.routers import (
     finance_guide, sourcing, chat, notifications, reports
 )
 
+from contextlib import asynccontextmanager
+from app.db.database import engine, Base, SessionLocal
+from app.db.seed import seed_db
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Tablolari olustur
+    Base.metadata.create_all(bind=engine)
+    
+    # Eger bos ise seed data yukle
+    db = SessionLocal()
+    try:
+        seed_db(db)
+    finally:
+        db.close()
+    
+    yield
+    # Kapanis temizligi gerekirse buraya
+
 app = FastAPI(
     title="Basiret AI - Satici Zekasi API",
     description="Coklu pazaryeri satici analiz ve danismanlik platformu",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(

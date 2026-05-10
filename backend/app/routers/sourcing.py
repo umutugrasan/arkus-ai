@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from app.dependencies import get_current_user
 from app.services.marketplace_api import fetch_suppliers, fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_overall_metrics, calculate_marketplace_metrics
 from app.services.gemini_service import ask_gemini
@@ -24,7 +25,7 @@ def _save_alerts(alerts):
 
 
 @router.get("/suppliers")
-def list_suppliers():
+def list_suppliers(user = Depends(get_current_user)):
     suppliers = fetch_suppliers()
 
     enriched = []
@@ -40,7 +41,7 @@ def list_suppliers():
 
 
 @router.get("/best-price/{product_name}")
-def best_price(product_name: str):
+def best_price(product_name: str, user = Depends(get_current_user)):
     suppliers = fetch_suppliers()
     matches = [s for s in suppliers if product_name.lower() in s["product"].lower()]
 
@@ -63,10 +64,10 @@ def best_price(product_name: str):
 async def sourcing_opportunities():
     suppliers = fetch_suppliers()
 
-    marketplaces = fetch_all_marketplaces()
+    marketplaces = fetch_all_marketplaces(user.id)
     all_metrics = {}
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if mp_data:
             all_metrics[mp] = calculate_marketplace_metrics(mp_data)
 
@@ -103,7 +104,7 @@ class AlertRequest(BaseModel):
 
 
 @router.post("/alerts")
-def create_alert(req: AlertRequest):
+def create_alert(req: AlertRequest, user = Depends(get_current_user)):
     alerts = _load_alerts()
 
     new_alert = {
@@ -121,13 +122,13 @@ def create_alert(req: AlertRequest):
 
 
 @router.get("/alerts")
-def list_alerts():
+def list_alerts(user = Depends(get_current_user)):
     alerts = _load_alerts()
     return {"alerts": alerts}
 
 
 @router.delete("/alerts/{alert_id}")
-def delete_alert(alert_id: str):
+def delete_alert(alert_id: str, user = Depends(get_current_user)):
     alerts = _load_alerts()
     alerts = [a for a in alerts if a["id"] != alert_id]
     _save_alerts(alerts)

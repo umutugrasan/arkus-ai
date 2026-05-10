@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from app.dependencies import get_current_user
 from app.services.marketplace_api import fetch_reviews
 from app.services.gemini_service import ask_gemini
 
@@ -6,7 +7,7 @@ router = APIRouter()
 
 
 @router.get("/{product_id}")
-def get_reviews(product_id: str, marketplace: str = "all"):
+def get_reviews(product_id: str, marketplace: str = "all", user = Depends(get_current_user)):
     reviews = fetch_reviews(marketplace, product_id)
     if not reviews:
         raise HTTPException(status_code=404, detail="Yorum bulunamadi")
@@ -15,7 +16,7 @@ def get_reviews(product_id: str, marketplace: str = "all"):
 
 
 @router.get("/{product_id}/sentiment")
-def get_sentiment(product_id: str):
+def get_sentiment(product_id: str, user = Depends(get_current_user)):
     reviews = fetch_reviews("all", product_id)
     if not reviews:
         raise HTTPException(status_code=404, detail="Yorum bulunamadi")
@@ -87,7 +88,7 @@ Su basliklarda analiz yap:
 
 
 @router.get("/{product_id}/compare")
-def compare_reviews(product_id: str):
+def compare_reviews(product_id: str, user = Depends(get_current_user)):
     reviews = fetch_reviews("all", product_id)
     if not reviews:
         raise HTTPException(status_code=404, detail="Yorum bulunamadi")

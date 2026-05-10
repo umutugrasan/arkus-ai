@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from app.dependencies import get_current_user
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
 
@@ -6,12 +7,12 @@ router = APIRouter()
 
 
 @router.get("/overview")
-def get_overview():
-    marketplaces = fetch_all_marketplaces()
+def get_overview(user = Depends(get_current_user)):
+    marketplaces = fetch_all_marketplaces(user.id)
     all_metrics = {}
 
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if mp_data:
             all_metrics[mp] = calculate_marketplace_metrics(mp_data)
 
@@ -24,12 +25,12 @@ def get_overview():
 
 
 @router.get("/marketplace-summary")
-def get_marketplace_summary():
-    marketplaces = fetch_all_marketplaces()
+def get_marketplace_summary(user = Depends(get_current_user)):
+    marketplaces = fetch_all_marketplaces(user.id)
     summaries = []
 
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if mp_data:
             metrics = calculate_marketplace_metrics(mp_data)
             summaries.append({
@@ -51,7 +52,7 @@ def get_marketplace_summary():
 
 
 @router.get("/trends")
-def get_trends(period: int = 30):
+def get_trends(period: int = 30, user = Depends(get_current_user)):
     # Mock trend verisi - gercek urunde pazaryeri API'sindan cekilir
     if period == 7:
         return {

@@ -1,4 +1,23 @@
 services:
+  # ─── PostgreSQL Database ─────────────────────────────────────────────────────
+  db:
+    image: postgres:15-alpine
+    container_name: basiret-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: basiret
+      POSTGRES_PASSWORD: basiretpassword
+      POSTGRES_DB: basiret_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U basiret -d basiret_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - basiret-net
+
   # ─── FastAPI Backend ─────────────────────────────────────────────────────────
   backend:
     build:
@@ -10,8 +29,12 @@ services:
       - .env
     environment:
       - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://basiret:basiretpassword@db:5432/basiret_db
     ports:
       - "8000:8000"       # Opsiyonel: Swagger UI için doğrudan erişim
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
       interval: 15s
@@ -36,6 +59,21 @@ services:
     networks:
       - basiret-net
 
+  # ─── Adminer (Veritabanı Görüntüleyici Arayüz) ────────────────────────────────
+  adminer:
+    image: adminer:latest
+    container_name: basiret-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"       # http://localhost:8080 ile erişilir
+    depends_on:
+      - db
+    networks:
+      - basiret-net
+
 networks:
   basiret-net:
     driver: bridge
+
+volumes:
+  pgdata:

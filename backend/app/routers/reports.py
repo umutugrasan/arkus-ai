@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from app.dependencies import get_current_user
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
 from app.services.gemini_service import ask_gemini
@@ -24,10 +25,10 @@ def _save_reports(reports):
 
 @router.post("/daily")
 async def generate_daily_report():
-    marketplaces = fetch_all_marketplaces()
+    marketplaces = fetch_all_marketplaces(user.id)
     all_metrics = {}
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if mp_data:
             all_metrics[mp] = calculate_marketplace_metrics(mp_data)
 
@@ -77,10 +78,10 @@ Rapor formati:
 
 @router.post("/weekly")
 async def generate_weekly_report():
-    marketplaces = fetch_all_marketplaces()
+    marketplaces = fetch_all_marketplaces(user.id)
     all_metrics = {}
     for mp in marketplaces:
-        mp_data = fetch_store_info(mp)
+        mp_data = fetch_store_info(mp, user.id)
         if mp_data:
             all_metrics[mp] = calculate_marketplace_metrics(mp_data)
 
@@ -123,13 +124,13 @@ Rapor formati:
 
 
 @router.get("/list")
-def list_reports(token: str = ""):
+def list_reports(token: str = "", user = Depends(get_current_user)):
     reports = _load_reports()
     return {"reports": reports}
 
 
 @router.get("/{report_id}")
-def get_report(report_id: str):
+def get_report(report_id: str, user = Depends(get_current_user)):
     reports = _load_reports()
     for r in reports:
         if r["id"] == report_id:
