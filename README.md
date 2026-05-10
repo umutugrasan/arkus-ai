@@ -40,9 +40,34 @@ Basiret AI, tüm pazaryerlerindeki verileri birleştirir ve Gemini AI ile analiz
                                   └──────────────┘
 ```
 
-## 🚀 Kurulum
+## ⚡ Hızlı Başlangıç (Quick Start)
 
-### Backend
+Jüri üyelerinin projeyi en hızlı ve sorunsuz şekilde test edebilmesi için tüm sistemi **Dockerize** ettik. Tek bir komutla hem Frontend hem de Backend hazır hale gelir.
+
+### 🐳 Docker ile Tek Komutta Kurulum
+
+1. `.env.example` dosyasının adını `.env` olarak değiştirin ve Gemini API anahtarınızı ekleyin:
+```bash
+cp .env.example .env
+```
+2. Docker Compose ile projeyi ayağa kaldırın:
+```bash
+docker-compose up -d --build
+```
+Proje çalıştıktan sonra:
+- **Frontend Paneli:** [http://localhost:3000](http://localhost:3000)
+- **Backend API & Swagger Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+
+Durdurmak için:
+```bash
+docker-compose down
+```
+
+---
+
+### 💻 Manuel Kurulum (Alternatif)
+
+**Backend**
 ```bash
 cd backend
 pip install -r requirements.txt
@@ -51,7 +76,7 @@ cp .env.example .env
 uvicorn app.main:app --reload --port 8000
 ```
 
-### Frontend
+**Frontend**
 ```bash
 cd frontend
 npm install

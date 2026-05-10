@@ -1,0 +1,41 @@
+services:
+  # ─── FastAPI Backend ─────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: basiret-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"       # Opsiyonel: Swagger UI için doğrudan erişim
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - basiret-net
+
+  # ─── React Frontend (nginx) ───────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: basiret-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"         # http://localhost:3000 ile erişilir
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - basiret-net
+
+networks:
+  basiret-net:
+    driver: bridge

@@ -29,12 +29,14 @@ async def ask_gemini(prompt: str, system_instruction: str = None) -> str:
             full_prompt = prompt
         
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-3.1-flash-lite",
             contents=full_prompt
         )
         return response.text
     except Exception as e:
-        return f"Gemini API hatasi: {str(e)}"
+        # Hackathon demosu için API'de oluşabilecek HERHANGİ bir hatada (429 Kota, 404 Bulunamadı vb.)
+        # uygulamanın kırılmasını önlemek adına direkt olarak mock veriye düşüyoruz.
+        return f"⚠️ **Bilgi:** Gemini API bağlantısı kurulamadı veya kota aşıldı. Demo sunumu için çevrimdışı (mock) yanıt gösterilmektedir.\n\n---\n\n" + _fallback_response(prompt)
 
 
 def _fallback_response(prompt: str) -> str:
