@@ -18,6 +18,24 @@ services:
     networks:
       - basiret-net
 
+  # ─── Sahte Pazaryeri API (Trendyol/HB/Amazon TR simulasyonu) ─────────────────
+  mock-api:
+    build:
+      context: ./backend
+      dockerfile: mock_api/Dockerfile
+    container_name: basiret-mock-api
+    restart: unless-stopped
+    ports:
+      - "8001:8001"       # http://localhost:8001 ile dogrudan erisim
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - basiret-net
+
   # ─── FastAPI Backend ─────────────────────────────────────────────────────────
   backend:
     build:
@@ -30,10 +48,13 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://basiret:basiretpassword@db:5432/basiret_db
+      - MOCK_MARKETPLACE_API_URL=http://mock-api:8001
     ports:
       - "8000:8000"       # Opsiyonel: Swagger UI için doğrudan erişim
     depends_on:
       db:
+        condition: service_healthy
+      mock-api:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]

@@ -1,60 +1,88 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
-from app.dependencies import get_current_user
-from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
-from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
-from app.services.gemini_service import ask_gemini
-import json
-import os
+from datetime import datetime
+from app.dependencies import get_current_user, get_db
+from app.db.models import ChatHistory
+from app.rate_limit import limiter
+from app.config import settings
 
 router = APIRouter()
 
-HISTORY_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "chat_history.json")
 
-
-def _load_history():
-    if not os.path.exists(HISTORY_PATH):
-        return []
-    with open(HISTORY_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def _save_history(history):
-    with open(HISTORY_PATH, "w", encoding="utf-8") as f:
-        json.dump(history, f, ensure_ascii=False, indent=2)
+def _now() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 class ChatMessage(BaseModel):
     message: str
-    token: str = ""
 
 
 @router.post("/ask")
-def ask(msg: ChatMessage, user = Depends(get_current_user)):
+@limiter.limit(settings.RATE_LIMIT_AI_PER_MIN)
+def ask(
+    request: Request,
+    msg: ChatMessage,
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    if not msg.message.strip():
+        raise HTTPException(status_code=400, detail="Mesaj bos olamaz")
+
+    # Agent'i lazy import et — startup'ta circular import olmasin
     from app.agents.basiret_agent import run_basiret_agent
-    
-    # Ajan tetikleniyor, tum verileri ajan kendi toplayacak
     response = run_basiret_agent(msg.message, user.id)
 
-    # Gecmise kaydet
-    history = _load_history()
-    history.append({
-        "question": msg.message,
-        "answer": response,
-        "timestamp": "2026-05-10",
-    })
-    _save_history(history)
+    record = ChatHistory(
+        user_id=user.id,
+        question=msg.message,
+        answer=response,
+        created_at=_now(),
+    )
+    db.add(record)
+    db.commit()
+    db.refresh(record)
 
-    return {"response": response}
+    return {
+        "id": record.id,
+        "question": record.question,
+        "answer": record.answer,
+        "created_at": record.created_at,
+    }
 
 
 @router.get("/history")
-def get_history(token: str = "", user = Depends(get_current_user)):
-    history = _load_history()
-    return {"history": history}
+def get_history(
+    limit: int = 50,
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    rows = (
+        db.query(ChatHistory)
+        .filter(ChatHistory.user_id == user.id)
+        .order_by(ChatHistory.id.desc())
+        .limit(limit)
+        .all()
+    )
+    return {
+        "total": len(rows),
+        "history": [
+            {
+                "id": r.id,
+                "question": r.question,
+                "answer": r.answer,
+                "created_at": r.created_at,
+            }
+            for r in rows
+        ],
+    }
 
 
 @router.delete("/history")
-def clear_history(token: str = "", user = Depends(get_current_user)):
-    _save_history([])
-    return {"message": "Sohbet gecmisi temizlendi"}
+def clear_history(user=Depends(get_current_user), db=Depends(get_db)):
+    deleted = (
+        db.query(ChatHistory)
+        .filter(ChatHistory.user_id == user.id)
+        .delete()
+    )
+    db.commit()
+    return {"message": "Sohbet gecmisi temizlendi", "deleted_count": deleted}

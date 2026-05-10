@@ -1,25 +1,54 @@
-import json
+"""
+Database seeding — TAM API MANTIGI.
+Seed verisi mock-api (port 8001) HTTP endpoint'lerinden cekilir.
+JSON dosyalarini direkt okumak YOK. Tek veri akisi:
+  mock_raw.json -> mock-api -> backend (HTTP) -> PostgreSQL
+"""
+
 import os
-import hashlib
 import random
+import logging
+import time
 from datetime import datetime, timedelta
+import httpx
 from sqlalchemy.orm import Session
 from app.db.models import (
     User, Seller, Marketplace, Product, Competitor, Review, Supplier,
-    ReviewAnalysis, Order, Financial, Notification, Report, ChatHistory,
-    PriceAlert, ListingOptimization, ImageAnalysis,
+    Order, Financial, Notification, PriceAlert, CompetitorPriceHistory,
 )
 from app.db.database import engine, Base
+from app.security import hash_password
 
-MOCK_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "mock_raw.json")
+logger = logging.getLogger(__name__)
 
-
-def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
+MOCK_API_BASE = os.getenv("MOCK_MARKETPLACE_API_URL", "http://mock-api:8001")
+DEMO_KEYS = {
+    "trendyol": "demo-key-trendyol",
+    "hepsiburada": "demo-key-hepsiburada",
+    "amazon_tr": "demo-key-amazon_tr",
+}
+SLUG = {"trendyol": "trendyol", "hepsiburada": "hepsiburada", "amazon_tr": "amazon-tr"}
 
 
 def _now() -> str:
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _api_get(path: str, headers: dict = None, retries: int = 5, delay: float = 2.0):
+    """Mock-api'ye GET. Healthcheck race condition icin retry'li."""
+    url = f"{MOCK_API_BASE}{path}"
+    last_err = None
+    for attempt in range(retries):
+        try:
+            with httpx.Client(timeout=10.0) as client:
+                resp = client.get(url, headers=headers or {})
+                resp.raise_for_status()
+                return resp.json()
+        except Exception as e:
+            last_err = e
+            logger.warning(f"mock-api {path} attempt {attempt+1}/{retries} failed: {type(e).__name__}: {e}")
+            time.sleep(delay)
+    raise RuntimeError(f"mock-api'ye ulasilamadi ({path}): {last_err}")
 
 
 def seed_db(db: Session):
@@ -27,7 +56,9 @@ def seed_db(db: Session):
     if db.query(User).filter(User.email == "demo@basiret.ai").first():
         return
 
-    # 1. users
+    logger.info("Seeding via mock-api at %s", MOCK_API_BASE)
+
+    # 1. users (her zaman lokal — kullanici, mock-api'nin urunu degil)
     demo_user = User(
         name="Demo Kullanici",
         email="demo@basiret.ai",
@@ -41,11 +72,8 @@ def seed_db(db: Session):
     db.commit()
     db.refresh(demo_user)
 
-    with open(MOCK_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    # Auxiliary - seller
-    s_data = data.get("seller", {})
+    # Auxiliary - seller (mock-api'den)
+    s_data = _api_get("/seller")
     seller = Seller(
         id=s_data.get("id", "S001"),
         name=s_data.get("name", "Unknown"),
@@ -55,26 +83,35 @@ def seed_db(db: Session):
     db.add(seller)
     db.commit()
 
-    # 2. marketplace_connections, 3. products, 6. competitors
+    # 2. marketplace_connections + 3. products + 6. competitors
+    mp_list = _api_get("/marketplaces").get("marketplaces", [])
     marketplace_objs = {}
-    products_by_code = {}  # product_code -> Product
-    for mp_name, mp_data in data.get("marketplaces", {}).items():
+    products_by_code = {}
+
+    for mp_info in mp_list:
+        slug = mp_info["slug"]
+        internal = mp_info["internal_name"]
+        api_key = DEMO_KEYS.get(internal, "")
+        headers = {"X-API-KEY": api_key}
+
+        mp_data = _api_get(f"/{slug}/products", headers=headers)
+
         marketplace = Marketplace(
             user_id=demo_user.id,
-            name=mp_name,
+            name=internal,
             store_name=mp_data.get("store_name", ""),
             store_rating=mp_data.get("store_rating", 0.0),
             commission_rate=mp_data.get("commission_rate", 0.0),
             ad_spend_30d=mp_data.get("ad_spend_30d", 0.0),
-            api_key=f"demo-key-{mp_name}",
-            store_url=f"https://{mp_name}.com/demo-store",
+            api_key=api_key,
+            store_url=f"https://{internal}.com/demo-store",
             status="connected",
             connected_at="2026-05-01",
         )
         db.add(marketplace)
         db.commit()
         db.refresh(marketplace)
-        marketplace_objs[mp_name] = marketplace
+        marketplace_objs[internal] = marketplace
 
         for prod_data in mp_data.get("products", []):
             product = Product(
@@ -99,7 +136,7 @@ def seed_db(db: Session):
             db.add(product)
             db.commit()
             db.refresh(product)
-            products_by_code[(mp_name, prod_data.get("id"))] = product
+            products_by_code[(internal, prod_data.get("id"))] = product
 
             for comp_data in prod_data.get("competitors", []):
                 competitor = Competitor(
@@ -112,25 +149,53 @@ def seed_db(db: Session):
                     last_updated=_now(),
                 )
                 db.add(competitor)
+
+                # 14 gunluk fiyat tarihcesi (deterministik salinim)
+                base_price = comp_data.get("price", 0)
+                name_seed = sum(ord(c) for c in (comp_data.get("name", "") or ""))
+                for d in range(14, 0, -1):
+                    day = (datetime.now().date() - timedelta(days=d))
+                    offset_pct = (((name_seed >> (d % 7)) & 0xF) / 15.0 - 0.5) * 0.08
+                    historical = round(base_price * (1 + offset_pct), 2)
+                    db.add(CompetitorPriceHistory(
+                        product_id=product.id,
+                        competitor_name=comp_data.get("name"),
+                        price=historical,
+                        rating=comp_data.get("rating"),
+                        captured_at=day.isoformat(),
+                    ))
+                db.add(CompetitorPriceHistory(
+                    product_id=product.id,
+                    competitor_name=comp_data.get("name"),
+                    price=base_price,
+                    rating=comp_data.get("rating"),
+                    captured_at=datetime.now().date().isoformat(),
+                ))
             db.commit()
 
-    # 4. reviews
-    for p_code, rev_list in data.get("reviews", {}).items():
-        for rev_data in rev_list:
+    # 4. reviews (her pazaryeri icin ayri cek)
+    for mp_info in mp_list:
+        slug = mp_info["slug"]
+        internal = mp_info["internal_name"]
+        api_key = DEMO_KEYS.get(internal, "")
+        headers = {"X-API-KEY": api_key}
+        rev_data = _api_get(f"/{slug}/reviews", headers=headers)
+        for r in rev_data.get("reviews", []):
             review = Review(
-                product_code=p_code,
-                marketplace_name=rev_data.get("marketplace"),
-                rating=rev_data.get("rating"),
-                text=rev_data.get("text"),
-                date=rev_data.get("date"),
-                sentiment=None,   # AI analizinde doldurulur
+                product_code=r.get("product_id"),
+                marketplace_name=internal,
+                rating=r.get("rating"),
+                text=r.get("text"),
+                date=r.get("date"),
+                sentiment=None,
                 category=None,
             )
             db.add(review)
     db.commit()
 
-    # 15. suppliers
-    for sup_data in data.get("suppliers", []):
+    # 15. suppliers (mock-api'den)
+    sup_resp = _api_get("/suppliers")
+    for sup_data in sup_resp.get("suppliers", []):
         supplier = Supplier(
             name=sup_data.get("name"),
             product=sup_data.get("product"),
@@ -143,12 +208,12 @@ def seed_db(db: Session):
         db.add(supplier)
     db.commit()
 
-    # 7. orders - urun satislarindan turetilmis sahte siparisler
+    # 7. orders - urun satislarindan turetilmis (cross-pazaryeri olduk icin lokal mantik)
     statuses = ["delivered", "delivered", "delivered", "pending", "returned"]
     today = datetime.now().date()
     for (mp_name, _code), product in products_by_code.items():
         sales = product.sales_30d or 0
-        order_count = max(1, sales // 20)  # her 20 satisi 1 siparise indirgeyelim
+        order_count = max(1, sales // 20)
         for i in range(order_count):
             qty = random.randint(1, 3)
             order_date = today - timedelta(days=random.randint(0, 30))
@@ -163,7 +228,7 @@ def seed_db(db: Session):
             ))
     db.commit()
 
-    # 8. financials - son 3 ay icin agregat
+    # 8. financials - son 3 ay agregasyon
     months = ["2026-03", "2026-04", "2026-05"]
     for m in months:
         revenue = 0.0
@@ -181,7 +246,6 @@ def seed_db(db: Session):
             revenue += mp_revenue
             commission += mp_revenue * (mp.commission_rate or 0) / 100
             ad_spend += (mp.ad_spend_30d or 0) / len(months)
-        # ilgili ay icin urun bazli maliyet & kargo tahmini
         for product in products_by_code.values():
             cost += (product.cost or 0) * ((product.sales_30d or 0) / len(months))
             shipping += (product.shipping_cost or 0) * ((product.sales_30d or 0) / len(months))
@@ -204,12 +268,10 @@ def seed_db(db: Session):
         ))
     db.commit()
 
-    # 9. notifications - ornek bildirimler
+    # 9. notifications - basit ornek (gercek tespit /generate ile yapilir)
     sample_notifs = [
-        ("stock", "Stok Uyarisi", "Akilli Saat Fitness Tracker stoku kritik seviyede (67 adet).", "warning"),
-        ("review", "Puan Dususu", "Akilli Saat'in son 7 gunde puani 4.0'dan 3.6'ya dustu.", "critical"),
+        ("stock", "Stok Uyarisi", "Akilli Saat Fitness Tracker stoku kritik seviyede.", "warning"),
         ("supplier", "Tedarikci Indirimi", "Alibaba - GZ Wearables Akilli Saat icin %12 indirim sundu.", "info"),
-        ("competitor", "Rakip Fiyat Degistirdi", "SesDunyasi kulaklik fiyatini 50 TL dusurdu.", "warning"),
     ]
     for typ, title, msg, sev in sample_notifs:
         db.add(Notification(
@@ -223,7 +285,7 @@ def seed_db(db: Session):
         ))
     db.commit()
 
-    # 12. price_alerts - ornek alarm
+    # 12. price_alerts ornek
     db.add(PriceAlert(
         user_id=demo_user.id,
         product_name="Bluetooth Kulaklik",
@@ -234,8 +296,5 @@ def seed_db(db: Session):
     ))
     db.commit()
 
-    # 5. review_analyses, 10. reports, 11. chat_history,
-    # 13. listing_optimizations, 14. image_analyses
-    # -> Bu tablolar bos olarak yaratilir; ilgili AI cagri/router'lar dolduracak.
-
-    print("Database seeded successfully (15 tables + sellers).")
+    logger.info("Database seeded successfully via mock-api (15 tables + sellers).")
+    print("Database seeded successfully via mock-api (15 tables + sellers).")

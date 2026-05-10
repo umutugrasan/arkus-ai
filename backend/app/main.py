@@ -1,61 +1,130 @@
-from fastapi import FastAPI
+"""
+Basiret AI — Ana FastAPI giris noktasi.
+- Yapilandirilmis loglama + request ID middleware
+- Env-driven CORS
+- slowapi rate limiting
+- v1 API versiyonlama (/api/v1/...)
+- Lifespan: DB migrate (create_all), seed (idempotent), agent scheduler start/stop
+"""
+
+import logging
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from starlette.middleware.gzip import GZipMiddleware
+
+from app.config import settings
+from app.logging_config import setup_logging, RequestContextMiddleware
+from app.rate_limit import limiter
+from app.db.database import engine, Base, SessionLocal
+from app.db.seed import seed_db
+from app.agents.scheduler import start_scheduler, stop_scheduler
 from app.routers import (
     auth, store, dashboard, products, reviews,
     competitors, arbitrage, financials, health_score,
-    finance_guide, sourcing, chat, notifications, reports
+    finance_guide, sourcing, chat, notifications, reports,
+    listing_optimizer, image_analyzer, agents,
+    health, uploads,
 )
 
-from contextlib import asynccontextmanager
-from app.db.database import engine, Base, SessionLocal
-from app.db.seed import seed_db
+
+setup_logging()
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Tablolari olustur
+    logger.info(f"Basiret AI baslatiliyor (env={settings.APP_ENV})")
     Base.metadata.create_all(bind=engine)
-    
-    # Eger bos ise seed data yukle
+
     db = SessionLocal()
     try:
         seed_db(db)
     finally:
         db.close()
-    
+
+    start_scheduler()
     yield
-    # Kapanis temizligi gerekirse buraya
+    stop_scheduler()
+    logger.info("Basiret AI kapatildi")
+
 
 app = FastAPI(
     title="Basiret AI - Satici Zekasi API",
-    description="Coklu pazaryeri satici analiz ve danismanlik platformu",
+    description=(
+        "Coklu pazaryeri satici analiz ve danismanlik platformu.\n\n"
+        "**Auth:** Authorization: Bearer <jwt> (onerilen) veya ?token= (legacy)."
+    ),
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
+
+# --- Middleware (sira onemli: response giderken tersi calistirilir) ---
+app.add_middleware(GZipMiddleware, minimum_size=1024)
+app.add_middleware(RequestContextMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # nginx reverse proxy arkasında olduğu için güvenli
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Request-ID"],
 )
 
-app.include_router(auth.router, prefix="/api/auth", tags=["Kimlik Dogrulama"])
-app.include_router(store.router, prefix="/api/store", tags=["Magaza Yonetimi"])
-app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
-app.include_router(products.router, prefix="/api/products", tags=["Urun Yonetimi"])
-app.include_router(reviews.router, prefix="/api/reviews", tags=["Yorum Analizi"])
-app.include_router(competitors.router, prefix="/api/competitors", tags=["Rakip Analizi"])
-app.include_router(arbitrage.router, prefix="/api/arbitrage", tags=["Arbitraj"])
-app.include_router(financials.router, prefix="/api/financials", tags=["Finansal Analiz"])
-app.include_router(health_score.router, prefix="/api/health", tags=["Saglik Skoru"])
-app.include_router(finance_guide.router, prefix="/api/finance-guide", tags=["Finansman Yonlendirme"])
-app.include_router(sourcing.router, prefix="/api/sourcing", tags=["Tedarik Avcisi"])
-app.include_router(chat.router, prefix="/api/chat", tags=["AI Danismann"])
-app.include_router(notifications.router, prefix="/api/notifications", tags=["Bildirimler"])
-app.include_router(reports.router, prefix="/api/reports", tags=["Raporlar"])
+
+# --- Rate limit ---
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+# --- Saglik endpoint'leri (auth gerekmez, monitoring icin) ---
+app.include_router(health.router, prefix="/health", tags=["Saglik"])
+
+
+# --- API router'lari (v1 prefix) ---
+API_PREFIX = "/api/v1"
+
+
+def _include(router, path: str, tag: str):
+    """Hem /api/v1/... hem geriye donuk /api/... olarak kaydet."""
+    app.include_router(router, prefix=f"{API_PREFIX}{path}", tags=[tag])
+    app.include_router(router, prefix=f"/api{path}", tags=[f"{tag} (legacy)"])
+
+
+_include(auth.router, "/auth", "Kimlik Dogrulama")
+_include(store.router, "/store", "Magaza Yonetimi")
+_include(dashboard.router, "/dashboard", "Dashboard")
+_include(products.router, "/products", "Urun Yonetimi")
+_include(reviews.router, "/reviews", "Yorum Analizi")
+_include(competitors.router, "/competitors", "Rakip Analizi")
+_include(arbitrage.router, "/arbitrage", "Arbitraj")
+_include(financials.router, "/financials", "Finansal Analiz")
+_include(health_score.router, "/health-score", "Saglik Skoru")
+# Legacy: /api/health path'inde de servet edelim (eski frontend'ler buyle cagiriyordu)
+app.include_router(health_score.router, prefix="/api/health", tags=["Saglik Skoru (legacy alias)"])
+_include(finance_guide.router, "/finance-guide", "Finansman Yonlendirme")
+_include(sourcing.router, "/sourcing", "Tedarik Avcisi")
+_include(chat.router, "/chat", "AI Danismann")
+_include(notifications.router, "/notifications", "Bildirimler")
+_include(reports.router, "/reports", "Raporlar")
+_include(listing_optimizer.router, "/listing-optimizer", "Listeleme Optimizasyonu")
+_include(image_analyzer.router, "/image-analyzer", "Gorsel Analizi")
+_include(agents.router, "/agents", "Otonom Ajanlar")
+_include(uploads.router, "/uploads", "Yukleme")
 
 
 @app.get("/")
 def root():
-    return {"message": "Basiret AI API aktif", "version": "1.0.0"}
+    return {
+        "name": settings.APP_NAME,
+        "env": settings.APP_ENV,
+        "version": "1.0.0",
+        "docs": "/docs",
+        "api_prefix": API_PREFIX,
+    }

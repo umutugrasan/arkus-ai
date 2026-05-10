@@ -3,6 +3,13 @@ uvicorn
 google-genai
 python-dotenv
 pydantic
+pydantic-settings
 httpx
 sqlalchemy
 psycopg2-binary
+bcrypt
+PyJWT
+slowapi
+alembic
+python-multipart
+structlog

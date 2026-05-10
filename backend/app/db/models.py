@@ -111,6 +111,17 @@ class Competitor(Base):
     product = relationship("Product", back_populates="competitors")
 
 
+# 6b. competitor_price_history - fiyat snapshot'lari
+class CompetitorPriceHistory(Base):
+    __tablename__ = "competitor_price_history"
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.id"), index=True)
+    competitor_name = Column(String, index=True)
+    price = Column(Float)
+    rating = Column(Float, nullable=True)
+    captured_at = Column(String, index=True)  # "2026-04-26"
+
+
 # 7. orders
 class Order(Base):
     __tablename__ = "orders"
@@ -221,3 +232,32 @@ class Supplier(Base):
     shipping_days = Column(Integer)
     discount_pct = Column(Float)
     last_checked_at = Column(String, nullable=True)
+
+
+# 16. audit_logs - kim ne yapti
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)
+    action = Column(String, index=True)        # login | password_change | api_key_change | sync vs.
+    target_type = Column(String, nullable=True)  # User | Marketplace | Product vb.
+    target_id = Column(String, nullable=True)
+    details = Column(JSON, nullable=True)
+    ip = Column(String, nullable=True)
+    user_agent = Column(String, nullable=True)
+    created_at = Column(String, index=True)
+
+
+# 17. ai_usage_logs - Gemini cagrilarini takip
+class AIUsageLog(Base):
+    __tablename__ = "ai_usage_logs"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)
+    endpoint = Column(String, index=True)
+    model = Column(String, nullable=True)
+    used_search = Column(Boolean, default=False)
+    used_vision = Column(Boolean, default=False)
+    success = Column(Boolean, default=True)
+    error_type = Column(String, nullable=True)
+    duration_ms = Column(Integer, nullable=True)
+    created_at = Column(String, index=True)
