@@ -64,7 +64,6 @@ def seed_db(db: Session):
         email="demo@basiret.ai",
         password=hash_password("demo123"),
         store_name="Demo Store",
-        token="demo-token",
         email_verified=True,
         created_at="2026-05-10",
     )

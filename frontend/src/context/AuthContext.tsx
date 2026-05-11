@@ -1,75 +1,79 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import api from '../api/client';
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { tokenStorage } from '../api/client';
+import { authService } from '../services';
+import type { AuthUser } from '../types/api';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  store_name: string;
-  token: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, storeName: string) => Promise<void>;
-  demoLogin: () => void;
-  logout: () => void;
+interface AuthContextValue {
+  user: AuthUser | null;
   isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, store_name?: string) => Promise<AuthUser>;
+  logout: () => void;
+  refreshMe: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
-
-const DEMO_USER: User = {
-  id: 'DEMO',
-  name: 'Demo Kullanıcı',
-  email: 'demo@basiret.ai',
-  store_name: 'TechStore TR',
-  token: 'demo-token',
-};
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Sayfa yenilemesinde token varsa kullanici bilgisini cek
   useEffect(() => {
-    const saved = localStorage.getItem('basiret_user');
-    if (saved) {
-      setUser(JSON.parse(saved));
+    const access = tokenStorage.getAccess();
+    const cached = tokenStorage.getUser<AuthUser>();
+    if (!access) {
+      setIsLoading(false);
+      return;
     }
-    setIsLoading(false);
+    if (cached) setUser(cached);
+    authService
+      .me()
+      .then((u) => {
+        setUser(u);
+        tokenStorage.setUser(u);
+      })
+      .catch(() => {
+        tokenStorage.clear();
+        setUser(null);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const res = await api.post('/auth/login', { email, password });
-    const u = res.data.user;
-    setUser(u);
-    localStorage.setItem('basiret_user', JSON.stringify(u));
-    localStorage.setItem('basiret_token', u.token);
-  };
+  const login = useCallback(async (email: string, password: string) => {
+    const r = await authService.login(email, password);
+    const { access_token, refresh_token, ...userData } = r.user;
+    if (access_token) tokenStorage.setTokens(access_token, refresh_token);
+    tokenStorage.setUser(userData);
+    setUser(userData as AuthUser);
+  }, []);
 
-  const register = async (name: string, email: string, password: string, storeName: string) => {
-    const res = await api.post('/auth/register', { name, email, password, store_name: storeName });
-    const u = res.data.user;
-    setUser(u);
-    localStorage.setItem('basiret_user', JSON.stringify(u));
-    localStorage.setItem('basiret_token', u.token);
-  };
+  const register = useCallback(async (name: string, email: string, password: string, store_name = '') => {
+    const r = await authService.register(name, email, password, store_name);
+    const { access_token, refresh_token, ...userData } = r.user;
+    if (access_token) tokenStorage.setTokens(access_token, refresh_token);
+    tokenStorage.setUser(userData);
+    setUser(userData as AuthUser);
+    return r.user;
+  }, []);
 
-  const demoLogin = () => {
-    setUser(DEMO_USER);
-    localStorage.setItem('basiret_user', JSON.stringify(DEMO_USER));
-    localStorage.setItem('basiret_token', DEMO_USER.token);
-  };
-
-  const logout = () => {
+  const logout = useCallback(() => {
+    tokenStorage.clear();
     setUser(null);
-    localStorage.removeItem('basiret_user');
-    localStorage.removeItem('basiret_token');
-  };
+  }, []);
+
+  const refreshMe = useCallback(async () => {
+    try {
+      const u = await authService.me();
+      setUser(u);
+      tokenStorage.setUser(u);
+    } catch {
+      logout();
+    }
+  }, [logout]);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, demoLogin, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, refreshMe }}>
       {children}
     </AuthContext.Provider>
   );

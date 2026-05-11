@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 import json
-from app.dependencies import get_current_user
-from app.db.database import SessionLocal
+from app.dependencies import get_current_user, get_db
 from app.db.models import Financial
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
@@ -62,13 +61,6 @@ FINANCE_OPTIONS = [
     },
 ]
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _calc_eligibility_score(net_margin, monthly_revenue, positive_months, total_months):

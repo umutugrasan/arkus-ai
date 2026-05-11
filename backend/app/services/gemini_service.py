@@ -12,10 +12,11 @@ logger = logging.getLogger(__name__)
 API_KEY = settings.GEMINI_API_KEY or os.getenv("GEMINI_API_KEY")
 
 MODEL_CASCADE = [
-    settings.GEMINI_MODEL,
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-001",
-    "gemini-1.5-flash",
+    settings.GEMINI_MODEL,         # default: gemini-2.5-flash
+    "gemini-2.5-flash-lite",       # daha az kota tuketen alternatif
+    "gemini-2.0-flash",            # alternatif aile
+    "gemini-2.0-flash-lite",       # lite alternatif
+    "gemini-flash-latest",         # alias - en yeni surum
 ]
 
 _client = None
@@ -64,14 +65,29 @@ def _log_usage(
 
 
 def _try_models(call_fn):
+    """
+    Her modeli sirayla dener. 503 (gecici sunucu hatasi) icin 1sn beklemeli
+    1 retry; 429 (quota) ve 404 (not found) icin retry'siz hemen bir sonrakine gec.
+    """
     last_err = None
     for model in MODEL_CASCADE:
-        try:
-            return call_fn(model), model, None
-        except Exception as e:
-            last_err = e
-            logger.warning(f"Gemini model {model} failed: {type(e).__name__}: {e}")
-            continue
+        for attempt in range(2):  # 1 deneme + 1 retry (sadece 503 icin)
+            try:
+                return call_fn(model), model, None
+            except Exception as e:
+                last_err = e
+                err_str = str(e).lower()
+                is_503 = "503" in err_str or "unavailable" in err_str
+                is_quota = "429" in err_str or "resource_exhausted" in err_str
+                is_not_found = "404" in err_str or "not_found" in err_str
+                # Sadece 503'te kisa retry
+                if is_503 and attempt == 0:
+                    logger.warning(f"Gemini {model} 503, 1sn sonra tekrar denenecek...")
+                    time.sleep(1.0)
+                    continue
+                logger.warning(f"Gemini model {model} failed: {type(e).__name__}: {e}")
+                # Quota/404'te ya da retry sonrasi yine fail'da: bir sonraki modele gec
+                break
     return None, None, last_err
 
 
@@ -118,6 +134,76 @@ async def ask_gemini(
 
     _log_usage(endpoint, used_model, success=True, duration_ms=duration_ms, user_id=user_id)
     return response.text
+
+
+async def ask_gemini_stream(
+    prompt: str,
+    system_instruction: str = None,
+    endpoint: str = "unknown",
+    user_id: Optional[int] = None,
+    use_search: bool = False,
+):
+    """
+    Gemini cevabini parca parca yield eden async generator.
+    Her chunk: {"text": "...", "done": False} formatinda dict.
+    Hata/bitis durumunda {"text": "", "done": True, "error": ...} doner.
+    """
+    t0 = time.perf_counter()
+    client = get_client()
+
+    full_prompt = f"{system_instruction}\n\n{prompt}" if system_instruction else prompt
+
+    if client is None:
+        yield {"text": "⚠️ Gemini API key tanimli degil.", "done": True, "error": "no_api_key"}
+        _log_usage(endpoint, None, success=False, error_type="no_api_key", user_id=user_id)
+        return
+
+    # Optional Google Search grounding
+    config = None
+    if use_search:
+        try:
+            from google.genai import types as genai_types
+            config = genai_types.GenerateContentConfig(
+                tools=[genai_types.Tool(google_search=genai_types.GoogleSearch())]
+            )
+        except ImportError:
+            pass
+
+    last_err = None
+    for model in MODEL_CASCADE:
+        try:
+            kwargs = {"model": model, "contents": full_prompt}
+            if config is not None:
+                kwargs["config"] = config
+            response_iter = client.models.generate_content_stream(**kwargs)
+            chunk_count = 0
+            for chunk in response_iter:
+                txt = getattr(chunk, "text", "") or ""
+                if txt:
+                    chunk_count += 1
+                    yield {"text": txt, "done": False}
+            duration_ms = int((time.perf_counter() - t0) * 1000)
+            _log_usage(endpoint, model, success=True, used_search=use_search,
+                       duration_ms=duration_ms, user_id=user_id)
+            yield {"text": "", "done": True, "model": model, "chunks": chunk_count}
+            return
+        except Exception as e:
+            last_err = e
+            err_str = str(e).lower()
+            is_503 = "503" in err_str or "unavailable" in err_str
+            if is_503:
+                logger.warning(f"Stream {model} 503, retry icin atliyoruz")
+            logger.warning(f"Gemini stream {model} failed: {type(e).__name__}: {e}")
+            continue
+
+    _log_usage(endpoint, None, success=False, used_search=use_search,
+               error_type=type(last_err).__name__ if last_err else "unknown",
+               duration_ms=int((time.perf_counter() - t0) * 1000), user_id=user_id)
+    # Cascade tamamen fail: fallback metin dondur (stream olarak)
+    fallback = _fallback_response(prompt)
+    yield {"text": "⚠️ Gemini cagrisi basarisiz, mock yanit:\n\n", "done": False}
+    yield {"text": fallback, "done": False}
+    yield {"text": "", "done": True, "error": type(last_err).__name__ if last_err else "unknown"}
 
 
 async def ask_gemini_with_search(

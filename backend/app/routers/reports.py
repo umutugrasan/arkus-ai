@@ -2,22 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException
 import json
 from datetime import datetime
 from typing import Optional
-from app.dependencies import get_current_user
-from app.db.database import SessionLocal
+from app.dependencies import get_current_user, get_db
 from app.db.models import Report
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
-from app.services.gemini_service import ask_gemini, ask_gemini_with_search
+from app.services.gemini_service import ask_gemini, ask_gemini_with_search, ask_gemini_stream
+from app.sse import sse_response
 
 router = APIRouter()
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _now() -> str:
@@ -51,13 +44,34 @@ def _save_report(db, user_id, type_, title, content, metrics):
 
 
 def _to_dict(r: Report) -> dict:
+    """
+    Defensive: frontend null-check yapmiyorsa toLocaleString() crash yapmasin.
+    Tum numerik alanlari 0 default'la, tum string alanlari "" default'la.
+    Hem `metrics` (eski sema) hem `metrics_json` (yeni) hem root flatten doneriz.
+    """
+    m = r.metrics_json or {}
+    # Eski sema "profit" kullaniyordu, yeni "net_profit". Ikisini de doldur.
+    revenue = m.get("revenue") or 0
+    net_profit = m.get("net_profit") or m.get("profit") or 0
+    sales = m.get("sales") or 0
     return {
         "id": r.id,
-        "type": r.type,
-        "title": r.title,
-        "content": r.content,
-        "metrics_json": r.metrics_json,
-        "created_at": r.created_at,
+        "type": r.type or "",
+        "title": r.title or "",
+        "content": r.content or "",
+        "metrics": {
+            "revenue": revenue,
+            "profit": net_profit,        # legacy key
+            "net_profit": net_profit,    # yeni key
+            "sales": sales,
+            **m,                         # tum digerleri (return_rate, roas, marketplaces, ...)
+        },
+        "metrics_json": m,
+        "revenue": revenue,
+        "net_profit": net_profit,
+        "profit": net_profit,            # legacy root flatten
+        "sales": sales,
+        "created_at": r.created_at or "",
     }
 
 
@@ -228,6 +242,81 @@ Rapor formati:
     return _to_dict(rep)
 
 
+def _build_daily_prompt(user_id):
+    all_metrics, overall = _build_metrics(user_id)
+    today = datetime.now().strftime("%d %B %Y")
+    mp_summary = {
+        mp: {"revenue": m["total_revenue"], "profit": m["total_net_profit"],
+             "sales": m["total_sales"], "margin_pct": m["net_margin_pct"]}
+        for mp, m in all_metrics.items()
+    }
+    prompt = f"""Asagidaki verilere dayanarak gunluk ozet raporu olustur. Turkce yanit ver.
+
+TARIH: {today}
+
+GENEL ({overall['total_sales']} satis):
+- Toplam gelir: {overall['total_revenue']:,.2f} TL
+- Net kar: {overall['total_net_after_ads']:,.2f} TL
+- Iade orani: %{overall['overall_return_rate']}
+- ROAS: {overall['overall_roas']}
+
+PAZARYERI BAZLI:
+{json.dumps(mp_summary, ensure_ascii=False, indent=2)}
+
+Rapor formati:
+1. **Gunun Ozeti** (2-3 cumle)
+2. **One Cikan Metrikler** (iyi 2, kotu 2)
+3. **Dikkat Edilmesi Gerekenler**
+4. **Bugunku Oncelikli Aksiyonlar** (3 madde)
+"""
+    system = "Sen bir e-ticaret rapor uzmanisin. Kisa, net, aksiyon odakli gunluk raporlar olusturuyorsun."
+    metrics = {
+        "revenue": overall["total_revenue"],
+        "net_profit": overall["total_net_after_ads"],
+        "sales": overall["total_sales"],
+        "return_rate": overall["overall_return_rate"],
+        "roas": overall["overall_roas"],
+        "marketplaces": mp_summary,
+    }
+    return prompt, system, metrics, today
+
+
+@router.post("/daily/stream")
+async def generate_daily_stream(
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """SSE: rapor token token akar, bittiginde DB'ye yazilir."""
+    prompt, system, metrics, today = _build_daily_prompt(user.id)
+
+    async def event_stream():
+        yield f"event: meta\ndata: {json.dumps({'type': 'daily', 'date': today, 'metrics': metrics}, ensure_ascii=False)}\n\n"
+        parts = []
+        async for chunk in ask_gemini_stream(
+            prompt, system, endpoint="reports.daily.stream", user_id=user.id,
+        ):
+            if chunk.get("done"):
+                full_text = "".join(parts)
+                rec_id = None
+                is_fallback = full_text.startswith("⚠️") or "mock yanit" in full_text.lower()
+                if not is_fallback and full_text:
+                    rep = _save_report(
+                        db, user.id, "daily",
+                        f"Gunluk Ozet Raporu - {today}",
+                        full_text, metrics,
+                    )
+                    rec_id = rep.id
+                evt = "error" if chunk.get("error") else "done"
+                yield f"event: {evt}\ndata: {json.dumps({'id': rec_id, 'full_text': full_text, 'is_fallback': is_fallback, 'error': chunk.get('error')}, ensure_ascii=False)}\n\n"
+                return
+            txt = chunk.get("text", "")
+            if txt:
+                parts.append(txt)
+                yield f"event: chunk\ndata: {json.dumps({'text': txt}, ensure_ascii=False)}\n\n"
+
+    return sse_response(event_stream())
+
+
 @router.get("/list")
 def list_reports(
     type: Optional[str] = None,
@@ -239,16 +328,34 @@ def list_reports(
     if type:
         q = q.filter(Report.type == type)
     rows = q.order_by(Report.id.desc()).limit(limit).all()
+    def _safe(m, *keys):
+        for k in keys:
+            v = m.get(k) if m else None
+            if v is not None:
+                return v
+        return 0
+
     return {
         "total": len(rows),
         "reports": [
-            # liste'de full content gondermek yerine ozet — frontend list sayfasi icin
+            # Listede preview + metrics flatten — null yerine 0/"" don, frontend crash etmesin
             {
                 "id": r.id,
-                "type": r.type,
-                "title": r.title,
-                "preview": (r.content[:200] + "...") if r.content and len(r.content) > 200 else r.content,
-                "created_at": r.created_at,
+                "type": r.type or "",
+                "title": r.title or "",
+                "metrics": {
+                    "revenue": _safe(r.metrics_json, "revenue"),
+                    "profit": _safe(r.metrics_json, "net_profit", "profit"),
+                    "net_profit": _safe(r.metrics_json, "net_profit", "profit"),
+                    "sales": _safe(r.metrics_json, "sales"),
+                    **(r.metrics_json or {}),
+                },
+                "revenue": _safe(r.metrics_json, "revenue"),
+                "net_profit": _safe(r.metrics_json, "net_profit", "profit"),
+                "profit": _safe(r.metrics_json, "net_profit", "profit"),
+                "sales": _safe(r.metrics_json, "sales"),
+                "preview": (r.content[:200] + "...") if r.content and len(r.content) > 200 else (r.content or ""),
+                "created_at": r.created_at or "",
             }
             for r in rows
         ],

@@ -1,188 +1,380 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { TrendingUp, ShoppingCart, RotateCcw, Zap, DollarSign, Store, Bot, FileText, Bell, RefreshCw } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
-import { dashboardService } from '../services';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  TrendingUp, TrendingDown, DollarSign, ShoppingCart, Target,
+  Percent, RotateCcw, BarChart3, Calendar, Sparkles, RefreshCw,
+} from 'lucide-react';
+import {
+  Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart,
+  ResponsiveContainer, Tooltip, XAxis, YAxis,
+} from 'recharts';
+import PageHeader from '../components/shared/PageHeader';
 import StatCard from '../components/shared/StatCard';
 import GlassCard from '../components/shared/GlassCard';
-import LoadingSpinner from '../components/shared/LoadingSpinner';
-import MarketplaceBadge from '../components/shared/MarketplaceBadge';
-import { formatCurrency, formatPercent, formatNumber } from '../utils/formatters';
-import { MP_CHART_COLORS } from '../utils/constants';
+import StreamingMarkdown from '../components/shared/StreamingMarkdown';
+import EmptyState from '../components/shared/EmptyState';
+import Button from '../components/ui/Button';
+import { Skeleton, SkeletonCard } from '../components/shared/Skeleton';
+import { dashboardService } from '../services';
+import { streamSSE } from '../utils/streaming';
+import { useToast } from '../context/ToastContext';
+import { getErrorMessage } from '../utils/errors';
+import { formatCurrency, formatNumber, formatPercent } from '../utils/formatters';
+import { MARKETPLACES, MP_CHART_COLORS } from '../utils/constants';
+import type {
+  AiSummaryResponse, DashboardOverview, MarketplaceSummary, TrendsResponse,
+} from '../types/api';
 
-const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string }) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="glass-card p-3 text-xs border-indigo-500/20">
-      <p className="text-slate-300 font-medium mb-1">{label}</p>
-      {payload.map((p) => (
-        <div key={p.name} className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-          <span className="text-slate-400">{p.name}:</span>
-          <span className="text-white font-medium">{p.name === 'Gelir' ? formatCurrency(p.value) : formatNumber(p.value)}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
+type TrendPeriod = 7 | 30;
 
 export default function DashboardPage() {
-  const navigate = useNavigate();
-  const [overview, setOverview] = useState<Record<string, number> | null>(null);
-  const [marketplaces, setMarketplaces] = useState<Record<string, unknown>[]>([]);
-  const [trends, setTrends] = useState<{ date?: string; week?: string; revenue: number; sales: number; returns: number }[]>([]);
-  const [period, setPeriod] = useState<7 | 30>(7);
+  const toast = useToast();
+  const [overview, setOverview] = useState<DashboardOverview | null>(null);
+  const [mpSummaries, setMpSummaries] = useState<MarketplaceSummary[]>([]);
+  const [trends, setTrends] = useState<TrendsResponse | null>(null);
+  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(7);
   const [loading, setLoading] = useState(true);
+  const [loadingTrend, setLoadingTrend] = useState(false);
 
-  const loadData = useCallback(async () => {
+  // AI Summary streaming state
+  const [aiText, setAiText] = useState('');
+  const [aiSources] = useState<AiSummaryResponse['web_sources']>([]);
+  const [aiStreaming, setAiStreaming] = useState(false);
+  const [aiSnapshot, setAiSnapshot] = useState<AiSummaryResponse['snapshot'] | null>(null);
+  const aiAbortRef = useRef<AbortController | null>(null);
+
+  const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [ov, mp, tr] = await Promise.all([
-        dashboardService.getOverview(),
-        dashboardService.getMarketplaceSummary(),
-        dashboardService.getTrends(period),
+      const [ov, ms, tr] = await Promise.all([
+        dashboardService.overview(),
+        dashboardService.marketplaceSummary(),
+        dashboardService.trends(trendPeriod),
       ]);
-      setOverview(ov.overall);
-      setMarketplaces(mp.marketplaces || []);
-      setTrends(tr.daily || tr.weekly || []);
+      setOverview(ov);
+      setMpSummaries(ms.marketplaces);
+      setTrends(tr);
     } catch (e) {
-      console.error(e);
+      toast.error(getErrorMessage(e, 'Dashboard verisi yüklenemedi'));
     } finally {
       setLoading(false);
     }
-  }, [period]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
 
-  if (loading) return <LoadingSpinner message="Veriler yükleniyor..." size="lg" />;
+  // Trend period değişince sadece trends çek
+  useEffect(() => {
+    if (loading) return;
+    setLoadingTrend(true);
+    dashboardService
+      .trends(trendPeriod)
+      .then(setTrends)
+      .catch((e) => toast.error(getErrorMessage(e, 'Trend yüklenemedi')))
+      .finally(() => setLoadingTrend(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trendPeriod]);
 
-  const trendData = trends.map(t => ({
-    name: t.date ? t.date.slice(5) : t.week,
-    Gelir: t.revenue,
-    Satış: t.sales,
-    İade: t.returns,
+  const runAiSummary = useCallback(() => {
+    aiAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    aiAbortRef.current = ctrl;
+    setAiText('');
+    setAiSnapshot(null);
+    setAiStreaming(true);
+
+    streamSSE(
+      '/api/v1/dashboard/ai-summary/stream',
+      {
+        onMeta: (m) => {
+          if (m.snapshot && typeof m.snapshot === 'object') {
+            setAiSnapshot(m.snapshot as AiSummaryResponse['snapshot']);
+          }
+        },
+        onChunk: (text) => setAiText((prev) => prev + text),
+        onDone: () => setAiStreaming(false),
+        onError: (e) => {
+          setAiStreaming(false);
+          const msg = e instanceof Error ? e.message : (e as Record<string, unknown>).error;
+          toast.error(typeof msg === 'string' ? msg : 'AI özet alınamadı');
+        },
+      },
+      { signal: ctrl.signal },
+    );
+  }, [toast]);
+
+  useEffect(() => {
+    if (!loading && overview) runAiSummary();
+    return () => aiAbortRef.current?.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Dashboard" subtitle="Yükleniyor…" />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  if (!overview) {
+    return <EmptyState title="Veri yok" description="Bağlı pazaryeri görünmüyor." />;
+  }
+
+  const o = overview.overall;
+  const trendData = trends?.daily
+    ? trends.daily.map((d) => ({ name: d.date.slice(5), Ciro: d.revenue, Satış: d.sales, İade: d.returns }))
+    : trends?.weekly?.map((w) => ({ name: w.week, Ciro: w.revenue, Satış: w.sales, İade: w.returns })) || [];
+
+  const mpBarData = mpSummaries.map((m) => ({
+    name: MARKETPLACES[m.marketplace]?.label || m.marketplace,
+    Ciro: m.total_revenue,
+    NetKar: m.total_net_profit,
   }));
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard title="Toplam Gelir" value={formatCurrency(overview?.total_revenue || 0)} icon={<DollarSign size={18} />} accentColor="indigo" />
-        <StatCard title="Net Kâr" value={formatCurrency(overview?.total_net_after_ads || 0)} icon={<TrendingUp size={18} />} accentColor="emerald" />
-        <StatCard title="Toplam Satış" value={formatNumber(overview?.total_sales || 0)} icon={<ShoppingCart size={18} />} accentColor="violet" subtitle="30 günlük" />
-        <StatCard title="İade Oranı" value={formatPercent(overview?.overall_return_rate || 0)} icon={<RotateCcw size={18} />} accentColor="rose" />
-        <StatCard title="ROAS" value={`${(overview?.overall_roas || 0).toFixed(2)}x`} icon={<Zap size={18} />} accentColor="amber" />
-        <StatCard title="Pazaryeri" value={marketplaces.length} icon={<Store size={18} />} accentColor="cyan" subtitle="aktif bağlantı" />
+      <PageHeader
+        title="Dashboard"
+        subtitle="Tüm pazaryerlerinin birleşik genel görünümü"
+        icon={<BarChart3 size={20} />}
+        actions={
+          <Button
+            variant="secondary"
+            size="sm"
+            leftIcon={<RefreshCw size={14} />}
+            onClick={() => { loadAll(); runAiSummary(); }}
+          >
+            Yenile
+          </Button>
+        }
+      />
+
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <StatCard
+          title="Toplam Ciro"
+          value={formatCurrency(o.total_revenue)}
+          icon={<DollarSign size={18} />}
+          accentColor="indigo"
+          subtitle="Son 30 gün"
+        />
+        <StatCard
+          title="Net Kâr"
+          value={formatCurrency(o.total_net_after_ads)}
+          icon={<TrendingUp size={18} />}
+          accentColor="emerald"
+          subtitle="Reklamdan sonra"
+        />
+        <StatCard
+          title="Kâr Marjı"
+          value={formatPercent(o.overall_net_margin)}
+          icon={<Percent size={18} />}
+          accentColor="violet"
+        />
+        <StatCard
+          title="Toplam Satış"
+          value={formatNumber(o.total_sales)}
+          icon={<ShoppingCart size={18} />}
+          accentColor="cyan"
+          subtitle="Adet"
+        />
+        <StatCard
+          title="ROAS"
+          value={o.overall_roas ? `${o.overall_roas.toFixed(2)}x` : '—'}
+          icon={<Target size={18} />}
+          accentColor="amber"
+          subtitle="Reklam getirisi"
+        />
+        <StatCard
+          title="İade Oranı"
+          value={formatPercent(o.overall_return_rate)}
+          icon={<RotateCcw size={18} />}
+          accentColor="rose"
+        />
       </div>
 
-      {/* Trend Chart */}
-      <GlassCard>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-semibold">Satış Trendi</h3>
-          <div className="flex gap-1 bg-slate-800/60 rounded-lg p-1">
-            {([7, 30] as const).map(p => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${period === p ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-white'}`}
-              >
-                {p === 7 ? '7 Gün' : '30 Gün'}
-              </button>
-            ))}
-          </div>
-        </div>
-        <ResponsiveContainer width="100%" height={220}>
-          <AreaChart data={trendData}>
-            <defs>
-              <linearGradient id="gelirGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-            <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₺${(v / 1000).toFixed(0)}K`} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8' }} />
-            <Area type="monotone" dataKey="Gelir" stroke="#6366f1" strokeWidth={2} fill="url(#gelirGrad)" />
-            <Area type="monotone" dataKey="Satış" stroke="#22c55e" strokeWidth={2} fill="none" />
-          </AreaChart>
-        </ResponsiveContainer>
-      </GlassCard>
+      {/* AI Summary (streaming) */}
+      <StreamingMarkdown
+        title="Bugünün Özeti — Basiret AI"
+        content={aiText}
+        streaming={aiStreaming}
+        webSources={aiSources}
+      />
 
-      {/* Marketplace Summary */}
-      <GlassCard>
-        <h3 className="text-white font-semibold mb-4">Pazaryeri Karşılaştırması</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-700/50">
-                {['Pazaryeri', 'Gelir', 'Net Kâr', 'Marj %', 'Satış', 'İade %', 'ROAS', 'Puan'].map(h => (
-                  <th key={h} className="text-left text-slate-400 text-xs font-medium pb-3 pr-4">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/50">
-              {marketplaces.map((mp: Record<string, unknown>, i) => (
-                <tr key={i} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="py-3 pr-4"><MarketplaceBadge marketplace={mp.marketplace as string} /></td>
-                  <td className="py-3 pr-4 text-white font-medium">{formatCurrency(mp.total_revenue as number)}</td>
-                  <td className={`py-3 pr-4 font-medium ${(mp.total_net_profit as number) > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {formatCurrency(mp.total_net_profit as number)}
-                  </td>
-                  <td className="py-3 pr-4 text-slate-300">{formatPercent(mp.net_margin_pct as number)}</td>
-                  <td className="py-3 pr-4 text-slate-300">{formatNumber(mp.total_sales as number)}</td>
-                  <td className="py-3 pr-4 text-slate-300">{formatPercent(mp.return_rate as number)}</td>
-                  <td className="py-3 pr-4 text-slate-300">{(mp.roas as number).toFixed(2)}x</td>
-                  <td className="py-3 pr-4">
-                    <span className="text-amber-400 font-medium">⭐ {(mp.store_rating as number)?.toFixed(1) || '-'}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </GlassCard>
-
-      {/* Revenue by Marketplace (Bar) */}
-      <GlassCard>
-        <h3 className="text-white font-semibold mb-4">Pazaryeri Gelir Karşılaştırması</h3>
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={marketplaces.map((mp: Record<string, unknown>) => ({
-            name: mp.marketplace === 'amazon_tr' ? 'Amazon TR' : mp.marketplace === 'hepsiburada' ? 'Hepsiburada' : 'Trendyol',
-            Gelir: mp.total_revenue,
-            'Net Kâr': mp.total_net_profit,
-          }))}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-            <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} />
-            <YAxis tick={{ fill: '#64748b', fontSize: 11 }} tickFormatter={v => `₺${(v / 1000).toFixed(0)}K`} axisLine={false} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8' }} />
-            <Bar dataKey="Gelir" fill={MP_CHART_COLORS[0]} radius={[4, 4, 0, 0]} />
-            <Bar dataKey="Net Kâr" fill={MP_CHART_COLORS[2]} radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </GlassCard>
-
-      {/* Quick Actions */}
-      <div>
-        <h3 className="text-slate-300 text-sm font-medium mb-3">Hızlı Aksiyonlar</h3>
+      {aiSnapshot && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { label: 'AI Danışman', icon: Bot, color: 'indigo', to: '/chat' },
-            { label: 'Rapor Oluştur', icon: FileText, color: 'violet', to: '/reports' },
-            { label: 'Bildirimler', icon: Bell, color: 'amber', to: '/notifications' },
-            { label: 'Sağlık Skoru', icon: RefreshCw, color: 'emerald', to: '/health' },
-          ].map(({ label, icon: Icon, color, to }) => (
-            <GlassCard key={label} hover onClick={() => navigate(to)} className={`flex items-center gap-3 bg-${color}-500/5`}>
-              <div className={`p-2 rounded-lg bg-${color}-500/20`}>
-                <Icon size={16} className={`text-${color}-400`} />
+          <MiniMetric label="Son 7g Satış" value={formatNumber(aiSnapshot.sales_7d)} />
+          <MiniMetric label="Son 7g Ciro" value={formatCurrency(aiSnapshot.revenue_7d)} />
+          <MiniMetric
+            label="Stok Kritik"
+            value={aiSnapshot.low_stock_count}
+            highlight={aiSnapshot.low_stock_count > 0}
+          />
+          <MiniMetric
+            label="Düşük Puan"
+            value={aiSnapshot.low_rated_count}
+            highlight={aiSnapshot.low_rated_count > 0}
+          />
+        </div>
+      )}
+
+      {/* Charts */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <GlassCard className="p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Calendar size={16} className="text-indigo-400" />
+                <h3 className="text-white font-semibold">Trend</h3>
               </div>
-              <span className="text-slate-300 text-sm font-medium">{label}</span>
-            </GlassCard>
-          ))}
+              <div className="flex items-center gap-1 bg-slate-800/60 border border-slate-700/60 rounded-lg p-0.5">
+                {([7, 30] as const).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setTrendPeriod(p)}
+                    className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                      trendPeriod === p
+                        ? 'bg-indigo-500/30 text-indigo-200'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {p} gün
+                  </button>
+                ))}
+              </div>
+            </div>
+            {loadingTrend ? (
+              <Skeleton className="h-64 w-full" />
+            ) : trendData.length === 0 ? (
+              <EmptyState
+                icon={<TrendingDown size={24} />}
+                title="Trend verisi yok"
+                description="Henüz sipariş verisi yok ya da senkronize edilmedi."
+              />
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart data={trendData}>
+                  <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" />
+                  <XAxis dataKey="name" stroke="#64748b" fontSize={11} />
+                  <YAxis stroke="#64748b" fontSize={11} />
+                  <Tooltip
+                    contentStyle={{
+                      background: '#0f172a',
+                      border: '1px solid #334155',
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Line type="monotone" dataKey="Ciro" stroke="#6366f1" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="Satış" stroke="#22c55e" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="İade" stroke="#f43f5e" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </GlassCard>
+        </div>
+
+        <div>
+          <GlassCard className="p-5 h-full">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles size={16} className="text-violet-400" />
+              <h3 className="text-white font-semibold">Pazaryeri Kırılımı</h3>
+            </div>
+            {mpBarData.length === 0 ? (
+              <EmptyState title="Pazaryeri yok" />
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={mpBarData} layout="vertical">
+                  <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" />
+                  <XAxis type="number" stroke="#64748b" fontSize={11} />
+                  <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={11} width={80} />
+                  <Tooltip
+                    contentStyle={{
+                      background: '#0f172a',
+                      border: '1px solid #334155',
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                  />
+                  <Bar dataKey="Ciro" radius={[0, 6, 6, 0]}>
+                    {mpBarData.map((_, i) => (
+                      <Cell key={i} fill={MP_CHART_COLORS[i % MP_CHART_COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </GlassCard>
         </div>
       </div>
+
+      {/* Marketplace özet kartlar */}
+      <div>
+        <h3 className="text-white font-semibold mb-3">Pazaryeri Özet Kartları</h3>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {mpSummaries.map((mp) => {
+            const cfg = MARKETPLACES[mp.marketplace];
+            return (
+              <GlassCard key={mp.marketplace} className="p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className={`text-xs font-semibold ${cfg?.textColor || 'text-slate-400'}`}>
+                      {cfg?.label || mp.marketplace}
+                    </p>
+                    <p className="text-white font-bold mt-0.5 truncate" title={mp.store_name}>
+                      {mp.store_name}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-amber-400 font-bold text-sm">⭐ {mp.store_rating?.toFixed(1) ?? '—'}</p>
+                    <p className="text-slate-500 text-[10px]">{mp.product_count} ürün</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <Row label="Ciro" value={formatCurrency(mp.total_revenue)} />
+                  <Row label="Net Kâr" value={formatCurrency(mp.total_net_profit)} positive={mp.total_net_profit >= 0} />
+                  <Row label="Marj" value={formatPercent(mp.net_margin_pct)} />
+                  <Row label="Satış" value={formatNumber(mp.total_sales)} />
+                  <Row label="ROAS" value={mp.roas ? `${mp.roas.toFixed(2)}x` : '—'} />
+                  <Row label="İade %" value={formatPercent(mp.return_rate)} />
+                </div>
+              </GlassCard>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MiniMetric({ label, value, highlight = false }: { label: string; value: string | number; highlight?: boolean }) {
+  return (
+    <div className={`glass-card p-3 ${highlight ? 'border-amber-500/30' : ''}`}>
+      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">{label}</p>
+      <p className={`text-lg font-bold mt-0.5 ${highlight ? 'text-amber-400' : 'text-white'}`}>{value}</p>
+    </div>
+  );
+}
+
+function Row({ label, value, positive }: { label: string; value: string; positive?: boolean }) {
+  return (
+    <div>
+      <p className="text-slate-500 uppercase tracking-wider text-[10px] font-semibold">{label}</p>
+      <p
+        className={`font-semibold ${
+          positive === false ? 'text-rose-400' : positive ? 'text-emerald-400' : 'text-slate-200'
+        }`}
+      >
+        {value}
+      </p>
     </div>
   );
 }

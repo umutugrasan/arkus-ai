@@ -106,7 +106,6 @@ def register(req: RegisterRequest, db=Depends(get_db)):
         email=req.email,
         password=hash_password(req.password),
         store_name=req.store_name,
-        token=None,
         email_verified=False,
         verification_code=generate_verification_code(),
         created_at=datetime.now().strftime("%Y-%m-%d"),
@@ -142,7 +141,6 @@ def login(req: LoginRequest, request: Request, db=Depends(get_db)):
 
     access = create_access_token(user.id, user.email)
     refresh = create_refresh_token(user.id)
-    user.token = access
     log_action(db, user.id, "login_success", request=request)
     db.commit()
 
@@ -192,10 +190,8 @@ def change_password(
 
     db_user = db.query(User).filter(User.id == user.id).first()
     db_user.password = hash_password(req.new_password)
-    # Sifre degisince oturum yenilenmeli
     new_access = create_access_token(db_user.id, db_user.email)
     new_refresh = create_refresh_token(db_user.id)
-    db_user.token = new_access
     db.commit()
 
     return {
@@ -305,7 +301,5 @@ def reset_password(req: ResetPasswordRequest, db=Depends(get_db)):
 
     user.password = hash_password(req.new_password)
     user.verification_code = None
-    # Tum oturumlari iptal et: yeni token uretelim, eski legacy token'i sil
-    user.token = None
     db.commit()
     return {"message": "Sifre sifirlandi. Yeniden giris yapin."}

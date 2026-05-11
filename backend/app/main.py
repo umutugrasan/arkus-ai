@@ -87,14 +87,12 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.include_router(health.router, prefix="/health", tags=["Saglik"])
 
 
-# --- API router'lari (v1 prefix) ---
+# --- API router'lari (yalnizca /api/v1) ---
 API_PREFIX = "/api/v1"
 
 
 def _include(router, path: str, tag: str):
-    """Hem /api/v1/... hem geriye donuk /api/... olarak kaydet."""
     app.include_router(router, prefix=f"{API_PREFIX}{path}", tags=[tag])
-    app.include_router(router, prefix=f"/api{path}", tags=[f"{tag} (legacy)"])
 
 
 _include(auth.router, "/auth", "Kimlik Dogrulama")
@@ -106,8 +104,6 @@ _include(competitors.router, "/competitors", "Rakip Analizi")
 _include(arbitrage.router, "/arbitrage", "Arbitraj")
 _include(financials.router, "/financials", "Finansal Analiz")
 _include(health_score.router, "/health-score", "Saglik Skoru")
-# Legacy: /api/health path'inde de servet edelim (eski frontend'ler buyle cagiriyordu)
-app.include_router(health_score.router, prefix="/api/health", tags=["Saglik Skoru (legacy alias)"])
 _include(finance_guide.router, "/finance-guide", "Finansman Yonlendirme")
 _include(sourcing.router, "/sourcing", "Tedarik Avcisi")
 _include(chat.router, "/chat", "AI Danismann")

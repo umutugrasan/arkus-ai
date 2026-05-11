@@ -1,128 +1,167 @@
-import { useState, type FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, Zap, LogIn, Beaker } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { Zap, Eye, EyeOff, Loader2, Play } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import { getErrorMessage } from '../utils/errors';
+
+interface LocationState {
+  from?: string;
+}
 
 export default function LoginPage() {
-  const { login, demoLogin } = useAuth();
+  const { login, user, isLoading: authLoading } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPw, setShowPw] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  if (!authLoading && user) {
+    const from = (location.state as LocationState)?.from || '/dashboard';
+    return <Navigate to={from} replace />;
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    if (!email || !password) {
+      toast.error('E-posta ve şifre gerekli');
+      return;
+    }
+    setSubmitting(true);
     try {
       await login(email, password);
-      navigate('/dashboard');
-    } catch {
-      setError('E-posta veya şifre hatalı. Demo giriş deneyin.');
+      toast.success('Hoş geldin!');
+      const from = (location.state as LocationState)?.from || '/dashboard';
+      navigate(from, { replace: true });
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Giriş yapılamadı'));
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  const handleDemo = () => {
-    demoLogin();
-    navigate('/dashboard');
+  const fillDemo = () => {
+    setEmail('demo@basiret.ai');
+    setPassword('demo123');
+    toast.info('Demo bilgileri dolduruldu, "Giriş Yap" butonuna bas.');
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background blobs */}
-      <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-[#0f172a] relative overflow-hidden">
+      <div className="absolute inset-0 -z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-600/20 blur-3xl" />
+        <div className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-violet-600/15 blur-3xl" />
+        <div className="absolute top-1/3 right-1/4 w-[300px] h-[300px] rounded-full bg-cyan-500/10 blur-3xl" />
+      </div>
 
-      <div className="w-full max-w-md animate-fade-in">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-2xl shadow-indigo-500/40 mb-4 animate-pulse-glow">
-            <Zap size={32} className="text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-white">Basiret AI</h1>
-          <p className="text-slate-400 mt-1 text-sm">Çoklu Pazaryeri Satıcı Zekası Paneli</p>
-          <div className="inline-block bg-indigo-500/10 border border-indigo-500/20 rounded-full px-3 py-1 mt-2">
-            <p className="text-indigo-400 text-xs font-medium">🏆 BTK Hackathon 26</p>
-          </div>
-        </div>
-
-        {/* Card */}
-        <div className="glass-card p-8">
-          <h2 className="text-white text-xl font-bold mb-6">Giriş Yap</h2>
-
-          {/* Demo Login */}
-          <button
-            onClick={handleDemo}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 hover:border-emerald-400/50 text-emerald-300 rounded-xl py-3 mb-6 text-sm font-semibold transition-all hover:shadow-lg hover:shadow-emerald-500/10"
-          >
-            <Play size={16} className="fill-current" />
-            🚀 Demo Modunda Giriş Yap (Hızlı Erişim)
-          </button>
-
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 h-px bg-slate-700/50" />
-            <span className="text-slate-500 text-xs">veya hesabınızla girin</span>
-            <div className="flex-1 h-px bg-slate-700/50" />
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-2xl shadow-indigo-500/40 mb-4">
+              <Zap size={26} className="text-white" />
+            </div>
+            <h1 className="text-3xl font-extrabold gradient-text">Basiret AI</h1>
+            <p className="text-slate-400 text-sm mt-1">Çoklu Pazaryeri Satıcı Zekası</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-slate-400 text-xs font-medium mb-1.5">E-posta</label>
-              <input
+          <div className="glass-card p-8 animate-fade-in">
+            <h2 className="text-xl font-bold text-white mb-1">Hoş Geldin</h2>
+            <p className="text-slate-400 text-sm mb-6">Devam etmek için giriş yap.</p>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                label="E-posta"
                 type="email"
+                name="email"
+                placeholder="ornek@firma.com"
+                autoComplete="email"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="ornek@email.com"
-                className="w-full bg-slate-800/60 border border-slate-700/50 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 placeholder-slate-500 transition-all"
+                onChange={(e) => setEmail(e.target.value)}
+                leftIcon={<Mail size={15} />}
+                required
               />
-            </div>
-            <div>
-              <label className="block text-slate-400 text-xs font-medium mb-1.5">Şifre</label>
-              <div className="relative">
-                <input
-                  type={showPw ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-slate-800/60 border border-slate-700/50 text-white rounded-xl px-4 py-2.5 pr-10 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 placeholder-slate-500 transition-all"
-                />
-                <button type="button" onClick={() => setShowPw(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+
+              <Input
+                label="Şifre"
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                placeholder="••••••••"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                leftIcon={<Lock size={15} />}
+                rightAddon={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="p-1.5 text-slate-400 hover:text-slate-200"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                }
+                required
+              />
+
+              <div className="flex items-center justify-end -mt-1">
+                <Link to="/forgot-password" className="text-xs text-indigo-400 hover:text-indigo-300">
+                  Şifremi unuttum
+                </Link>
               </div>
-            </div>
 
-            {error && (
-              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-lg px-3 py-2">
-                {error}
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={submitting}
+                fullWidth
+                leftIcon={<LogIn size={16} />}
+              >
+                Giriş Yap
+              </Button>
+
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-700/60"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="px-3 bg-slate-900/80 text-slate-500 text-[10px] uppercase tracking-wider">
+                    veya
+                  </span>
+                </div>
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white rounded-xl py-3 font-semibold text-sm transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {loading ? <Loader2 size={16} className="animate-spin" /> : null}
-              {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
-            </button>
-          </form>
+              <Button
+                type="button"
+                variant="secondary"
+                size="md"
+                fullWidth
+                leftIcon={<Beaker size={14} />}
+                onClick={fillDemo}
+              >
+                Demo Hesapla Dene
+              </Button>
+            </form>
 
-          <p className="text-center text-slate-500 text-xs mt-5">
-            Hesabınız yok mu?{' '}
-            <Link to="/register" className="text-indigo-400 hover:text-indigo-300 font-medium">
-              Kayıt Ol
-            </Link>
+            <p className="text-center text-sm text-slate-400 mt-6">
+              Hesabın yok mu?{' '}
+              <Link to="/register" className="text-indigo-400 hover:text-indigo-300 font-medium">
+                Kayıt ol
+              </Link>
+            </p>
+          </div>
+
+          <p className="text-center text-xs text-slate-600 mt-6">
+            © 2026 Basiret AI · BTK Hackathon 26
           </p>
         </div>
-
-        <p className="text-center text-slate-600 text-xs mt-6">
-          Gemini AI • Trendyol • Hepsiburada • Amazon TR
-        </p>
       </div>
     </div>
   );

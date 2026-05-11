@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 import json
-from app.dependencies import get_current_user
-from app.db.database import SessionLocal
+from app.dependencies import get_current_user, get_db
 from app.db.models import Financial, Product, Marketplace
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
@@ -21,13 +20,6 @@ MAX_SCORES = {
     "stok_sagligi": 10,
 }
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _score_satis_trendi(history):

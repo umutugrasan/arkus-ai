@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from datetime import datetime
-from app.dependencies import get_current_user
-from app.db.database import SessionLocal
+from app.dependencies import get_current_user, get_db
 from app.db.models import Marketplace, Product, Competitor, CompetitorPriceHistory
 from app.services.marketplace_api import fetch_raw_marketplace_data
 
@@ -10,13 +9,6 @@ router = APIRouter()
 
 SUPPORTED_MARKETPLACES = {"trendyol", "hepsiburada", "amazon_tr", "n11"}
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _now() -> str:

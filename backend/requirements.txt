@@ -13,3 +13,4 @@ slowapi
 alembic
 python-multipart
 structlog
+email-validator

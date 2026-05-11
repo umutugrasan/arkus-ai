@@ -3,20 +3,12 @@ from typing import List
 from datetime import datetime, timedelta
 import json
 import hashlib
-from app.dependencies import get_current_user
-from app.db.database import SessionLocal
+from app.dependencies import get_current_user, get_db
 from app.db.models import Product, Competitor, Marketplace, CompetitorPriceHistory
 from app.services.gemini_service import ask_gemini, ask_gemini_with_search
 
 router = APIRouter()
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _stable_seed(text: str) -> int:

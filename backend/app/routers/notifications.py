@@ -1,20 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Optional
 from datetime import datetime, timedelta
-from app.dependencies import get_current_user
-from app.db.database import SessionLocal
+from app.dependencies import get_current_user, get_db
 from app.db.models import Notification, Supplier, Product, Marketplace, CompetitorPriceHistory
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 
 router = APIRouter()
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _now() -> str:

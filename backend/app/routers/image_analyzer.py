@@ -4,8 +4,7 @@ from typing import Optional
 from datetime import datetime
 import json
 import re
-from app.dependencies import get_current_user
-from app.db.database import SessionLocal
+from app.dependencies import get_current_user, get_db
 from app.db.models import Product, Marketplace, ImageAnalysis
 from app.services.gemini_service import ask_gemini_vision
 
@@ -52,13 +51,6 @@ IMAGE_RULES = {
     },
 }
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _now() -> str:

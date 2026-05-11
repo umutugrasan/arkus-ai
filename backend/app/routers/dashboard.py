@@ -1,22 +1,16 @@
+import json
 from fastapi import APIRouter, Depends
 from datetime import datetime, timedelta
 from collections import defaultdict
-from app.dependencies import get_current_user
-from app.db.database import SessionLocal
+from app.dependencies import get_current_user, get_db
 from app.db.models import Order, Product, Marketplace
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
-from app.services.gemini_service import ask_gemini, ask_gemini_with_search
+from app.services.gemini_service import ask_gemini, ask_gemini_with_search, ask_gemini_stream
+from app.sse import sse_response
 
 router = APIRouter()
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _build_overview(user_id: int) -> dict:
@@ -240,3 +234,92 @@ DUSUK PUANLI URUNLER:
         },
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
+
+
+@router.get("/ai-summary/stream")
+async def get_ai_summary_stream(
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """
+    SSE: AI ozetini token token gonderir. Frontend ChatGPT gibi yazarken gosterir.
+    Hizli ilk-byte: kullanici "salak gibi" beklemez.
+    """
+    overview = _build_overview(user.id)
+    overall = overview["overall"]
+    low_stock = (
+        db.query(Product)
+        .filter(Product.user_id == user.id, Product.stock < 50)
+        .order_by(Product.stock.asc()).limit(5).all()
+    )
+    low_rated = (
+        db.query(Product)
+        .filter(Product.user_id == user.id, Product.rating < 4.0)
+        .order_by(Product.rating.asc()).limit(5).all()
+    )
+    today = datetime.now().date()
+    last_7 = (
+        db.query(Order)
+        .filter(
+            Order.user_id == user.id, Order.status == "delivered",
+            Order.date >= (today - timedelta(days=7)).isoformat(),
+        ).all()
+    )
+    sales_7d = sum(o.quantity or 0 for o in last_7)
+    revenue_7d = sum(o.total or 0 for o in last_7)
+
+    low_stock_lines = [
+        f"- {p.name}: {p.stock} adet" for p in low_stock
+    ]
+    low_rated_lines = [f"- {p.name}: {p.rating}" for p in low_rated]
+
+    context = f"""SATICI DURUMU (son 30 gun):
+- Ciro: {overall['total_revenue']:,.2f} TL
+- Net kar (reklamdan sonra): {overall['total_net_after_ads']:,.2f} TL
+- Marj: %{overall['overall_net_margin']}
+- Satis: {overall['total_sales']} adet
+- Iade: %{overall['overall_return_rate']}
+- ROAS: {overall['overall_roas']}
+- Pazaryeri sayisi: {overview['marketplace_count']}
+
+SON 7 GUN: {sales_7d} satis, {revenue_7d:,.2f} TL
+
+STOK KRITIK:
+{chr(10).join(low_stock_lines) if low_stock_lines else '- Yok'}
+
+DUSUK PUAN:
+{chr(10).join(low_rated_lines) if low_rated_lines else '- Yok'}
+"""
+
+    system = (
+        "Sen Basiret AI'sin, bir e-ticaret danismani. Saticiyi sabah 'gunaydin' "
+        "tarzinda selamlayan, 4-6 cumlelik aksiyon odakli ozet yaz. Acil noktayi vurgula. "
+        "Markdown kullan ama abartma. Turkce yanit ver."
+    )
+
+    snapshot = {
+        "total_revenue_30d": overall["total_revenue"],
+        "net_profit_30d": overall["total_net_after_ads"],
+        "net_margin_pct": overall["overall_net_margin"],
+        "sales_7d": sales_7d,
+        "revenue_7d": round(revenue_7d, 2),
+        "low_stock_count": len(low_stock),
+        "low_rated_count": len(low_rated),
+    }
+
+    async def event_stream():
+        yield f"event: meta\ndata: {json.dumps({'snapshot': snapshot}, ensure_ascii=False)}\n\n"
+        parts = []
+        async for chunk in ask_gemini_stream(
+            context, system, endpoint="dashboard.ai_summary.stream", user_id=user.id,
+        ):
+            if chunk.get("done"):
+                evt = "error" if chunk.get("error") else "done"
+                yield f"event: {evt}\ndata: {json.dumps({'full_text': ''.join(parts), 'model': chunk.get('model'), 'error': chunk.get('error')}, ensure_ascii=False)}\n\n"
+                return
+            txt = chunk.get("text", "")
+            if txt:
+                parts.append(txt)
+                yield f"event: chunk\ndata: {json.dumps({'text': txt}, ensure_ascii=False)}\n\n"
+
+    return sse_response(event_stream())

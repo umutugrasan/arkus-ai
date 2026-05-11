@@ -1,19 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.dependencies import get_current_user
-from app.db.database import SessionLocal
+from app.dependencies import get_current_user, get_db
 from app.db.models import Product, Marketplace
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_product_metrics, calculate_arbitrage
 
 router = APIRouter()
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _days_until_stockout(stock: int, sales_30d: int) -> float:

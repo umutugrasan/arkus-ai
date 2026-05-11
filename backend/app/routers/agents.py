@@ -1,19 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_db
 from app.agents.orchestrator import (
     run_all_agents_for_user, get_agent_status, AGENT_PIPELINE,
 )
-from app.db.database import SessionLocal
 
 router = APIRouter()
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/status")

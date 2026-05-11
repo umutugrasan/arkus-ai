@@ -1,21 +1,15 @@
+import json
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
-from app.dependencies import get_current_user
-from app.db.database import SessionLocal
+from app.dependencies import get_current_user, get_db
 from app.db.models import Review, ReviewAnalysis, Product, Marketplace
-from app.services.gemini_service import ask_gemini
+from app.services.gemini_service import ask_gemini, ask_gemini_stream
+from app.sse import sse_response
 
 router = APIRouter()
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _now() -> str:
@@ -115,6 +109,37 @@ Su basliklarda analiz yap:
         "Sen bir e-ticaret uzmansin. Saticilara yorumlari analiz edip somut aksiyon onerileri sunuyorsun."
     )
     return await ask_gemini(prompt, system)
+
+
+def _build_analysis_prompt(reviews: List[Review], detail: str) -> tuple:
+    """Streaming icin prompt+system'i hazirla, ortak helper."""
+    reviews_text = "\n".join(
+        f"- [{r.marketplace_name}] Puan: {r.rating}/5 - \"{r.text}\""
+        for r in reviews[:80]
+    )
+    if detail == "short":
+        prompt = (
+            "Asagidaki musteri yorumlarini analiz et. 3-4 cumlelik kisa Turkce ozet ver. "
+            "En kritik sikayet ve en cok begenilen yon belirgin olsun.\n\nYORUMLAR:\n"
+            + reviews_text
+        )
+    else:
+        prompt = f"""Asagidaki e-ticaret urun yorumlarini detayli analiz et. Turkce yanit ver.
+
+YORUMLAR:
+{reviews_text}
+
+Su basliklarda analiz yap:
+1. Genel duygu durumu (pozitif/negatif/notr yuzdeleri)
+2. En sik sikayet edilen konular (kategorize et, yuzdelerle)
+3. En cok begenilen ozellikler
+4. Pazaryerleri arasi farklar
+5. Somut iyilestirme onerileri (tahmini puan artisiyla birlikte)
+"""
+    system = (
+        "Sen bir e-ticaret uzmansin. Saticilara yorumlari analiz edip somut aksiyon onerileri sunuyorsun."
+    )
+    return prompt, system
 
 
 # --------- Endpoints ---------
@@ -220,6 +245,18 @@ async def analyze_reviews(
 
     analysis = await _run_analysis(reviews, detail)
 
+    # Mock/fallback yanitlari cache'leme — sadece gercek AI cevaplari kalir
+    is_fallback = analysis.startswith("⚠️") or "mock yanit" in analysis.lower()
+    if is_fallback:
+        return {
+            "product_id": product_id,
+            "detail": detail,
+            "cached": False,
+            "ai_analysis": analysis,
+            "total_reviews": len(reviews),
+            "warning": "AI cagrisi basarisiz, mock yanit dondu. Cache'e yazilmadi.",
+        }
+
     record = ReviewAnalysis(
         product_id=product.id,
         analysis_type=detail,
@@ -239,6 +276,56 @@ async def analyze_reviews(
         "ai_analysis": analysis,
         "created_at": record.created_at,
     }
+
+
+@router.get("/{product_id}/analyze/stream")
+async def analyze_reviews_stream(
+    product_id: str,
+    detail: str = "short",
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """SSE streaming version: token token akar. Cevap tamamlandiginda DB'ye yazilir."""
+    if detail not in ("short", "detailed"):
+        raise HTTPException(status_code=400, detail="detail short|detailed olmali")
+    product = _resolve_internal_product(db, user.id, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Urun bulunamadi")
+    reviews = _filter_reviews(db, user.id, product_id)
+    if not reviews:
+        raise HTTPException(status_code=404, detail="Yorum bulunamadi")
+
+    prompt, system = _build_analysis_prompt(reviews, detail)
+
+    async def event_stream():
+        parts = []
+        yield f"event: meta\ndata: {json.dumps({'product_id': product_id, 'detail': detail, 'total_reviews': len(reviews)}, ensure_ascii=False)}\n\n"
+        async for chunk in ask_gemini_stream(
+            prompt, system, endpoint="reviews.analyze.stream", user_id=user.id,
+        ):
+            if chunk.get("done"):
+                full_text = "".join(parts)
+                # Sadece gercek (non-fallback) cevaplari DB'ye yaz
+                is_fallback = full_text.startswith("⚠️") or "mock yanit" in full_text.lower()
+                rec_id = None
+                if not is_fallback and full_text:
+                    rec = ReviewAnalysis(
+                        product_id=product.id, analysis_type=detail,
+                        content=full_text,
+                        filters={"marketplace": "all", "review_count": len(reviews)},
+                        created_at=_now(),
+                    )
+                    db.add(rec); db.commit(); db.refresh(rec)
+                    rec_id = rec.id
+                evt = "error" if chunk.get("error") else "done"
+                yield f"event: {evt}\ndata: {json.dumps({'id': rec_id, 'full_text': full_text, 'model': chunk.get('model'), 'cached': False, 'is_fallback': is_fallback, 'error': chunk.get('error')}, ensure_ascii=False)}\n\n"
+                return
+            txt = chunk.get("text", "")
+            if txt:
+                parts.append(txt)
+                yield f"event: chunk\ndata: {json.dumps({'text': txt}, ensure_ascii=False)}\n\n"
+
+    return sse_response(event_stream())
 
 
 @router.get("/{product_id}/compare")

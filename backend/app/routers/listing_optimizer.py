@@ -5,8 +5,7 @@ from datetime import datetime
 from collections import Counter
 import json
 import re
-from app.dependencies import get_current_user
-from app.db.database import SessionLocal
+from app.dependencies import get_current_user, get_db
 from app.db.models import Product, Marketplace, ListingOptimization
 from app.services.gemini_service import ask_gemini, ask_gemini_with_search
 
@@ -50,13 +49,6 @@ TURKISH_STOPWORDS = {
     "den", "dan", "te", "ta", "ya", "ye", "yi", "yu", "in", "un", "an", "en",
 }
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _now() -> str:
