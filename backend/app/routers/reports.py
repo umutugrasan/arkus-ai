@@ -150,13 +150,8 @@ Rapor formati:
     return _to_dict(rep)
 
 
-@router.post("/weekly")
-async def generate_weekly_report(
-    use_web: bool = True,
-    user=Depends(get_current_user),
-    db=Depends(get_db),
-):
-    all_metrics, overall = _build_metrics(user.id)
+def _build_weekly_prompt(user_id):
+    all_metrics, overall = _build_metrics(user_id)
     today = datetime.now().strftime("%d %B %Y")
 
     mp_summary = {
@@ -179,13 +174,6 @@ async def generate_weekly_report(
     top_3 = all_products[:3]
     bottom_3 = all_products[-3:] if len(all_products) >= 3 else []
 
-    web_note = (
-        "\n\nEK GOREV: Google Search ile Turkiye e-ticaret sektorunde son 7 gun "
-        "trend olan haberleri ve bir sonraki haftanin onemli takvim olaylarini (kampanya, "
-        "tatil, vergi tarihi) raporun sonuna 'PIYASA NOTLARI' basligiyla ekle."
-        if use_web else ""
-    )
-
     prompt = f"""Asagidaki verilere dayanarak haftalik performans raporu olustur. Turkce yanit ver.
 
 TARIH ARALIGI: Son 7 gun (rapor: {today})
@@ -201,7 +189,6 @@ EN IYI 3 URUN (net kar):
 
 EN KOTU 3 URUN:
 {json.dumps(bottom_3, ensure_ascii=False, indent=2)}
-{web_note}
 
 Rapor formati:
 1. **Haftanin Ozeti** (3-4 cumle)
@@ -215,14 +202,6 @@ Rapor formati:
         "alip detayli haftalik raporlar olusturuyorsun."
     )
 
-    sources = []
-    if use_web:
-        result = await ask_gemini_with_search(prompt, system)
-        content = result["text"]
-        sources = result["sources"]
-    else:
-        content = await ask_gemini(prompt, system)
-
     metrics = {
         "revenue": overall["total_revenue"],
         "net_profit": overall["total_net_after_ads"],
@@ -232,8 +211,35 @@ Rapor formati:
         "marketplaces": mp_summary,
         "top_products": [p["id"] for p in top_3],
         "bottom_products": [p["id"] for p in bottom_3],
-        "web_sources": sources,
     }
+    return prompt, system, metrics, today
+
+@router.post("/weekly")
+async def generate_weekly_report(
+    use_web: bool = True,
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    prompt, system, metrics, today = _build_weekly_prompt(user.id)
+    
+    web_note = (
+        "\n\nEK GOREV: Google Search ile Turkiye e-ticaret sektorunde son 7 gun "
+        "trend olan haberleri ve bir sonraki haftanin onemli takvim olaylarini (kampanya, "
+        "tatil, vergi tarihi) raporun sonuna 'PIYASA NOTLARI' basligiyla ekle."
+    )
+    if use_web:
+        prompt += web_note
+
+    sources = []
+    if use_web:
+        result = await ask_gemini_with_search(prompt, system)
+        content = result["text"]
+        sources = result["sources"]
+    else:
+        content = await ask_gemini(prompt, system)
+
+    metrics["web_sources"] = sources
+
     rep = _save_report(
         db, user.id, "weekly",
         f"Haftalik Performans Raporu - {today}",
@@ -303,6 +309,48 @@ async def generate_daily_stream(
                     rep = _save_report(
                         db, user.id, "daily",
                         f"Gunluk Ozet Raporu - {today}",
+                        full_text, metrics,
+                    )
+                    rec_id = rep.id
+                evt = "error" if chunk.get("error") else "done"
+                yield f"event: {evt}\ndata: {json.dumps({'id': rec_id, 'full_text': full_text, 'is_fallback': is_fallback, 'error': chunk.get('error')}, ensure_ascii=False)}\n\n"
+                return
+            txt = chunk.get("text", "")
+            if txt:
+                parts.append(txt)
+                yield f"event: chunk\ndata: {json.dumps({'text': txt}, ensure_ascii=False)}\n\n"
+
+    return sse_response(event_stream())
+
+@router.post("/weekly/stream")
+async def generate_weekly_stream(
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """SSE: haftalik rapor token token akar, bittiginde DB'ye yazilir."""
+    prompt, system, metrics, today = _build_weekly_prompt(user.id)
+    
+    web_note = (
+        "\n\nEK GOREV: Google Search ile Turkiye e-ticaret sektorunde son 7 gun "
+        "trend olan haberleri ve bir sonraki haftanin onemli takvim olaylarini (kampanya, "
+        "tatil, vergi tarihi) raporun sonuna 'PIYASA NOTLARI' basligiyla ekle."
+    )
+    prompt += web_note
+
+    async def event_stream():
+        yield f"event: meta\ndata: {json.dumps({'type': 'weekly', 'date': today, 'metrics': metrics}, ensure_ascii=False)}\n\n"
+        parts = []
+        async for chunk in ask_gemini_stream(
+            prompt, system, endpoint="reports.weekly.stream", user_id=user.id,
+        ):
+            if chunk.get("done"):
+                full_text = "".join(parts)
+                rec_id = None
+                is_fallback = full_text.startswith("⚠️") or "mock yanit" in full_text.lower()
+                if not is_fallback and full_text:
+                    rep = _save_report(
+                        db, user.id, "weekly",
+                        f"Haftalik Performans Raporu - {today}",
                         full_text, metrics,
                     )
                     rec_id = rep.id

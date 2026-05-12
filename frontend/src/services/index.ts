@@ -438,6 +438,7 @@ export const reportService = {
     return r.data;
   },
   generateDailyStreamUrl: () => '/api/v1/reports/daily/stream',
+  generateWeeklyStreamUrl: () => '/api/v1/reports/weekly/stream',
 };
 
 // ===================== LISTING OPTIMIZER =====================

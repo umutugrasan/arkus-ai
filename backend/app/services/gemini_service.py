@@ -13,6 +13,7 @@ API_KEY = settings.GEMINI_API_KEY or os.getenv("GEMINI_API_KEY")
 
 MODEL_CASCADE = [
     settings.GEMINI_MODEL,         # default: gemini-2.5-flash
+    "gemini-3.1-flash-lite",       # yeni nesil lite alternatif
     "gemini-2.5-flash-lite",       # daha az kota tuketen alternatif
     "gemini-2.0-flash",            # alternatif aile
     "gemini-2.0-flash-lite",       # lite alternatif

@@ -68,19 +68,19 @@ body {
 .ai-response p {
   margin: 0.4rem 0;
   line-height: 1.6;
-  color: #cbd5e1;
+  color: #94a3b8;
 }
 .ai-response ul, .ai-response ol {
   padding-left: 1.25rem;
   margin: 0.4rem 0;
-  color: #cbd5e1;
+  color: #94a3b8;
 }
 .ai-response li {
   margin: 0.25rem 0;
   line-height: 1.5;
 }
 .ai-response strong {
-  color: #e2e8f0;
+  color: #cbd5e1;
   font-weight: 600;
 }
 .ai-response table {
@@ -100,7 +100,7 @@ body {
 .ai-response td {
   padding: 0.4rem 0.75rem;
   font-size: 0.8rem;
-  color: #cbd5e1;
+  color: #94a3b8;
   border-bottom: 1px solid rgba(51, 65, 85, 0.5);
 }
 .ai-response code {

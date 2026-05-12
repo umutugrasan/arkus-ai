@@ -54,16 +54,91 @@ def list_suppliers(
 
 
 @router.get("/best-price/{product_name}")
-def best_price(product_name: str, user=Depends(get_current_user), db=Depends(get_db)):
+async def best_price(product_name: str, user=Depends(get_current_user), db=Depends(get_db)):
     rows = db.query(Supplier).filter(Supplier.product.ilike(f"%{product_name}%")).all()
-    if not rows:
+    
+    if rows:
+        suppliers = [_supplier_to_dict(s) for s in rows]
+    else:
+        # DB'de yoksa, Google Search (Gemini) uzerinden canli toptanci fiyatlarini arastir
+        prompt = f"""Google Search grounding kullanarak "{product_name}" icin toptan (wholesale) satilan fiyatlari bul.
+Alibaba, AliExpress veya benzeri B2B sitelerindeki GERCEK arama sonuclarina bak.
+ONEMLI: Asla hayali fiyat uydurma. Sadece gercekten gordugun, dogrulayabildigin fiyatlari listele. Eger fiyati net olarak goremiyorsan o sonucu KESINLIKLE listeye ekleme. Ayrica buldugun gercek SATIN ALMA LINKINI (url) mutlaka ekle.
+"current_price" degeri SADECE sayi olmalidir (ornek: 143.75).
+Buldugun sonuclari ASAGIDAKI JSON FORMATINDA (array olarak) don. Baska hicbir yazi veya markdown (```json vb.) EKLEME. Sadece list:
+[
+  {{"name": "Alibaba - Store X", "current_price": 500.0, "discount_pct": 10, "min_order": 50, "shipping_days": 15, "product": "{product_name}", "url": "https://alibaba.com/..."}},
+  {{"name": "AliExpress - TechParts", "current_price": 600.0, "discount_pct": 0, "min_order": 1, "shipping_days": 20, "product": "{product_name}", "url": "https://aliexpress.com/..."}}
+]"""
+        system = "Sen JSON donduren bir bot'sun. Metin aciklamasi yapma, sadece JSON."
+        result = await ask_gemini_with_search(prompt, system)
+        
+        try:
+            # parse raw JSON (remove markdown ticks if gemini adds them anyway)
+            raw_text = (result.get("text") or "").strip()
+            if not raw_text:
+                raise ValueError("Gemini bos yanit dondu (Kota asimi veya desteklenmeyen model).")
+                
+            if raw_text.startswith("```json"):
+                raw_text = raw_text.split("```json")[1]
+            if raw_text.endswith("```"):
+                raw_text = raw_text.rsplit("```", 1)[0]
+            raw_text = raw_text.strip()
+            
+            ai_data = json.loads(raw_text)
+            suppliers = []
+            for idx, item in enumerate(ai_data):
+                raw_price = item.get("current_price")
+                if raw_price is None:
+                    continue  # Fiyati bilinmeyen tedarikciyi atla
+                
+                try:
+                    cp = float(raw_price)
+                except ValueError:
+                    # Eger "143,75 TL" gibi geldiyse string'i temizleyerek sayi yap
+                    import re
+                    match = re.search(r"([\d.,]+)", str(raw_price))
+                    if match:
+                        cp = float(match.group(1).replace(",", "."))
+                    else:
+                        continue
+                        
+                dpct = int(item.get("discount_pct") or 0)
+                min_order = int(item.get("min_order") or 1)
+                shipping_days = int(item.get("shipping_days") or 14)
+                
+                suppliers.append({
+                    "id": 9000 + idx,
+                    "name": item.get("name") or "Web Supplier",
+                    "product": item.get("product") or product_name,
+                    "current_price": cp,
+                    "min_order": min_order,
+                    "shipping_days": shipping_days,
+                    "discount_pct": dpct,
+                    "discounted_price": round(cp * (1 - dpct/100.0), 2),
+                    "has_discount": dpct > 0,
+                    "last_checked_at": _now(),
+                    "url": item.get("url")
+                })
+        except Exception as e:
+            print("Gemini JSON Parse Error:", e, result.get("text"))
+            # Sadece hata dondur, artik sahte (dummy) 100TL'lik kayit donme!
+            raise HTTPException(
+                status_code=503, 
+                detail="Arama sunuculari su an yogun (Limit Asimi) veya AI yanit veremedi. Lutfen 30 saniye bekleyip tekrar deneyin."
+            )
+
+    if not suppliers:
         raise HTTPException(status_code=404, detail="Bu urun icin tedarikci bulunamadi")
-    suppliers = [_supplier_to_dict(s) for s in rows]
+
+    # Fiyata gore yuksekten dusuge siralansin istenmisti front-end tarafinda, ama
+    # backend mantigi olarak hala cheapest best'tir. Frontend yuksekten dusuge siraliyor.
     suppliers.sort(key=lambda x: x["discounted_price"])
 
     best = suppliers[0]
     avg_price = round(sum(s["discounted_price"] for s in suppliers) / len(suppliers), 2)
     savings_vs_avg = round(avg_price - best["discounted_price"], 2)
+    
     return {
         "product": product_name,
         "best_supplier": best,

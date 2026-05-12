@@ -44,8 +44,8 @@ export default function ReviewsPage() {
 
   // AI analyze (streaming)
   const [detail, setDetail] = useState<Detail>('short');
-  const [aiText, setAiText] = useState('');
-  const [aiStreaming, setAiStreaming] = useState(false);
+  const [aiTexts, setAiTexts] = useState({ short: '', detailed: '' });
+  const [aiStreaming, setAiStreaming] = useState({ short: false, detailed: false });
   const aiAbortRef = useRef<AbortController | null>(null);
 
   // Ürün listesi
@@ -116,24 +116,50 @@ export default function ReviewsPage() {
     aiAbortRef.current?.abort();
     const ctrl = new AbortController();
     aiAbortRef.current = ctrl;
-    setAiText('');
-    setAiStreaming(true);
+    
+    setAiTexts({ short: '', detailed: '' });
+    setAiStreaming({ short: false, detailed: false });
 
+    const first = detail;
+    const second = detail === 'short' ? 'detailed' : 'short';
+
+    const fetchSecond = () => {
+      if (ctrl.signal.aborted) return;
+      setAiStreaming((s) => ({ ...s, [second]: true }));
+      streamSSE(
+        `/api/v1/reviews/${encodeURIComponent(productId)}/analyze/stream?detail=${second}`,
+        {
+          onChunk: (t) => setAiTexts((p) => ({ ...p, [second]: p[second] + t })),
+          onDone: (data) => {
+            setAiStreaming((s) => ({ ...s, [second]: false }));
+            if (!data.is_fallback) reviewService.history(productId).then(setHistory).catch(() => {});
+          },
+          onError: (e) => {
+            setAiStreaming((s) => ({ ...s, [second]: false }));
+            console.error(`Second analysis (${second}) failed`, e);
+          },
+        },
+        { signal: ctrl.signal },
+      );
+    };
+
+    setAiStreaming((s) => ({ ...s, [first]: true }));
     streamSSE(
-      `/api/v1/reviews/${encodeURIComponent(productId)}/analyze/stream?detail=${detail}`,
+      `/api/v1/reviews/${encodeURIComponent(productId)}/analyze/stream?detail=${first}`,
       {
-        onChunk: (t) => setAiText((p) => p + t),
+        onChunk: (t) => setAiTexts((p) => ({ ...p, [first]: p[first] + t })),
         onDone: (data) => {
-          setAiStreaming(false);
+          setAiStreaming((s) => ({ ...s, [first]: false }));
           if (data.is_fallback) toast.warning('AI fallback yanıt verdi (Gemini ulaşılamadı)');
-          else toast.success('Analiz tamamlandı');
-          // History refresh
+          else toast.success('Aktif sekme analizi tamamlandı, arka planda diğeri hazırlanıyor...');
           reviewService.history(productId).then(setHistory).catch(() => {});
+          fetchSecond();
         },
         onError: (e) => {
-          setAiStreaming(false);
+          setAiStreaming((s) => ({ ...s, [first]: false }));
           const msg = e instanceof Error ? e.message : (e as Record<string, unknown>).error;
           toast.error(typeof msg === 'string' ? msg : 'AI analizi başarısız');
+          fetchSecond();
         },
       },
       { signal: ctrl.signal },
@@ -195,16 +221,23 @@ export default function ReviewsPage() {
                 size="sm"
                 leftIcon={<RefreshCw size={14} />}
                 onClick={runAnalyze}
-                loading={aiStreaming}
+                loading={aiStreaming.short || aiStreaming.detailed}
               >
                 Analiz Et
               </Button>
             </div>
           </div>
+          
+          {(aiStreaming.short || aiStreaming.detailed) && !aiStreaming[detail] && (
+            <div className="mb-2 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-md text-xs text-indigo-300 flex items-center gap-2">
+              <RefreshCw size={12} className="animate-spin" /> Arka planda diğer analiz ({detail === 'short' ? 'Detaylı' : 'Kısa'}) tamamlanıyor...
+            </div>
+          )}
+
           <StreamingMarkdown
             title="Yorum Analizi"
-            content={aiText}
-            streaming={aiStreaming}
+            content={aiTexts[detail]}
+            streaming={aiStreaming[detail]}
             className="!border-0 !bg-transparent"
           />
         </GlassCard>

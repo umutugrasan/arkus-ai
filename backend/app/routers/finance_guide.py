@@ -8,60 +8,7 @@ from app.services.gemini_service import ask_gemini, ask_gemini_with_search
 
 router = APIRouter()
 
-FINANCE_OPTIONS = [
-    {
-        "name": "KOSGEB Mikro KOBi Kredisi",
-        "provider": "KOSGEB",
-        "max_amount": "150.000 TL",
-        "interest": "%0 (destekli)",
-        "term": "24 ay",
-        "requirements": "KOBi belgesi, 3 yil faaliyet",
-        "min_score": 50,
-        "min_monthly_revenue": 100000,
-    },
-    {
-        "name": "Halkbank E-Ticaret KOBi Kredisi",
-        "provider": "Halkbank",
-        "max_amount": "500.000 TL",
-        "interest": "%1.29 aylik",
-        "term": "36 ay",
-        "requirements": "Ticaret sicil, vergi levhasi",
-        "min_score": 60,
-        "min_monthly_revenue": 200000,
-    },
-    {
-        "name": "Is Bankasi Isletme Kredisi",
-        "provider": "Is Bankasi",
-        "max_amount": "1.000.000 TL",
-        "interest": "%1.49 aylik",
-        "term": "48 ay",
-        "requirements": "2 yil faaliyet, mali tablolar",
-        "min_score": 65,
-        "min_monthly_revenue": 500000,
-    },
-    {
-        "name": "Garanti BBVA KOBi Destek",
-        "provider": "Garanti BBVA",
-        "max_amount": "750.000 TL",
-        "interest": "%1.39 aylik",
-        "term": "36 ay",
-        "requirements": "KOBi belgesi, 1 yil faaliyet",
-        "min_score": 55,
-        "min_monthly_revenue": 300000,
-    },
-    {
-        "name": "KOSGEB Girisimci Destegi",
-        "provider": "KOSGEB",
-        "max_amount": "300.000 TL (hibe+kredi)",
-        "interest": "%0",
-        "term": "24 ay",
-        "requirements": "Yeni girisimci, is plani",
-        "min_score": 40,
-        "min_monthly_revenue": 50000,
-    },
-]
-
-
+# FINANCE_OPTIONS kaldirildi. Artik gercek zamanli Gemini Google Search kullanilacak.
 
 def _calc_eligibility_score(net_margin, monthly_revenue, positive_months, total_months):
     """
@@ -120,50 +67,109 @@ def _get_seller_profile(db, user_id: int) -> dict:
     }
 
 
-def _split_options(profile):
-    eligible, not_eligible = [], []
-    for opt in FINANCE_OPTIONS:
-        ok = (
-            profile["eligibility_score"] >= opt["min_score"]
-            and profile["monthly_revenue"] >= opt["min_monthly_revenue"]
-        )
-        entry = {**opt, "eligible": ok}
-        if not ok:
-            reasons = []
-            if profile["eligibility_score"] < opt["min_score"]:
-                reasons.append(
-                    f"uygunluk skoru {opt['min_score']}+ olmali "
-                    f"(suanki: {profile['eligibility_score']})"
-                )
-            if profile["monthly_revenue"] < opt["min_monthly_revenue"]:
-                reasons.append(
-                    f"aylik ciro {opt['min_monthly_revenue']:,} TL+ olmali "
-                    f"(suanki: {profile['monthly_revenue']:,.0f})"
-                )
-            entry["reasons"] = reasons
-        if ok:
-            eligible.append(entry)
-        else:
-            not_eligible.append(entry)
-    return eligible, not_eligible
+async def _fetch_real_finance_options(profile):
+    score = profile["eligibility_score"]
+    revenue = profile["monthly_revenue"]
+    
+    prompt = f"""Google Search grounding kullanarak Turkiye'de 2025/2026 yili icin e-ticaret saticilarina, KOBI'lere ve girisimcilere yonelik GUNCEL gercek banka kredilerini, KOSGEB veya devlet desteklerini bul.
+Bu saticinin uygunluk skoru: {score}/100, aylik cirosu: {revenue} TL.
 
+Sadece gercek ve basvurulabilir olan en mantikli 4-5 secenegi listele. En mantikli gordugun 1 tanesini 'is_recommended': true yap ve nedenini (recommendation_reason) belirt.
+Ayrica her destek/kredi icin basvurulabilecek GERCEK BIR URL (url) bulup ekle.
+
+Lutfen ASAGIDAKI JSON FORMATINDA (array olarak) don, markdown veya baska metin Ekleme:
+[
+  {{
+    "name": "Kredi/Destek Adi",
+    "provider": "Saglayici (Banka/Kurum adi)",
+    "max_amount": "Maksimum Tutar (ornegin 500.000 TL)",
+    "interest": "Faiz orani",
+    "term": "Vade süresi",
+    "requirements": "Basvuru sartlari (kisa)",
+    "min_score": 50,
+    "min_monthly_revenue": 100000,
+    "url": "https://kosgeb.gov.tr/...",
+    "is_recommended": true,
+    "recommendation_reason": "Faizsiz olmasi ve e-ticaret cirosuna tam uygun olmasi sebebiyle en mantikli secenek."
+  }}
+]"""
+    system = "Sen bir finans ve e-ticaret danismanisin. Web aramasiyla guncel kredi programlarini JSON olarak dondersin."
+    
+    try:
+        result = await ask_gemini_with_search(prompt, system)
+        raw_text = result["text"].replace("```json", "").replace("```", "").strip()
+        import json
+        
+        try:
+            options = json.loads(raw_text)
+        except json.JSONDecodeError:
+            # Rate limit veya JSON disi yanit durumunda fallback
+            options = [
+                {
+                    "name": "KOSGEB Mikro KOBi Kredisi (Sabit Veri)",
+                    "provider": "KOSGEB",
+                    "max_amount": "150.000 TL",
+                    "interest": "%0 (destekli)",
+                    "term": "24 ay",
+                    "requirements": "KOBi belgesi, 3 yil faaliyet",
+                    "min_score": 50,
+                    "min_monthly_revenue": 100000,
+                    "url": "https://www.kosgeb.gov.tr",
+                    "is_recommended": True,
+                    "recommendation_reason": "AI Limiti aşıldığı için varsayılan öneri gösterilmektedir."
+                },
+                {
+                    "name": "Halkbank E-Ticaret KOBi Kredisi (Sabit Veri)",
+                    "provider": "Halkbank",
+                    "max_amount": "500.000 TL",
+                    "interest": "%1.29 aylik",
+                    "term": "36 ay",
+                    "requirements": "Ticaret sicil, vergi levhasi",
+                    "min_score": 60,
+                    "min_monthly_revenue": 200000,
+                    "url": "https://www.halkbank.com.tr",
+                    "is_recommended": False
+                }
+            ]
+        
+        eligible, not_eligible = [], []
+        for opt in options:
+            ok = (
+                profile["eligibility_score"] >= opt.get("min_score", 0)
+                and profile["monthly_revenue"] >= opt.get("min_monthly_revenue", 0)
+            )
+            entry = {**opt, "eligible": ok}
+            if not ok:
+                entry["reasons"] = [
+                    f"Uygunluk skoru {opt.get('min_score', 0)}+ olmali.",
+                    f"Aylik ciro {opt.get('min_monthly_revenue', 0):,} TL+ olmali."
+                ]
+            if ok:
+                eligible.append(entry)
+            else:
+                not_eligible.append(entry)
+                
+        return eligible, not_eligible
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Finansman AI Fetch Error: {e}")
+        return [], []
 
 @router.get("/options")
-def get_options(user=Depends(get_current_user), db=Depends(get_db)):
+async def get_options(user=Depends(get_current_user), db=Depends(get_db)):
     profile = _get_seller_profile(db, user.id)
-    eligible, not_eligible = _split_options(profile)
+    eligible, not_eligible = await _fetch_real_finance_options(profile)
     return {
         "seller_profile": profile,
         "eligible_options": eligible,
         "not_eligible_options": not_eligible,
-        "total_options": len(FINANCE_OPTIONS),
+        "total_options": len(eligible) + len(not_eligible),
     }
-
 
 @router.get("/eligibility")
 def check_eligibility(user=Depends(get_current_user), db=Depends(get_db)):
     profile = _get_seller_profile(db, user.id)
-    eligible, not_eligible = _split_options(profile)
+
 
     score = profile["eligibility_score"]
     if score >= 70:
@@ -177,8 +183,8 @@ def check_eligibility(user=Depends(get_current_user), db=Depends(get_db)):
         "profile": profile,
         "status": status,
         "message": message,
-        "eligible_options_count": len(eligible),
-        "total_options": len(FINANCE_OPTIONS),
+        "eligible_options_count": 0, # Not checking anymore to save AI quota
+        "total_options": 0,
     }
 
 
@@ -189,7 +195,10 @@ async def analyze_finance(
     db=Depends(get_db),
 ):
     profile = _get_seller_profile(db, user.id)
-    eligible, _ = _split_options(profile)
+    # Performansi artirmak ve AI kotasini korumak icin onceden uretilmis opsiyonlari frontend
+    # body'den gonderebilir veya sadece profil bilgisiyle analiz yaptirabiliriz.
+    # Burada sadece profile dayali genel analiz yapiyoruz.
+    eligible = [] 
 
     web_note = (
         "\n\nEK GOREV: Google Search ile **guncel KOSGEB, Halkbank, Is Bankasi, Garanti BBVA "

@@ -492,6 +492,9 @@ export interface FinanceOption {
   min_monthly_revenue: number;
   eligible: boolean;
   reasons?: string[];
+  url?: string;
+  is_recommended?: boolean;
+  recommendation_reason?: string;
 }
 
 export interface SellerProfile {
@@ -540,6 +543,7 @@ export interface Supplier {
   discounted_price: number;
   has_discount: boolean;
   last_checked_at: string | null;
+  url?: string;
 }
 
 export interface SuppliersResponse {
