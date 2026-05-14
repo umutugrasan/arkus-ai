@@ -3,11 +3,15 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 import json
+import re
+import logging
 from app.dependencies import get_current_user, get_db
 from app.db.models import Supplier, PriceAlert, Financial
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_overall_metrics, calculate_marketplace_metrics
 from app.services.gemini_service import ask_gemini, ask_gemini_with_search
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -60,53 +64,96 @@ async def best_price(product_name: str, user=Depends(get_current_user), db=Depen
     if rows:
         suppliers = [_supplier_to_dict(s) for s in rows]
     else:
-        # DB'de yoksa, Google Search (Gemini) uzerinden canli toptanci fiyatlarini arastir
-        prompt = f"""Google Search grounding kullanarak "{product_name}" icin toptan (wholesale) satilan fiyatlari bul.
-Alibaba, AliExpress veya benzeri B2B sitelerindeki GERCEK arama sonuclarina bak.
-ONEMLI: Asla hayali fiyat uydurma. Sadece gercekten gordugun, dogrulayabildigin fiyatlari listele. Eger fiyati net olarak goremiyorsan o sonucu KESINLIKLE listeye ekleme. Ayrica buldugun gercek SATIN ALMA LINKINI (url) mutlaka ekle.
-"current_price" degeri SADECE sayi olmalidir (ornek: 143.75).
-Buldugun sonuclari ASAGIDAKI JSON FORMATINDA (array olarak) don. Baska hicbir yazi veya markdown (```json vb.) EKLEME. Sadece list:
+        # DB'de yoksa, Google Search (Gemini) uzerinden canli B2B toptanci fiyatlarini arastir
+        prompt = f"""Google Search grounding kullanarak "{product_name}" icin TOPTAN (B2B/wholesale) fiyatlari bul.
+
+ARANACAK KAYNAKLAR (oncelik sirasi):
+1. alibaba.com - fabrika ve ihracatci fiyatlari
+2. 1688.com - Cin icindeki en dusuk toptan fiyatlar (Turkce veya Ingilizce ara)
+3. dhgate.com - toptan B2B
+4. aliexpress.com/wholesale - sadece toptan listelemeleri
+5. Turkiye icindeki toptancilar: toptanbul.com, sahibinden.com/ilan/toptan, n11.com/toptan, hepsiburadabusiness.com
+
+KESIN KURAL - MIN SIPARIS ADEDI:
+- SADECE minimum siparis adedi (MOQ) 50 adet VEYA USTU olan listeleri al.
+- MOQ'su 50'nin altinda olan hicbir sonucu listeye EKLEME.
+- Eger min_order bilgisi bulunamiyorsa o sonucu ATLA.
+
+DIGER KURALLAR:
+- Asla hayali fiyat uydurma. Sadece gercekten gordugun fiyatlari yaz.
+- Birim fiyat TL veya USD olabilir; USD ise bunu belirt (name alanina "(USD)" ekle).
+- Gercek satin alma linkini (url) mutlaka ekle.
+- "current_price" SADECE sayi olmali (ornek: 143.75).
+
+Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JSON:
 [
-  {{"name": "Alibaba - Store X", "current_price": 500.0, "discount_pct": 10, "min_order": 50, "shipping_days": 15, "product": "{product_name}", "url": "https://alibaba.com/..."}},
-  {{"name": "AliExpress - TechParts", "current_price": 600.0, "discount_pct": 0, "min_order": 1, "shipping_days": 20, "product": "{product_name}", "url": "https://aliexpress.com/..."}}
+  {{"name": "Alibaba - Factory Direct", "current_price": 45.0, "discount_pct": 0, "min_order": 100, "shipping_days": 20, "product": "{product_name}", "url": "https://alibaba.com/..."}},
+  {{"name": "Toptanbul - Toptanci X", "current_price": 55.0, "discount_pct": 5, "min_order": 50, "shipping_days": 3, "product": "{product_name}", "url": "https://toptanbul.com/..."}}
 ]"""
-        system = "Sen JSON donduren bir bot'sun. Metin aciklamasi yapma, sadece JSON."
-        result = await ask_gemini_with_search(prompt, system)
-        
+        system = "Sen sadece JSON donduren bir B2B tedarik botusun. Hic metin aciklamasi yapma, sadece JSON dizisi dondur."
+
+        # ── 1. Deneme: Google Search grounding ile ──
+        raw_text = ""
         try:
-            # parse raw JSON (remove markdown ticks if gemini adds them anyway)
+            result = await ask_gemini_with_search(prompt, system)
             raw_text = (result.get("text") or "").strip()
+            if raw_text.startswith("\u26a0"):  # ⚠️ mock fallback geldi
+                raw_text = ""
+        except Exception as e_search:
+            logger.warning(f"ask_gemini_with_search basarisiz ({type(e_search).__name__}), search'suz deneniyor...")
+
+        # ── 2. Fallback: Search grounding basarisizsa search'suz dene ──
+        if not raw_text:
+            try:
+                logger.info("Sourcing: search grounding yok, ask_gemini ile fallback...")
+                raw_text = await ask_gemini(prompt, system, endpoint="sourcing_best_price")
+                raw_text = (raw_text or "").strip()
+                if raw_text.startswith("\u26a0"):
+                    raw_text = ""
+            except Exception as e_plain:
+                logger.error(f"ask_gemini da basarisiz: {type(e_plain).__name__}: {e_plain}")
+                raw_text = ""
+
+        # ── 3. JSON ayikla ve parse et ──
+        try:
             if not raw_text:
-                raise ValueError("Gemini bos yanit dondu (Kota asimi veya desteklenmeyen model).")
-                
-            if raw_text.startswith("```json"):
-                raw_text = raw_text.split("```json")[1]
-            if raw_text.endswith("```"):
+                raise ValueError("Gemini bos yanit dondu.")
+
+            # markdown fence temizle
+            if "```json" in raw_text:
+                raw_text = raw_text.split("```json", 1)[1]
+            if "```" in raw_text:
                 raw_text = raw_text.rsplit("```", 1)[0]
             raw_text = raw_text.strip()
-            
+
+            # Sadece JSON dizi kismini cek
+            m = re.search(r'\[.*\]', raw_text, re.DOTALL)
+            if m:
+                raw_text = m.group(0)
+
             ai_data = json.loads(raw_text)
             suppliers = []
             for idx, item in enumerate(ai_data):
                 raw_price = item.get("current_price")
                 if raw_price is None:
-                    continue  # Fiyati bilinmeyen tedarikciyi atla
-                
+                    continue
+
                 try:
                     cp = float(raw_price)
-                except ValueError:
-                    # Eger "143,75 TL" gibi geldiyse string'i temizleyerek sayi yap
-                    import re
-                    match = re.search(r"([\d.,]+)", str(raw_price))
-                    if match:
-                        cp = float(match.group(1).replace(",", "."))
+                except (ValueError, TypeError):
+                    mp = re.search(r"([\d.,]+)", str(raw_price))
+                    if mp:
+                        cp = float(mp.group(1).replace(",", "."))
                     else:
                         continue
-                        
+
                 dpct = int(item.get("discount_pct") or 0)
-                min_order = int(item.get("min_order") or 1)
+                min_order = int(item.get("min_order") or 10)
                 shipping_days = int(item.get("shipping_days") or 14)
-                
+
+                if min_order < 10:
+                    continue
+
                 suppliers.append({
                     "id": 9000 + idx,
                     "name": item.get("name") or "Web Supplier",
@@ -115,17 +162,16 @@ Buldugun sonuclari ASAGIDAKI JSON FORMATINDA (array olarak) don. Baska hicbir ya
                     "min_order": min_order,
                     "shipping_days": shipping_days,
                     "discount_pct": dpct,
-                    "discounted_price": round(cp * (1 - dpct/100.0), 2),
+                    "discounted_price": round(cp * (1 - dpct / 100.0), 2),
                     "has_discount": dpct > 0,
                     "last_checked_at": _now(),
-                    "url": item.get("url")
+                    "url": item.get("url"),
                 })
         except Exception as e:
-            print("Gemini JSON Parse Error:", e, result.get("text"))
-            # Sadece hata dondur, artik sahte (dummy) 100TL'lik kayit donme!
+            logger.error(f"Sourcing JSON parse hatasi: {e} | raw: {raw_text[:300]}")
             raise HTTPException(
-                status_code=503, 
-                detail="Arama sunuculari su an yogun (Limit Asimi) veya AI yanit veremedi. Lutfen 30 saniye bekleyip tekrar deneyin."
+                status_code=503,
+                detail="AI yaniti islenemedi. Lutfen birkaç saniye bekleyip tekrar deneyin.",
             )
 
     if not suppliers:
@@ -179,34 +225,36 @@ async def sourcing_opportunities(
     # Tedarikciye konu olan unique urunler
     unique_products = sorted({s["product"] for s in suppliers})
 
-    prompt = f"""Asagidaki tedarikci verilerini analiz et. Turkce yanit ver.
+    prompt = f"""Asagidaki toptan tedarikci verilerini analiz et. Turkce yanit ver.
+AMAC: En az 50 adet alip Trendyol/HB/n11/Amazon TR'de karla satmak.
 
-DB'DEKI MEVCUT TEDARIKCILER (sistemin kayitli verisi):
+DB'DEKI MEVCUT TEDARIKCILER:
 {json.dumps(suppliers, ensure_ascii=False, indent=2)}
 
 URUN KATEGORILERI:
 {json.dumps(unique_products, ensure_ascii=False)}
 
 FINANSAL DURUM:
-- Birikmis nakit bakiye: {cash_balance:,.2f} TL
+- Nakit bakiye: {cash_balance:,.2f} TL
 - Aylik net kar: {overall['total_net_after_ads']:,.2f} TL
 - Aylik gelir: {overall['total_revenue']:,.2f} TL
 
-GOREV: Su an Alibaba.com, AliExpress.com, ve Turkiye'deki toptan B2B sitelerinde
-yukaridaki kategoriler icin **gercek anlik fiyat aramasi yap** (Google Search ile).
-Bulduğun web fiyatlarini DB'deki kayitli tedarikci fiyatlariyla karsilastir.
+GOREV: alibaba.com, 1688.com, dhgate.com, aliexpress.com/wholesale, toptanbul.com,
+hepsiburadabusiness.com sitelerinde yukaridaki kategoriler icin GERCEK anlik
+fiyat aramasi yap (Google Search ile). Sadece MOQ >= 50 adet olan listeleri dikkate al.
 
 Su basliklarda analiz ver:
-1. **Gercek web fiyatlari** (kategori bazinda 2-3 ornek, kaynak siteyle)
-2. **DB tedarikciler vs web fiyatlari** karsilastirmasi - daha ucuzu var mi?
-3. **Indirimli tedarikci firsatlari** (DB'deki + webde gordugun)
-4. **Nakit akisi uygun mu** stok yatirimi icin?
-5. **Zamanlama onerisi** (alim icin uygun mu, beklensin mi?)
-6. **Tedarikci degisikligi onerisi** - hangi kategoride hangi tedarikciye kayilirsa kar marji ne kadar artar
+1. **En ucuz toptan kaynaklar** (her kategori icin 2-3 ornek, MOQ ve kaynak URL ile)
+2. **DB tedarikciler vs web fiyatlari** — daha ucuz alternatif var mi?
+3. **Kar marji firsatlari** — toptan alis + Trendyol/HB komisyon sonrasi net kar?
+4. **50 adet yatirimi icin sermaye analizi** — nakit yeterli mi?
+5. **Hangi urunu kac adet alip nerede satmali?** Somut oneri.
+6. **Tedarikci degisim onerisi** — kayilirsa kar marji ne kadar artar?
 """
     system = (
-        "Sen bir e-ticaret tedarik zinciri uzmansin. Web aramasiyla gercek tedarikci "
-        "fiyatlarini bulup saticilara somut, kaynakli oneriler sunuyorsun."
+        "Sen bir e-ticaret toptan tedarik uzmansin. Amac en az 50 adet toptan alip "
+        "Turkiye pazaryerlerinde karla satmak. Google Search ile gercek B2B fiyatlarini "
+        "bul, sadece MOQ >= 50 olanlari dikkate al. Somut, kaynakli oneriler sun."
     )
 
     if use_web:
@@ -246,26 +294,38 @@ async def real_supplier_search(
     db_dicts = [_supplier_to_dict(s) for s in db_matches]
     db_min = min((d["discounted_price"] for d in db_dicts), default=None)
 
-    prompt = f"""Asagidaki urun icin Alibaba.com, AliExpress.com, n11.com, Trendyol toptan,
-hepsiburadabusiness.com, hepsiglobal.com gibi B2B/toptan ve uluslararasi tedarik
-sitelerinde **gercek anlik fiyat aramasi yap**.
+    prompt = f"""Asagidaki urun icin TOPTAN (B2B/wholesale) tedarikci ara. Amac: en az 50 adet alip Trendyol/HB/n11 gibi Turkiye pazaryerlerinde satin alma fiyatinin uzerinde satmak.
+
+ARANACAK KAYNAKLAR:
+- alibaba.com (ihracatci/fabrika fiyatlari)
+- 1688.com (Cin icindeki en dusuk toptan)
+- dhgate.com (toptan B2B)
+- aliexpress.com/wholesale (sadece toptan)
+- Turkiye: toptanbul.com, hepsiburadabusiness.com, sahibinden.com toptan ilanlari, n11.com toptan
 
 URUN: "{query}"
 
-Bulduklarini su formatta Turkce listele:
-- **Site adi - Tedarikci/Magaza adi:** Birim fiyat (TL/USD), MOQ (minimum siparis), kargo suresi.
-  Kisa not (varsa indirim, kalite vs.).
+KESIN KURAL: Sadece minimum siparis adedi (MOQ) 50 ve uzerinde olan listeleri goster. MOQ < 50 olanlari KESINLIKLE listeme.
 
-En az 4-6 farkli kaynaktan veri getir. Sonra "ÖZET" basligiyla:
-- En ucuz fiyat ne, hangi sitede?
-- Sistemdeki kayitli en dusuk fiyat: {db_min if db_min is not None else "yok"} TL.
-  Web fiyati daha mi iyi, ne kadar tasarruf?
-- Tavsiye: hangi kaynaktan alim yapilmali?
+Bulduklarini su formatta Turkce listele:
+- **Site - Tedarikci:** Birim fiyat (TL veya USD belirt), MOQ: X adet, Kargo: X gun, [Kaynak linki]
+  Kisa not (indirim, uretici mi distributoer mu, kalite notu vs.)
+
+En az 5-6 farkli kaynaktan veri getir.
+
+Son olarak "OZET VE KARARLILIK ANALIZI" basligiyla:
+- En dusuk birim fiyat: hangi site, kac adet MOQ?
+- Sistemdeki kayitli en dusuk fiyat: {db_min if db_min is not None else 'yok'} TL
+- Toplam maliyet (50 adet): X TL
+- Tahmini satis fiyati Trendyol/HB'de: X TL (piyasa arastir)
+- Brut kar marji tahmini: %X
+- TAVSIYE: Hangi kaynaktan kac adet alinmali?
 """
     system = (
-        "Sen bir e-ticaret tedarik zinciri uzmansin. Google Search ile gercek anlik "
-        "tedarikci fiyatlarini buluyorsun. Sadece gerçekten gordugun verileri kullan, "
-        "uydurma. Her bilgide kaynagini belli et."
+        "Sen bir e-ticaret toptan tedarik uzmansin. Amac karla satis yapabilmek icin "
+        "en ucuz toptan kaynagi bulmak (min 50 adet). Google Search ile gercek anlik "
+        "B2B fiyatlarini bul. Sadece gercek gordugun verileri yaz, asla uydurma. "
+        "Her bilgide kaynagi belirt."
     )
     result = await ask_gemini_with_search(prompt, system)
 

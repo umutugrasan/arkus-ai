@@ -12,12 +12,32 @@ logger = logging.getLogger(__name__)
 API_KEY = settings.GEMINI_API_KEY or os.getenv("GEMINI_API_KEY")
 
 MODEL_CASCADE = [
-    settings.GEMINI_MODEL,         # default: gemini-2.5-flash
-    "gemini-3.1-flash-lite",       # yeni nesil lite alternatif
-    "gemini-2.5-flash-lite",       # daha az kota tuketen alternatif
-    "gemini-2.0-flash",            # alternatif aile
-    "gemini-2.0-flash-lite",       # lite alternatif
-    "gemini-flash-latest",         # alias - en yeni surum
+    # ── 1. Tercih: Default model (config'den gelir, genellikle gemini-2.5-flash) ──
+    settings.GEMINI_MODEL,
+
+    # ── 2. En güçlü Pro model ──
+    "gemini-2.5-pro",                        # En yetenekli model
+
+    # ── 3. Gemini 3.x nesli (yeni, güçlü) ──
+    "gemini-3.0-flash",                      # Gemini 3 Flash
+    "gemini-3.1-flash-lite",                 # Gemini 3.1 Flash Lite
+
+    # ── 4. Gemini 2.5 Flash (stabil ana model) ──
+    "gemini-2.5-flash",                      # 2.5 Flash alias
+
+    # ── 5. Gemini 2.x ailesi ──
+    "gemini-2.0-flash",                      # Gemini 2 Flash
+    "gemini-2.0-flash-lite",                 # Gemini 2 Flash Lite
+
+    # ── 6. Eski ama güvenilir ──
+    "gemini-1.5-flash",                      # 1.5 Flash
+
+    # ── 7. Lite preview fallback ──
+    "gemini-2.5-flash-lite-preview-06-17",   # 2.5 Flash Lite preview
+
+    # ── 8. Son çare: Gemma açık modeller (text üretebilir) ──
+    "gemma-3-27b-it",                        # Gemma 4 27B (API adı)
+    "gemma-3-12b-it",                        # Gemma 4 12B (API adı)
 ]
 
 _client = None
