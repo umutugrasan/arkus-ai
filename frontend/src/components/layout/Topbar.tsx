@@ -52,24 +52,24 @@ export default function Topbar({ onMenuClick, pageTitle, unreadCount, onUnreadRe
   };
 
   return (
-    <header className="h-16 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50 flex items-center px-4 gap-4 sticky top-0 z-20">
+    <header className="h-16 bg-[#4a3f44] text-white flex items-center px-8 gap-4 sticky top-0 z-20 shrink-0">
       <button
         onClick={onMenuClick}
-        className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+        className="lg:hidden p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
         aria-label="Menüyü aç"
       >
         <Menu size={20} />
       </button>
 
-      <h2 className="text-slate-200 font-semibold text-base flex-1 truncate">{pageTitle}</h2>
+      <h2 className="font-semibold text-sm flex-1 truncate">{pageTitle}</h2>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-6">
         {/* Sync (tüm pazaryerlerini yenile) */}
         <button
           title="Tüm Pazaryerlerini Senkronize Et"
           onClick={handleSync}
           disabled={syncing}
-          className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors disabled:opacity-50"
+          className="text-white/70 hover:text-white transition-colors disabled:opacity-50"
         >
           <RefreshCw size={16} className={syncing ? 'animate-spin' : ''} />
         </button>
@@ -77,12 +77,12 @@ export default function Topbar({ onMenuClick, pageTitle, unreadCount, onUnreadRe
         {/* Notifications */}
         <button
           onClick={() => navigate('/notifications')}
-          className="relative p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="relative text-white/70 hover:text-white transition-colors"
           aria-label="Bildirimler"
         >
-          <Bell size={18} />
+          <Bell size={16} />
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 min-w-4 h-4 px-1 bg-red-500 rounded-full text-white text-[10px] font-bold flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-red-500 rounded-full text-white text-[10px] font-bold flex items-center justify-center">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -92,28 +92,26 @@ export default function Topbar({ onMenuClick, pageTitle, unreadCount, onUnreadRe
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setUserMenu((m) => !m)}
-            className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700/50 transition-colors"
+            className="flex items-center gap-2 bg-[#5e5458] hover:bg-[#6b6266] px-3 py-1.5 rounded-lg text-xs transition-colors"
           >
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
-              <User size={14} className="text-white" />
-            </div>
-            <span className="text-slate-300 text-xs font-medium hidden sm:block max-w-[120px] truncate">
+            <User size={14} className="opacity-80" />
+            <span className="font-medium hidden sm:block max-w-[120px] truncate">
               {user?.name || 'Kullanıcı'}
             </span>
           </button>
 
           {userMenu && (
-            <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl py-2 shadow-2xl z-50 animate-fade-in">
-              <div className="px-3 py-2 border-b border-slate-700/50">
-                <p className="text-white text-sm font-semibold truncate">{user?.name}</p>
-                <p className="text-slate-400 text-xs truncate">{user?.email}</p>
+            <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-gray-100 bg-white py-2 shadow-lg z-50 animate-fade-in text-slate-800">
+              <div className="px-4 py-3 border-b border-gray-100">
+                <p className="text-sm font-bold truncate">{user?.name}</p>
+                <p className="text-gray-500 text-xs truncate">{user?.email}</p>
                 {user?.store_name && (
-                  <p className="text-indigo-400 text-xs mt-0.5 truncate">{user.store_name}</p>
+                  <p className="text-[#4a3f44] text-xs mt-1 font-semibold truncate">{user.store_name}</p>
                 )}
                 {user && !user.email_verified && (
-                  <div className="mt-2 px-2 py-1 rounded bg-amber-500/10 border border-amber-500/30 flex items-center gap-1.5">
-                    <Mail size={11} className="text-amber-400" />
-                    <span className="text-amber-300 text-[10px]">E-posta doğrulanmadı</span>
+                  <div className="mt-2 px-2 py-1 rounded bg-amber-50 border border-amber-200 flex items-center gap-1.5">
+                    <Mail size={11} className="text-amber-500" />
+                    <span className="text-amber-600 text-[10px] font-medium">E-posta doğrulanmadı</span>
                   </div>
                 )}
               </div>
@@ -123,19 +121,19 @@ export default function Topbar({ onMenuClick, pageTitle, unreadCount, onUnreadRe
                   setUserMenu(false);
                   navigate('/settings');
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-slate-300 hover:bg-slate-800/60 text-sm transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-gray-600 hover:bg-gray-50 text-sm transition-colors"
               >
-                <SettingsIcon size={14} />
+                <SettingsIcon size={16} />
                 Ayarlar
               </button>
 
-              <div className="my-1 border-t border-slate-700/50" />
+              <div className="my-1 border-t border-gray-100" />
 
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 text-rose-400 hover:bg-rose-500/10 text-sm transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-red-500 hover:bg-red-50 text-sm transition-colors"
               >
-                <LogOut size={14} />
+                <LogOut size={16} />
                 Çıkış Yap
               </button>
             </div>

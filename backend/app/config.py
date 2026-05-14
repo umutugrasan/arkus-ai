@@ -9,14 +9,14 @@ from typing import List
 
 class Settings:
     # --- Genel ---
-    APP_NAME: str = "Basiret AI"
+    APP_NAME: str = "Arkus AI"
     APP_ENV: str = os.getenv("APP_ENV", "development")  # development | production
     DEBUG: bool = APP_ENV == "development"
 
     # --- Database ---
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
-        "postgresql://basiret:basiretpassword@localhost:5432/basiret_db",
+        "postgresql://arkus:arkuspassword@localhost:5432/arkus_db",
     )
 
     # --- Auth / JWT ---

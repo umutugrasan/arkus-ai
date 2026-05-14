@@ -15,15 +15,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANT: Record<Variant, string> = {
   primary:
-    'bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white shadow-lg shadow-indigo-500/30 disabled:opacity-50',
+    'bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-slate-800 shadow-lg shadow-indigo-500/30 disabled:opacity-50',
   secondary:
-    'bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 text-slate-200 disabled:opacity-50',
+    'bg-gray-50 hover:bg-slate-700/60 border border-gray-200 text-slate-200 disabled:opacity-50',
   ghost:
-    'bg-transparent hover:bg-slate-800/60 text-slate-300 disabled:opacity-50',
+    'bg-transparent hover:bg-gray-50 text-gray-600 disabled:opacity-50',
   danger:
-    'bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-500/30 disabled:opacity-50',
+    'bg-rose-600 hover:bg-rose-700 text-slate-800 shadow-lg shadow-rose-500/30 disabled:opacity-50',
   success:
-    'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/30 disabled:opacity-50',
+    'bg-emerald-600 hover:bg-emerald-700 text-slate-800 shadow-lg shadow-emerald-500/30 disabled:opacity-50',
 };
 
 const SIZE: Record<Size, string> = {

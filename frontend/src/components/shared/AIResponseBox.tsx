@@ -9,11 +9,11 @@ interface AIResponseBoxProps {
 
 export default function AIResponseBox({ content, title = 'Gemini AI Analizi' }: AIResponseBoxProps) {
   return (
-    <div className="glass-card border border-indigo-500/20 animate-fade-in">
-      <div className="flex items-center gap-2 p-4 border-b border-slate-700/50">
+    <div className="glass-card border border-indigo-100 animate-fade-in">
+      <div className="flex items-center gap-2 p-4 border-b border-gray-100">
         <div className="flex items-center gap-2 bg-gradient-to-r from-indigo-500/20 to-violet-500/20 rounded-lg px-3 py-1.5">
-          <Brain size={16} className="text-indigo-400" />
-          <span className="text-indigo-300 text-sm font-semibold">{title}</span>
+          <Brain size={16} className="text-indigo-600" />
+          <span className="text-indigo-600 text-sm font-semibold">{title}</span>
           <Sparkles size={12} className="text-violet-400" />
         </div>
       </div>

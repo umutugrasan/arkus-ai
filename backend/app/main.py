@@ -1,5 +1,5 @@
 """
-Basiret AI — Ana FastAPI giris noktasi.
+Arkus AI — Ana FastAPI giris noktasi.
 - Yapilandirilmis loglama + request ID middleware
 - Env-driven CORS
 - slowapi rate limiting
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info(f"Basiret AI baslatiliyor (env={settings.APP_ENV})")
+    logger.info(f"Arkus AI baslatiliyor (env={settings.APP_ENV})")
     Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
@@ -49,11 +49,11 @@ async def lifespan(app: FastAPI):
     start_scheduler()
     yield
     stop_scheduler()
-    logger.info("Basiret AI kapatildi")
+    logger.info("Arkus AI kapatildi")
 
 
 app = FastAPI(
-    title="Basiret AI - Satici Zekasi API",
+    title="Arkus AI - Satici Zekasi API",
     description=(
         "Coklu pazaryeri satici analiz ve danismanlik platformu.\n\n"
         "**Auth:** Authorization: Bearer <jwt> (onerilen) veya ?token= (legacy)."

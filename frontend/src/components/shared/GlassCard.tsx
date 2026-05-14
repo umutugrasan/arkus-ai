@@ -11,7 +11,7 @@ export default function GlassCard({ children, className = '', onClick, hover = f
   return (
     <div
       onClick={onClick}
-      className={`glass-card p-4 transition-all duration-200 ${hover ? 'hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/10 cursor-pointer' : ''} ${className}`}
+      className={`bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] border border-gray-100 p-6 transition-all duration-200 ${hover ? 'hover:shadow-md cursor-pointer' : ''} ${className}`}
     >
       {children}
     </div>

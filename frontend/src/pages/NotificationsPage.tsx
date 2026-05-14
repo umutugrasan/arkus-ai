@@ -11,7 +11,7 @@ type FilterType = 'all' | 'unread' | 'stok_uyarisi' | 'puan_dususu' | 'rakip_fiy
 const SEVERITY_CONFIG: Record<string, { icon: React.ReactNode; text: string; bg: string; label: string }> = {
   critical: { icon: <XCircle size={14} />, text: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/30', label: 'Kritik' },
   warning:  { icon: <AlertTriangle size={14} />, text: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30', label: 'Uyarı' },
-  info:     { icon: <Info size={14} />, text: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/30', label: 'Bilgi' },
+  info:     { icon: <Info size={14} />, text: 'text-indigo-600', bg: 'bg-indigo-50 border-indigo-500/30', label: 'Bilgi' },
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -84,24 +84,24 @@ export default function NotificationsPage() {
       {/* Header Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-indigo-500/20 rounded-xl">
-            <Bell size={18} className="text-indigo-400" />
+          <div className="p-2 bg-indigo-50 rounded-xl">
+            <Bell size={18} className="text-indigo-600" />
           </div>
           <div>
-            <h2 className="text-white font-semibold">Bildirimler</h2>
-            {unreadCount > 0 && <p className="text-slate-400 text-xs">{unreadCount} okunmamış</p>}
+            <h2 className="text-slate-800 font-semibold">Bildirimler</h2>
+            {unreadCount > 0 && <p className="text-gray-500 text-xs">{unreadCount} okunmamış</p>}
           </div>
         </div>
         <div className="flex gap-2">
           {unreadCount > 0 && (
             <button onClick={handleMarkAll} disabled={markingAll}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-all disabled:opacity-50">
+              className="flex items-center gap-1.5 px-3 py-2 text-sm bg-white hover:bg-slate-700 text-gray-600 rounded-xl transition-all disabled:opacity-50">
               {markingAll ? <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" /> : <CheckCheck size={14} />}
               Tümünü Oku
             </button>
           )}
           <button onClick={handleGenerate} disabled={generating}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all disabled:opacity-50">
+            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl transition-all disabled:opacity-50">
             {generating ? <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> : <RefreshCw size={14} />}
             Bildirimleri Tara
           </button>
@@ -113,7 +113,7 @@ export default function NotificationsPage() {
         {filters.map(f => (
           <button key={f.id} onClick={() => setFilter(f.id)}
             className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
-              filter === f.id ? 'bg-indigo-600 text-white' : 'bg-slate-800/60 text-slate-400 hover:text-white'
+              filter === f.id ? 'bg-indigo-600 text-slate-800' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
             }`}>{f.label}</button>
         ))}
       </div>
@@ -128,26 +128,26 @@ export default function NotificationsPage() {
               return (
                 <div key={n.id} onClick={() => !n.read && handleMarkRead(n.id)}
                   className={`p-4 rounded-2xl border transition-all ${
-                    !n.read ? `${sev.bg} cursor-pointer hover:opacity-80` : 'bg-slate-800/20 border-slate-800/50 opacity-70'
+                    !n.read ? `${sev.bg} cursor-pointer hover:opacity-80` : 'bg-white/20 border-gray-200/50 opacity-70'
                   }`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
-                      <div className={`flex-shrink-0 p-1.5 rounded-lg ${!n.read ? sev.bg : 'bg-slate-800/40'}`}>
+                      <div className={`flex-shrink-0 p-1.5 rounded-lg ${!n.read ? sev.bg : 'bg-white/40'}`}>
                         <span className={sev.text}>{sev.icon}</span>
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-0.5">
-                          <p className={`text-sm font-semibold ${!n.read ? 'text-white' : 'text-slate-400'}`}>{n.title}</p>
+                          <p className={`text-sm font-semibold ${!n.read ? 'text-slate-800' : 'text-gray-500'}`}>{n.title}</p>
                           {!n.read && <span className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0" />}
                         </div>
-                        <p className="text-slate-400 text-xs leading-relaxed">{n.message}</p>
+                        <p className="text-gray-500 text-xs leading-relaxed">{n.message}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className={`text-xs px-2 py-0.5 rounded-full ${sev.bg} ${sev.text}`}>{sev.label}</span>
-                          {TYPE_LABELS[n.type] && <span className="text-xs text-slate-500">{TYPE_LABELS[n.type]}</span>}
+                          {TYPE_LABELS[n.type] && <span className="text-xs text-gray-500">{TYPE_LABELS[n.type]}</span>}
                         </div>
                       </div>
                     </div>
-                    <p className="text-slate-500 text-xs flex-shrink-0">{formatDate(n.created_at)}</p>
+                    <p className="text-gray-500 text-xs flex-shrink-0">{formatDate(n.created_at)}</p>
                   </div>
                 </div>
               );

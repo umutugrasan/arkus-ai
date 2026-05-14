@@ -13,7 +13,7 @@ from app.dependencies import get_current_user
 
 router = APIRouter()
 
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", os.path.join(tempfile.gettempdir(), "basiret_uploads"))
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", os.path.join(tempfile.gettempdir(), "arkus_uploads"))
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 MAX_SIZE_MB = 10
 ALLOWED_MIME = {"image/jpeg", "image/png", "image/webp", "image/gif"}

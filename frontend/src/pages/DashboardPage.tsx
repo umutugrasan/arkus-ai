@@ -202,7 +202,7 @@ export default function DashboardPage() {
 
       {/* AI Summary (streaming) */}
       <StreamingMarkdown
-        title="Bugünün Özeti — Basiret AI"
+        title="Bugünün Özeti — Arkus AI"
         content={aiText}
         streaming={aiStreaming}
         webSources={aiSources}
@@ -231,18 +231,18 @@ export default function DashboardPage() {
           <GlassCard className="p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Calendar size={16} className="text-indigo-400" />
-                <h3 className="text-white font-semibold">Trend</h3>
+                <Calendar size={16} className="text-gray-400" />
+                <h3 className="text-slate-800 font-bold">Trend</h3>
               </div>
-              <div className="flex items-center gap-1 bg-slate-800/60 border border-slate-700/60 rounded-lg p-0.5">
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
                 {([7, 30] as const).map((p) => (
                   <button
                     key={p}
                     onClick={() => setTrendPeriod(p)}
-                    className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    className={`px-3 py-1 text-xs font-semibold rounded shadow-sm transition-colors ${
                       trendPeriod === p
-                        ? 'bg-indigo-500/30 text-indigo-200'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-white text-slate-800'
+                        : 'text-gray-500 hover:text-slate-700 hover:bg-gray-50'
                     }`}
                   >
                     {p} gün
@@ -285,8 +285,8 @@ export default function DashboardPage() {
         <div>
           <GlassCard className="p-5 h-full">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles size={16} className="text-violet-400" />
-              <h3 className="text-white font-semibold">Pazaryeri Kırılımı</h3>
+              <Sparkles size={16} className="text-gray-400" />
+              <h3 className="text-slate-800 font-bold">Pazaryeri Kırılımı</h3>
             </div>
             {mpBarData.length === 0 ? (
               <EmptyState title="Pazaryeri yok" />
@@ -318,18 +318,18 @@ export default function DashboardPage() {
 
       {/* Marketplace özet kartlar */}
       <div>
-        <h3 className="text-white font-semibold mb-3">Pazaryeri Özet Kartları</h3>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <h3 className="text-lg font-bold text-slate-800 mb-4 mt-8">Pazaryeri Özet Kartları</h3>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {mpSummaries.map((mp) => {
             const cfg = MARKETPLACES[mp.marketplace];
             return (
               <GlassCard key={mp.marketplace} className="p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-xs font-semibold ${cfg?.textColor || 'text-slate-400'}`}>
+                    <p className={`text-[11px] font-bold ${cfg?.textColor || 'text-gray-500'}`}>
                       {cfg?.label || mp.marketplace}
                     </p>
-                    <p className="text-white font-bold mt-0.5 truncate" title={mp.store_name}>
+                    <p className="text-slate-800 font-bold mt-0.5 truncate" title={mp.store_name}>
                       {mp.store_name}
                     </p>
                   </div>
@@ -357,9 +357,9 @@ export default function DashboardPage() {
 
 function MiniMetric({ label, value, highlight = false }: { label: string; value: string | number; highlight?: boolean }) {
   return (
-    <div className={`glass-card p-3 ${highlight ? 'border-amber-500/30' : ''}`}>
-      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">{label}</p>
-      <p className={`text-lg font-bold mt-0.5 ${highlight ? 'text-amber-400' : 'text-white'}`}>{value}</p>
+    <div className={`metric-card ${highlight ? 'border-amber-200 bg-amber-50' : ''}`}>
+      <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">{label}</p>
+      <p className={`text-xl font-bold mt-1 ${highlight ? 'text-amber-600' : 'text-slate-800'}`}>{value}</p>
     </div>
   );
 }
@@ -367,10 +367,10 @@ function MiniMetric({ label, value, highlight = false }: { label: string; value:
 function Row({ label, value, positive }: { label: string; value: string; positive?: boolean }) {
   return (
     <div>
-      <p className="text-slate-500 uppercase tracking-wider text-[10px] font-semibold">{label}</p>
+      <p className="text-gray-500 uppercase tracking-wider text-[10px] font-semibold">{label}</p>
       <p
-        className={`font-semibold ${
-          positive === false ? 'text-rose-400' : positive ? 'text-emerald-400' : 'text-slate-200'
+        className={`font-semibold text-sm ${
+          positive === false ? 'text-rose-500' : positive ? 'text-emerald-500' : 'text-slate-800'
         }`}
       >
         {value}

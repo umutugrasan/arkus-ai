@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] relative overflow-hidden">
+    <div className="min-h-screen bg-[#f9f8f4] relative overflow-hidden">
       <div className="absolute inset-0 -z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-600/20 blur-3xl" />
         <div className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-violet-600/15 blur-3xl" />
@@ -75,20 +75,20 @@ export default function ForgotPasswordPage() {
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center mb-6">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-2xl shadow-indigo-500/40 mb-4">
-              <Zap size={26} className="text-white" />
+              <Zap size={26} className="text-slate-800" />
             </div>
-            <h1 className="text-3xl font-extrabold gradient-text">Basiret AI</h1>
+            <h1 className="text-3xl font-extrabold gradient-text">Arkus AI</h1>
           </div>
 
           <div className="glass-card p-8 animate-fade-in">
-            <Link to="/login" className="flex items-center gap-1 text-xs text-slate-400 hover:text-indigo-400 mb-4">
+            <Link to="/login" className="flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-600 mb-4">
               <ArrowLeft size={12} /> Giriş'e dön
             </Link>
 
             {step === 'request' && (
               <>
-                <h2 className="text-xl font-bold text-white mb-1">Şifremi Unuttum</h2>
-                <p className="text-slate-400 text-sm mb-6">
+                <h2 className="text-xl font-bold text-slate-800 mb-1">Şifremi Unuttum</h2>
+                <p className="text-gray-500 text-sm mb-6">
                   Kayıtlı e-posta adresine sıfırlama bağlantısı göndereceğiz.
                 </p>
                 <form onSubmit={handleRequest} className="space-y-4">
@@ -117,8 +117,8 @@ export default function ForgotPasswordPage() {
 
             {step === 'reset' && (
               <>
-                <h2 className="text-xl font-bold text-white mb-1">Yeni Şifre Belirle</h2>
-                <p className="text-slate-400 text-sm mb-4">
+                <h2 className="text-xl font-bold text-slate-800 mb-1">Yeni Şifre Belirle</h2>
+                <p className="text-gray-500 text-sm mb-4">
                   E-postana gelen sıfırlama token'ını gir ve yeni şifreni belirle.
                 </p>
 
@@ -143,7 +143,7 @@ export default function ForgotPasswordPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword((v) => !v)}
-                        className="p-1.5 text-slate-400 hover:text-slate-200"
+                        className="p-1.5 text-gray-500 hover:text-slate-200"
                         tabIndex={-1}
                       >
                         {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -183,8 +183,8 @@ export default function ForgotPasswordPage() {
                 <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto mb-4">
                   <KeyRound size={26} className="text-emerald-400" />
                 </div>
-                <h2 className="text-xl font-bold text-white mb-2">Şifre Sıfırlandı</h2>
-                <p className="text-slate-400 text-sm">Giriş sayfasına yönlendiriliyorsun…</p>
+                <h2 className="text-xl font-bold text-slate-800 mb-2">Şifre Sıfırlandı</h2>
+                <p className="text-gray-500 text-sm">Giriş sayfasına yönlendiriliyorsun…</p>
               </div>
             )}
           </div>

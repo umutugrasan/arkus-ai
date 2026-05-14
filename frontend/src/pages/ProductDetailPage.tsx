@@ -70,7 +70,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <Link to="/products" className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-indigo-400">
+      <Link to="/products" className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-600">
         <ArrowLeft size={12} /> Ürünlere Dön
       </Link>
 
@@ -122,7 +122,7 @@ export default function ProductDetailPage() {
           <AlertTriangle size={20} className="text-rose-400 shrink-0" />
           <div>
             <p className="text-rose-300 font-semibold text-sm">Stok uyarısı</p>
-            <p className="text-slate-300 text-xs">
+            <p className="text-gray-600 text-xs">
               En kritik pazaryerinde stok {minStockoutDays} günde tükeniyor. Tedarik planlaması yap.
             </p>
           </div>
@@ -132,13 +132,13 @@ export default function ProductDetailPage() {
       {/* Listings tablosu */}
       <GlassCard className="p-5">
         <div className="flex items-center gap-2 mb-3">
-          <ShoppingBag size={16} className="text-indigo-400" />
-          <h3 className="text-white font-semibold">Pazaryeri Listingleri</h3>
+          <ShoppingBag size={16} className="text-indigo-600" />
+          <h3 className="text-slate-800 font-semibold">Pazaryeri Listingleri</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-700/50">
+              <tr className="text-left text-[10px] uppercase tracking-wider text-gray-500 border-b border-gray-100">
                 <th className="py-2 pl-2">Pazaryeri</th>
                 <th className="py-2 text-right">Fiyat</th>
                 <th className="py-2 text-right">Maliyet</th>
@@ -153,30 +153,30 @@ export default function ProductDetailPage() {
             </thead>
             <tbody>
               {product.listings.map((l) => (
-                <tr key={l.marketplace} className="border-b border-slate-800/60">
+                <tr key={l.marketplace} className="border-b border-gray-200/60">
                   <td className="py-2.5 pl-2">
                     <MarketplaceBadge marketplace={l.marketplace} />
                   </td>
                   <td className="py-2.5 text-right text-slate-200">{formatCurrency(l.price)}</td>
-                  <td className="py-2.5 text-right text-slate-400">{formatCurrency(l.cost)}</td>
+                  <td className="py-2.5 text-right text-gray-500">{formatCurrency(l.cost)}</td>
                   <td className="py-2.5 text-right font-semibold text-emerald-400">
                     {formatCurrency(l.profit_per_item)}
                   </td>
-                  <td className="py-2.5 text-right text-slate-300">{formatPercent(l.net_margin_pct)}</td>
+                  <td className="py-2.5 text-right text-gray-600">{formatPercent(l.net_margin_pct)}</td>
                   <td className="py-2.5 text-right text-slate-200">{formatNumber(l.sales_30d)}</td>
-                  <td className="py-2.5 text-right text-slate-300">{formatNumber(l.stock)}</td>
+                  <td className="py-2.5 text-right text-gray-600">{formatNumber(l.stock)}</td>
                   <td className={`py-2.5 text-right font-medium ${
                     l.days_until_stockout < 7 ? 'text-rose-400' :
-                    l.days_until_stockout < 15 ? 'text-amber-400' : 'text-slate-300'
+                    l.days_until_stockout < 15 ? 'text-amber-400' : 'text-gray-600'
                   }`}>
                     {l.days_until_stockout < 999 ? `${l.days_until_stockout} gün` : '—'}
                   </td>
-                  <td className="py-2.5 text-right text-slate-400 text-xs">
+                  <td className="py-2.5 text-right text-gray-500 text-xs">
                     %{l.commission_rate?.toFixed(1)}
                   </td>
                   <td className="py-2.5 text-center text-amber-400 text-xs">
                     ⭐ {l.rating?.toFixed(1) || '—'}
-                    <p className="text-slate-500 text-[10px]">{formatNumber(l.review_count)}</p>
+                    <p className="text-gray-500 text-[10px]">{formatNumber(l.review_count)}</p>
                   </td>
                 </tr>
               ))}
@@ -190,16 +190,16 @@ export default function ProductDetailPage() {
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-3">
             <ImageIcon size={16} className="text-violet-400" />
-            <h3 className="text-white font-semibold">Görseller</h3>
+            <h3 className="text-slate-800 font-semibold">Görseller</h3>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {images.images_by_marketplace.map((g) => (
-              <div key={g.marketplace} className="rounded-xl overflow-hidden border border-slate-700/60">
-                <div className="px-3 py-2 bg-slate-800/60 flex items-center justify-between">
+              <div key={g.marketplace} className="rounded-xl overflow-hidden border border-gray-200/60">
+                <div className="px-3 py-2 bg-gray-50 flex items-center justify-between">
                   <MarketplaceBadge marketplace={g.marketplace} />
-                  <span className="text-xs text-slate-500">{g.gallery.length} görsel</span>
+                  <span className="text-xs text-gray-500">{g.gallery.length} görsel</span>
                 </div>
-                <div className="aspect-square bg-slate-900">
+                <div className="aspect-square bg-gray-50">
                   <img
                     src={g.primary_image}
                     alt={`${product.name} - ${g.marketplace}`}
@@ -222,9 +222,9 @@ export default function ProductDetailPage() {
 function KPI({ label, value, positive }: { label: string; value: string; positive?: boolean }) {
   return (
     <div className="glass-card p-4">
-      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">{label}</p>
       <p className={`text-xl font-bold mt-1 ${
-        positive === undefined ? 'text-white' : positive ? 'text-emerald-400' : 'text-rose-400'
+        positive === undefined ? 'text-slate-800' : positive ? 'text-emerald-400' : 'text-rose-400'
       }`}>
         {value}
       </p>

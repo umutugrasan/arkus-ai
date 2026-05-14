@@ -54,7 +54,7 @@ def _api_get(path: str, headers: dict = None, retries: int = 5, delay: float = 2
 
 def seed_db(db: Session):
     # Demo kullanici varsa tekrar seed etme
-    if db.query(User).filter(User.email == "demo@basiret.ai").first():
+    if db.query(User).filter(User.email == "demo@arkus.ai").first():
         return
 
     logger.info("Seeding via mock-api at %s", MOCK_API_BASE)
@@ -62,7 +62,7 @@ def seed_db(db: Session):
     # 1. users (her zaman lokal — kullanici, mock-api'nin urunu degil)
     demo_user = User(
         name="Demo Kullanici",
-        email="demo@basiret.ai",
+        email="demo@arkus.ai",
         password=hash_password("demo123"),
         store_name="Demo Store",
         email_verified=True,

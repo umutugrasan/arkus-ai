@@ -59,7 +59,7 @@ export default function HealthScorePage() {
 
   const gradeConfig: Record<string, { text: string; bg: string; ring: string }> = {
     A: { text: 'text-emerald-400', bg: 'from-emerald-500/30 to-emerald-600/10', ring: '#10b981' },
-    B: { text: 'text-indigo-400', bg: 'from-indigo-500/30 to-indigo-600/10', ring: '#6366f1' },
+    B: { text: 'text-indigo-600', bg: 'from-indigo-500/30 to-indigo-600/10', ring: '#6366f1' },
     C: { text: 'text-amber-400', bg: 'from-amber-500/30 to-amber-600/10', ring: '#f59e0b' },
     D: { text: 'text-rose-400', bg: 'from-rose-500/30 to-rose-600/10', ring: '#ef4444' },
   };
@@ -84,18 +84,18 @@ export default function HealthScorePage() {
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <p className={`text-5xl font-extrabold ${cfg.text}`}>{totalScore}</p>
-                <p className="text-slate-400 text-sm">/ 100</p>
+                <p className="text-gray-500 text-sm">/ 100</p>
               </div>
             </div>
             <div className="mt-4 text-center">
               <span className={`text-4xl font-bold ${cfg.text}`}>{grade}</span>
-              <p className="text-white font-medium mt-1">{label}</p>
+              <p className="text-slate-800 font-medium mt-1">{label}</p>
             </div>
           </div>
         </GlassCard>
 
         <GlassCard className="md:col-span-2">
-          <h3 className="text-white font-semibold mb-4">Metrikler</h3>
+          <h3 className="text-slate-800 font-semibold mb-4">Metrikler</h3>
           <div className="grid grid-cols-2 gap-3">
             {metrics && [
               { label: 'Ort. Puan', value: metrics.avg_rating.toFixed(1) + ' ⭐' },
@@ -105,9 +105,9 @@ export default function HealthScorePage() {
               { label: 'Toplam Ürün', value: String(metrics.unique_products) },
               { label: 'Aylık Net Kâr', value: formatCurrency(metrics.monthly_net_profit) },
             ].map(m => (
-              <div key={m.label} className="p-3 bg-slate-800/40 rounded-xl">
-                <p className="text-slate-400 text-xs">{m.label}</p>
-                <p className="text-white font-semibold mt-0.5">{m.value}</p>
+              <div key={m.label} className="p-3 bg-white/40 rounded-xl">
+                <p className="text-gray-500 text-xs">{m.label}</p>
+                <p className="text-slate-800 font-semibold mt-0.5">{m.value}</p>
               </div>
             ))}
           </div>
@@ -117,7 +117,7 @@ export default function HealthScorePage() {
       {/* Kategori Breakdown */}
       {breakdown && (
         <GlassCard>
-          <h3 className="text-white font-semibold mb-4">Kategori Bazlı Puan</h3>
+          <h3 className="text-slate-800 font-semibold mb-4">Kategori Bazlı Puan</h3>
           <div className="space-y-3">
             {(breakdown.breakdown || []).map((item) => {
               const pct = item.percentage;
@@ -125,10 +125,10 @@ export default function HealthScorePage() {
               return (
                 <div key={item.category}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-slate-300 text-sm">{CATEGORY_LABELS[item.category] || item.category}</span>
-                    <span className="text-white font-semibold text-sm">{item.score}/{item.max_score}</span>
+                    <span className="text-gray-600 text-sm">{CATEGORY_LABELS[item.category] || item.category}</span>
+                    <span className="text-slate-800 font-semibold text-sm">{item.score}/{item.max_score}</span>
                   </div>
-                  <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-2 bg-white rounded-full overflow-hidden">
                     <div className={`h-full rounded-full transition-all duration-700 ${barColor}`} style={{ width: `${pct}%` }} />
                   </div>
                 </div>
@@ -141,7 +141,7 @@ export default function HealthScorePage() {
       {/* Tarihçe Grafiği */}
       {historyData.length > 0 && (
         <GlassCard>
-          <h3 className="text-white font-semibold mb-4">Aylık Skor Tarihçesi</h3>
+          <h3 className="text-slate-800 font-semibold mb-4">Aylık Skor Tarihçesi</h3>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={historyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -158,15 +158,15 @@ export default function HealthScorePage() {
       {/* AI Analiz */}
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-400" /> AI Skor Analizi</h3>
+          <h3 className="text-slate-800 font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600" /> AI Skor Analizi</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Analiz ediliyor…</> : <><Brain size={14} /> Analiz Et</>}
           </button>
         </div>
         {aiAnalysis
           ? <StreamingMarkdown content={aiAnalysis} webSources={aiSources} title="Sağlık Skoru AI Analizi" />
-          : <p className="text-slate-500 text-sm">Güçlü/zayıf yönler ve skor artırma yol haritası için Analiz Et'e tıklayın.</p>
+          : <p className="text-gray-500 text-sm">Güçlü/zayıf yönler ve skor artırma yol haritası için Analiz Et'e tıklayın.</p>
         }
       </GlassCard>
     </div>

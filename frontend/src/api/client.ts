@@ -2,9 +2,9 @@ import axios, { AxiosError } from 'axios';
 import type { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 
 // LocalStorage anahtarlari
-const ACCESS_KEY = 'basiret_access_token';
-const REFRESH_KEY = 'basiret_refresh_token';
-const USER_KEY = 'basiret_user';
+const ACCESS_KEY = 'arkus_access_token';
+const REFRESH_KEY = 'arkus_refresh_token';
+const USER_KEY = 'arkus_user';
 
 export const tokenStorage = {
   getAccess(): string | null {

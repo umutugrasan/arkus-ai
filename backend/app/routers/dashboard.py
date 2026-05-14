@@ -204,7 +204,7 @@ DUSUK PUANLI URUNLER:
         )
 
     system = (
-        "Sen Basiret AI'sin, bir e-ticaret danismani. Saticiyi sabah 'gunaydin' dercesine selamlayan, "
+        "Sen Arkus AI'sin, bir e-ticaret danismani. Saticiyi sabah 'gunaydin' dercesine selamlayan, "
         "kisa ve aksiyon odakli bir genel durum ozeti yaz. 4-6 cumle. Acil dikkat gerektiren 1-2 noktayi "
         "vurgula (stok, dusuk puan, marj dususu vs.). Sonunda tek satirla ne yapmasi gerektigini soyle. "
         "Markdown kullan ama abartma."
@@ -292,7 +292,7 @@ DUSUK PUAN:
 """
 
     system = (
-        "Sen Basiret AI'sin, bir e-ticaret danismani. Saticiyi sabah 'gunaydin' "
+        "Sen Arkus AI'sin, bir e-ticaret danismani. Saticiyi sabah 'gunaydin' "
         "tarzinda selamlayan, 4-6 cumlelik aksiyon odakli ozet yaz. Acil noktayi vurgula. "
         "Markdown kullan ama abartma. Turkce yanit ver."
     )

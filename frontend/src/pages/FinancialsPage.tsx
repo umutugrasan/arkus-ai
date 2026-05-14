@@ -93,7 +93,7 @@ export default function FinancialsPage() {
 
       {history.length > 0 && (
         <GlassCard>
-          <h3 className="text-white font-semibold mb-4">Aylık Gelir & Kâr Trendi</h3>
+          <h3 className="text-slate-800 font-semibold mb-4">Aylık Gelir & Kâr Trendi</h3>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={history}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -110,10 +110,10 @@ export default function FinancialsPage() {
       )}
 
       <GlassCard>
-        <div className="flex gap-1 mb-5 bg-slate-800/50 p-1 rounded-xl w-fit">
+        <div className="flex gap-1 mb-5 bg-gray-50 p-1 rounded-xl w-fit">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${tab === t.id ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${tab === t.id ? 'bg-indigo-600 text-slate-800 shadow' : 'text-gray-500 hover:text-slate-800'}`}>
               {t.label}
             </button>
           ))}
@@ -123,7 +123,7 @@ export default function FinancialsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-slate-400 border-b border-slate-700/50">
+                <tr className="text-gray-500 border-b border-gray-100">
                   {['Pazaryeri', 'Gelir', 'Net Kâr', 'Marj', 'ROAS', 'Satış'].map(h => (
                     <th key={h} className="text-left pb-2 pr-4 font-medium">{h}</th>
                   ))}
@@ -131,13 +131,13 @@ export default function FinancialsPage() {
               </thead>
               <tbody>
                 {byMP.map((mp, i) => (
-                  <tr key={i} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
-                    <td className="py-3 pr-4 text-white font-medium capitalize">{mp.marketplace}</td>
-                    <td className="py-3 pr-4 text-white">{formatCurrency(mp.revenue)}</td>
+                  <tr key={i} className="border-b border-gray-200/50 hover:bg-white/30 transition-colors">
+                    <td className="py-3 pr-4 text-slate-800 font-medium capitalize">{mp.marketplace}</td>
+                    <td className="py-3 pr-4 text-slate-800">{formatCurrency(mp.revenue)}</td>
                     <td className={`py-3 pr-4 font-semibold ${mp.net_after_ads >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{formatCurrency(mp.net_after_ads)}</td>
-                    <td className="py-3 pr-4 text-slate-300">{formatPercent(mp.net_margin_pct)}</td>
-                    <td className="py-3 pr-4 text-slate-300">{mp.roas?.toFixed(2)}</td>
-                    <td className="py-3 text-slate-300">{formatNumber(mp.sales)}</td>
+                    <td className="py-3 pr-4 text-gray-600">{formatPercent(mp.net_margin_pct)}</td>
+                    <td className="py-3 pr-4 text-gray-600">{mp.roas?.toFixed(2)}</td>
+                    <td className="py-3 text-gray-600">{formatNumber(mp.sales)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -148,17 +148,17 @@ export default function FinancialsPage() {
         {tab === 'product' && (
           <div className="space-y-2">
             {byProduct.slice(0, 10).map((p, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30 hover:bg-slate-800/60 transition-colors">
+              <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/30 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center gap-3">
-                  <span className="text-slate-500 text-xs w-5">{i + 1}</span>
+                  <span className="text-gray-500 text-xs w-5">{i + 1}</span>
                   <div>
-                    <p className="text-white text-sm font-medium">{p.name}</p>
-                    <p className="text-slate-400 text-xs">{formatNumber(p.total_sales)} satış</p>
+                    <p className="text-slate-800 text-sm font-medium">{p.name}</p>
+                    <p className="text-gray-500 text-xs">{formatNumber(p.total_sales)} satış</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className={`font-semibold text-sm ${p.total_net_profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{formatCurrency(p.total_net_profit)}</p>
-                  <p className="text-slate-400 text-xs">{formatPercent(p.net_margin_pct)} marj</p>
+                  <p className="text-gray-500 text-xs">{formatPercent(p.net_margin_pct)} marj</p>
                 </div>
               </div>
             ))}
@@ -180,10 +180,10 @@ export default function FinancialsPage() {
               {Object.entries(expenses.breakdown || {}).map(([key, val], i) => (
                 <div key={key}>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-slate-300 capitalize">{key.replace('_', ' ')}</span>
-                    <span className="text-white font-medium">{formatCurrency(val.amount)} <span className="text-slate-400 text-xs">(%{val.pct})</span></span>
+                    <span className="text-gray-600 capitalize">{key.replace('_', ' ')}</span>
+                    <span className="text-slate-800 font-medium">{formatCurrency(val.amount)} <span className="text-gray-500 text-xs">(%{val.pct})</span></span>
                   </div>
-                  <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-white rounded-full overflow-hidden">
                     <div className="h-full rounded-full" style={{ width: `${val.pct}%`, background: PIE_COLORS[i % PIE_COLORS.length] }} />
                   </div>
                 </div>
@@ -197,7 +197,7 @@ export default function FinancialsPage() {
             <div className={`p-4 rounded-xl border ${cfg.bg}`}>
               <p className={`text-lg font-bold ${cfg.text}`}>{cfg.label}</p>
               {cashFlow.runway_months != null && (
-                <p className="text-slate-300 text-sm mt-1">{cashFlow.runway_months} aylık rezerv (tahmini)</p>
+                <p className="text-gray-600 text-sm mt-1">{cashFlow.runway_months} aylık rezerv (tahmini)</p>
               )}
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -208,9 +208,9 @@ export default function FinancialsPage() {
                 { label: 'Bekleyen Alacaklar', value: formatCurrency(cashFlow.pending_receivables) },
                 { label: 'Yaklaşan Giderler', value: formatCurrency(cashFlow.upcoming_expenses) },
               ].map(m => (
-                <div key={m.label} className="p-3 bg-slate-800/40 rounded-xl">
-                  <p className="text-slate-400 text-xs">{m.label}</p>
-                  <p className="text-white font-semibold mt-1">{m.value}</p>
+                <div key={m.label} className="p-3 bg-white/40 rounded-xl">
+                  <p className="text-gray-500 text-xs">{m.label}</p>
+                  <p className="text-slate-800 font-semibold mt-1">{m.value}</p>
                 </div>
               ))}
             </div>
@@ -220,15 +220,15 @@ export default function FinancialsPage() {
 
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-400" /> AI Finansal Analiz</h3>
+          <h3 className="text-slate-800 font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600" /> AI Finansal Analiz</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Analiz ediliyor…</> : <><Brain size={14} /> Analiz Et</>}
           </button>
         </div>
         {aiAnalysis
           ? <StreamingMarkdown content={aiAnalysis} webSources={aiSources} title="Finansal AI Analizi" />
-          : <p className="text-slate-500 text-sm">Gelir/gider trendleri ve marj optimizasyonu için Analiz Et'e tıklayın.</p>
+          : <p className="text-gray-500 text-sm">Gelir/gider trendleri ve marj optimizasyonu için Analiz Et'e tıklayın.</p>
         }
       </GlassCard>
     </div>

@@ -3,10 +3,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 # Production / docker-compose: PostgreSQL
-# Local hizli demo: SQLite (DATABASE_URL=sqlite:///./basiret.db)
+# Local hizli demo: SQLite (DATABASE_URL=sqlite:///./arkus.db)
 SQLALCHEMY_DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://basiret:basiretpassword@localhost:5432/basiret_db"
+    "postgresql://arkus:arkuspassword@localhost:5432/arkus_db"
 )
 
 # SQLite ozel connect_args

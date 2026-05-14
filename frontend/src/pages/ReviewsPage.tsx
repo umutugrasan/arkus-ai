@@ -180,7 +180,7 @@ export default function ReviewsPage() {
               <select
                 value={productId}
                 onChange={(e) => setProductId(e.target.value)}
-                className="bg-slate-800/60 border border-slate-700/60 rounded-xl pl-3 pr-8 py-2 text-sm text-white outline-none appearance-none min-w-[220px]"
+                className="bg-gray-50 border border-gray-200/60 rounded-xl pl-3 pr-8 py-2 text-sm text-slate-800 outline-none appearance-none min-w-[220px]"
               >
                 {products.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -188,7 +188,7 @@ export default function ReviewsPage() {
                   </option>
                 ))}
               </select>
-              <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
             </div>
           </div>
         }
@@ -199,9 +199,9 @@ export default function ReviewsPage() {
         <GlassCard className="p-5 lg:col-span-2">
           <div className="flex items-center gap-2 mb-4">
             <Brain size={16} className="text-violet-400" />
-            <h3 className="text-white font-semibold">AI Analiz</h3>
+            <h3 className="text-slate-800 font-semibold">AI Analiz</h3>
             <div className="ml-auto flex items-center gap-2">
-              <div className="flex items-center gap-1 bg-slate-800/60 border border-slate-700/60 rounded-lg p-0.5">
+              <div className="flex items-center gap-1 bg-gray-50 border border-gray-200/60 rounded-lg p-0.5">
                 {(['short', 'detailed'] as Detail[]).map((d) => (
                   <button
                     key={d}
@@ -209,7 +209,7 @@ export default function ReviewsPage() {
                     className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                       detail === d
                         ? 'bg-indigo-500/30 text-indigo-200'
-                        : 'text-slate-400 hover:text-slate-200'
+                        : 'text-gray-500 hover:text-slate-200'
                     }`}
                   >
                     {d === 'short' ? 'Kısa' : 'Detaylı'}
@@ -229,7 +229,7 @@ export default function ReviewsPage() {
           </div>
           
           {(aiStreaming.short || aiStreaming.detailed) && !aiStreaming[detail] && (
-            <div className="mb-2 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-md text-xs text-indigo-300 flex items-center gap-2">
+            <div className="mb-2 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-md text-xs text-indigo-600 flex items-center gap-2">
               <RefreshCw size={12} className="animate-spin" /> Arka planda diğer analiz ({detail === 'short' ? 'Detaylı' : 'Kısa'}) tamamlanıyor...
             </div>
           )}
@@ -245,7 +245,7 @@ export default function ReviewsPage() {
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-3">
             <Star size={16} className="text-amber-400" />
-            <h3 className="text-white font-semibold">Duygu Özeti</h3>
+            <h3 className="text-slate-800 font-semibold">Duygu Özeti</h3>
           </div>
           {loadingMeta ? (
             <Skeleton className="h-32 w-full" />
@@ -255,7 +255,7 @@ export default function ReviewsPage() {
             <div className="space-y-3">
               <div className="text-center py-2">
                 <p className="text-4xl font-bold text-amber-400">{sentiment.avg_rating.toFixed(1)}</p>
-                <p className="text-xs text-slate-500">/ 5 (toplam {sentiment.total_reviews})</p>
+                <p className="text-xs text-gray-500">/ 5 (toplam {sentiment.total_reviews})</p>
               </div>
               <div className="space-y-2">
                 <SentimentBar
@@ -277,11 +277,11 @@ export default function ReviewsPage() {
                   icon={<Frown size={12} />}
                 />
               </div>
-              <div className="pt-2 border-t border-slate-700/50 text-xs space-y-1">
+              <div className="pt-2 border-t border-gray-100 text-xs space-y-1">
                 {Object.entries(sentiment.by_marketplace).map(([mp, b]) => (
                   <div key={mp} className="flex justify-between">
-                    <span className="text-slate-400">{MARKETPLACES[mp]?.label || mp}</span>
-                    <span className="text-slate-300">⭐ {b.avg_rating.toFixed(1)} <span className="text-slate-500 ml-1">({b.count})</span></span>
+                    <span className="text-gray-500">{MARKETPLACES[mp]?.label || mp}</span>
+                    <span className="text-gray-600">⭐ {b.avg_rating.toFixed(1)} <span className="text-gray-500 ml-1">({b.count})</span></span>
                   </div>
                 ))}
               </div>
@@ -294,13 +294,13 @@ export default function ReviewsPage() {
       <GlassCard className="p-5">
         <div className="flex flex-wrap items-end gap-3 mb-4">
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Pazaryeri</p>
+            <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">Pazaryeri</p>
             <div className="relative">
-              <Filter size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
+              <Filter size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500" />
               <select
                 value={marketplaceFilter}
                 onChange={(e) => setMarketplaceFilter(e.target.value)}
-                className="bg-slate-800/60 border border-slate-700/60 rounded-xl pl-8 pr-3 py-2 text-sm text-white outline-none"
+                className="bg-gray-50 border border-gray-200/60 rounded-xl pl-8 pr-3 py-2 text-sm text-slate-800 outline-none"
               >
                 <option value="all">Hepsi</option>
                 {Object.entries(MARKETPLACES).map(([k, v]) => (
@@ -310,11 +310,11 @@ export default function ReviewsPage() {
             </div>
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Ay</p>
+            <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">Ay</p>
             <select
               value={monthFilter}
               onChange={(e) => setMonthFilter(e.target.value)}
-              className="bg-slate-800/60 border border-slate-700/60 rounded-xl px-3 py-2 text-sm text-white outline-none"
+              className="bg-gray-50 border border-gray-200/60 rounded-xl px-3 py-2 text-sm text-slate-800 outline-none"
             >
               <option value="">Tüm aylar</option>
               {months.map((m) => (
@@ -323,13 +323,13 @@ export default function ReviewsPage() {
             </select>
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Son N</p>
+            <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">Son N</p>
             <input
               type="number"
               placeholder="örn 20"
               value={lastN}
               onChange={(e) => setLastN(e.target.value ? Number(e.target.value) : '')}
-              className="bg-slate-800/60 border border-slate-700/60 rounded-xl px-3 py-2 text-sm text-white outline-none w-24"
+              className="bg-gray-50 border border-gray-200/60 rounded-xl px-3 py-2 text-sm text-slate-800 outline-none w-24"
             />
           </div>
           <Button variant="secondary" size="sm" onClick={fetchReviews} loading={loadingList}>
@@ -351,17 +351,17 @@ export default function ReviewsPage() {
                     ? 'bg-emerald-500/5 border-emerald-500/20'
                     : r.rating <= 2
                     ? 'bg-rose-500/5 border-rose-500/20'
-                    : 'bg-slate-800/40 border-slate-700/50'
+                    : 'bg-white/40 border-gray-100'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 text-amber-400 text-sm">
                     {'⭐'.repeat(r.rating)}
-                    <span className="text-slate-500 text-[10px]">({r.rating}/5)</span>
+                    <span className="text-gray-500 text-[10px]">({r.rating}/5)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MarketplaceBadge marketplace={r.marketplace} />
-                    <span className="text-slate-500 text-[11px]">{r.date}</span>
+                    <span className="text-gray-500 text-[11px]">{r.date}</span>
                   </div>
                 </div>
                 <p className="text-slate-200 text-sm mt-2 leading-relaxed">"{r.text}"</p>
@@ -376,19 +376,19 @@ export default function ReviewsPage() {
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-3">
             <History size={16} className="text-cyan-400" />
-            <h3 className="text-white font-semibold">Analiz Geçmişi</h3>
-            <span className="text-xs text-slate-500 ml-auto">{history.total} kayıt</span>
+            <h3 className="text-slate-800 font-semibold">Analiz Geçmişi</h3>
+            <span className="text-xs text-gray-500 ml-auto">{history.total} kayıt</span>
           </div>
           <ul className="space-y-2 max-h-72 overflow-y-auto">
             {history.analyses.slice(0, 10).map((a) => (
-              <li key={a.id} className="p-3 rounded-lg bg-slate-800/40 border border-slate-700/40">
+              <li key={a.id} className="p-3 rounded-lg bg-white/40 border border-gray-200/40">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 capitalize">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 capitalize">
                     {a.analysis_type}
                   </span>
-                  <span className="text-slate-500 text-[10px]">{a.created_at}</span>
+                  <span className="text-gray-500 text-[10px]">{a.created_at}</span>
                 </div>
-                <p className="text-slate-300 text-xs line-clamp-3 whitespace-pre-wrap">{a.content}</p>
+                <p className="text-gray-600 text-xs line-clamp-3 whitespace-pre-wrap">{a.content}</p>
               </li>
             ))}
           </ul>
@@ -402,7 +402,7 @@ function SentimentBar({ label, pct, color, icon }: { label: string; pct: number;
   const colorMap: Record<string, { bg: string; text: string }> = {
     emerald: { bg: 'bg-emerald-500', text: 'text-emerald-400' },
     rose: { bg: 'bg-rose-500', text: 'text-rose-400' },
-    slate: { bg: 'bg-slate-500', text: 'text-slate-400' },
+    slate: { bg: 'bg-slate-500', text: 'text-gray-500' },
   };
   const c = colorMap[color] || colorMap.slate;
   return (
@@ -411,7 +411,7 @@ function SentimentBar({ label, pct, color, icon }: { label: string; pct: number;
         <span className={`flex items-center gap-1 ${c.text}`}>{icon} {label}</span>
         <span className={c.text}>{formatPercent(pct)}</span>
       </div>
-      <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-white rounded-full overflow-hidden">
         <div className={`h-full ${c.bg} transition-all`} style={{ width: `${pct}%` }} />
       </div>
     </div>

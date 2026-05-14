@@ -55,7 +55,7 @@ export default function ChatPage() {
 
     // SSE Streaming
     try {
-      const token = localStorage.getItem('basiret_access_token') || '';
+      const token = localStorage.getItem('arkus_access_token') || '';
       const url = '/api/v1/chat/ask/stream';
       setStreaming(true);
       setStreamText('');
@@ -143,18 +143,18 @@ export default function ChatPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-500/20 rounded-xl">
-            <Bot size={20} className="text-indigo-400" />
+          <div className="p-2 bg-indigo-50 rounded-xl">
+            <Bot size={20} className="text-indigo-600" />
           </div>
           <div>
-            <h2 className="text-white font-semibold">Basiret AI Danışman</h2>
-            <p className="text-slate-400 text-xs">Mağazanızı analiz eden kişisel asistanınız</p>
+            <h2 className="text-slate-800 font-semibold">Arkus AI Danışman</h2>
+            <p className="text-gray-500 text-xs">Mağazanızı analiz eden kişisel asistanınız</p>
           </div>
         </div>
         {messages.length > 0 && (
           <button
             onClick={handleClearHistory}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl text-sm transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-gray-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl text-sm transition-all"
           >
             <Trash2 size={14} /> Temizle
           </button>
@@ -165,19 +165,19 @@ export default function ChatPage() {
       <GlassCard className="flex-1 overflow-y-auto mb-4 p-4 space-y-4">
         {messages.length === 0 && !streaming ? (
           <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
-            <div className="p-4 bg-indigo-500/10 rounded-2xl">
-              <MessageSquare size={40} className="text-indigo-400" />
+            <div className="p-4 bg-indigo-50 rounded-2xl">
+              <MessageSquare size={40} className="text-indigo-600" />
             </div>
             <div>
-              <h3 className="text-white font-semibold mb-1">Nasıl yardımcı olabilirim?</h3>
-              <p className="text-slate-400 text-sm">Mağazanız, ürünleriniz ve stratejiniz hakkında soru sorabilirsiniz.</p>
+              <h3 className="text-slate-800 font-semibold mb-1">Nasıl yardımcı olabilirim?</h3>
+              <p className="text-gray-500 text-sm">Mağazanız, ürünleriniz ve stratejiniz hakkında soru sorabilirsiniz.</p>
             </div>
             <div className="grid grid-cols-2 gap-2 w-full max-w-md">
               {suggestions.map(s => (
                 <button
                   key={s}
                   onClick={() => { setInput(s); inputRef.current?.focus(); }}
-                  className="text-left text-xs px-3 py-2 bg-slate-800/60 hover:bg-indigo-500/10 hover:border-indigo-500/40 border border-slate-700 rounded-xl text-slate-300 transition-all"
+                  className="text-left text-xs px-3 py-2 bg-gray-50 hover:bg-indigo-50 hover:border-indigo-500/40 border border-gray-200 rounded-xl text-gray-600 transition-all"
                 >
                   {s}
                 </button>
@@ -189,14 +189,14 @@ export default function ChatPage() {
             {messages.map((m, i) => (
               <div key={i} className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                 <div className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center ${
-                  m.role === 'user' ? 'bg-indigo-500/20' : 'bg-violet-500/20'
+                  m.role === 'user' ? 'bg-indigo-50' : 'bg-violet-500/20'
                 }`}>
-                  {m.role === 'user' ? <User size={14} className="text-indigo-400" /> : <Bot size={14} className="text-violet-400" />}
+                  {m.role === 'user' ? <User size={14} className="text-indigo-600" /> : <Bot size={14} className="text-violet-400" />}
                 </div>
                 <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm ${
                   m.role === 'user'
-                    ? 'bg-indigo-600 text-white rounded-tr-sm'
-                    : 'bg-slate-800/80 text-slate-200 rounded-tl-sm ai-response'
+                    ? 'bg-indigo-600 text-slate-800 rounded-tr-sm'
+                    : 'bg-white/80 text-slate-200 rounded-tl-sm ai-response'
                 }`}>
                   {m.role === 'ai' ? (
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text}</ReactMarkdown>
@@ -211,10 +211,10 @@ export default function ChatPage() {
                 <div className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center bg-violet-500/20">
                   <Bot size={14} className="text-violet-400" />
                 </div>
-                <div className="max-w-[80%] px-4 py-3 rounded-2xl rounded-tl-sm text-sm bg-slate-800/80 text-slate-200 ai-response">
+                <div className="max-w-[80%] px-4 py-3 rounded-2xl rounded-tl-sm text-sm bg-white/80 text-slate-200 ai-response">
                   {streamText
                     ? <><ReactMarkdown remarkPlugins={[remarkGfm]}>{streamText}</ReactMarkdown><span className="inline-block w-2 h-4 bg-indigo-400 ml-0.5 animate-pulse" /></>
-                    : <div className="flex gap-1 items-center text-slate-400"><Loader2 size={14} className="animate-spin" /> yazıyor…</div>
+                    : <div className="flex gap-1 items-center text-gray-500"><Loader2 size={14} className="animate-spin" /> yazıyor…</div>
                   }
                 </div>
               </div>
@@ -235,7 +235,7 @@ export default function ChatPage() {
             placeholder="Sorunuzu yazın… (Enter gönder, Shift+Enter yeni satır)"
             rows={1}
             disabled={sending || streaming}
-            className="w-full bg-slate-800/60 border border-slate-700 focus:border-indigo-500 text-white rounded-2xl px-4 py-3 text-sm resize-none outline-none transition-all disabled:opacity-50 placeholder:text-slate-500"
+            className="w-full bg-gray-50 border border-gray-200 focus:border-indigo-500 text-slate-800 rounded-2xl px-4 py-3 text-sm resize-none outline-none transition-all disabled:opacity-50 placeholder:text-gray-500"
             style={{ minHeight: 48, maxHeight: 160 }}
             onInput={e => {
               const t = e.target as HTMLTextAreaElement;
@@ -247,7 +247,7 @@ export default function ChatPage() {
         <button
           onClick={handleSend}
           disabled={!input.trim() || sending || streaming}
-          className="flex-shrink-0 w-12 h-12 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white rounded-2xl flex items-center justify-center transition-all shadow-lg shadow-indigo-500/20"
+          className="flex-shrink-0 w-12 h-12 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-slate-800 rounded-2xl flex items-center justify-center transition-all shadow-lg shadow-indigo-500/20"
         >
           {sending || streaming ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
         </button>

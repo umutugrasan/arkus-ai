@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Package, MessageSquare, Swords, ArrowLeftRight,
   TrendingUp, Heart, Banknote, Search, Bot, Bell, FileText, Settings,
-  X, ChevronRight, Zap, Sparkles, ImageIcon, PlugZap,
+  X, Sparkles, ImageIcon, PlugZap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -74,7 +74,7 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
     <>
       {open && (
         <div
-          className="fixed inset-0 bg-black/60 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/20 z-30 lg:hidden"
           onClick={onClose}
         />
       )}
@@ -82,45 +82,45 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
       <aside
         className={`
           fixed top-0 left-0 h-full z-40 w-64 flex flex-col
-          bg-slate-900/95 backdrop-blur-xl border-r border-slate-700/50
+          bg-[#f9f8f4] border-r border-gray-200
           transition-transform duration-300 ease-in-out
           ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-700/50">
-          <NavLink to="/dashboard" onClick={onClose} className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <Zap size={18} className="text-white" />
+        <div className="flex items-center justify-between p-6">
+          <NavLink to="/dashboard" onClick={onClose} className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-[#4a3f44] rounded flex items-center justify-center shadow-sm">
+              <img src="/images/logos/arkaplansız kuş.png" alt="Arkus Logo" className="w-5 h-5 object-contain" />
             </div>
             <div>
-              <h1 className="text-white font-bold text-base leading-tight">Basiret AI</h1>
-              <p className="text-indigo-400 text-xs">Satıcı Zekası Paneli</p>
+              <h1 className="font-bold text-sm leading-tight text-slate-800">Arkus</h1>
+              <p className="text-[10px] text-gray-500">Satıcı Zekası Paneli</p>
             </div>
           </NavLink>
-          <button onClick={onClose} className="lg:hidden text-slate-400 hover:text-white p-1">
+          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-slate-800 p-1">
             <X size={18} />
           </button>
         </div>
 
         {/* Nav (grouped) */}
-        <nav className="flex-1 overflow-y-auto py-3 px-3">
+        <nav className="flex-1 overflow-y-auto py-2 px-6">
           {NAV_GROUPS.map((group) => (
-            <div key={group.title} className="mb-4">
-              <p className="px-3 mb-1 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+            <div key={group.title} className="mb-6">
+              <p className="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">
                 {group.title}
               </p>
-              <div className="space-y-0.5">
+              <div className="space-y-1">
                 {group.items.map(({ to, icon: Icon, label, badge }) => (
                   <NavLink
                     key={to}
                     to={to}
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
+                      `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors relative ${
                         isActive
-                          ? 'bg-gradient-to-r from-indigo-500/20 to-violet-500/10 text-indigo-300 border border-indigo-500/20'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                          ? 'bg-[#4a3f44] text-white font-medium shadow-sm'
+                          : 'text-gray-600 hover:bg-gray-100'
                       }`
                     }
                   >
@@ -128,20 +128,18 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
                       <>
                         <Icon
                           size={16}
+                          strokeWidth={isActive ? 2 : 1.5}
                           className={
                             isActive
-                              ? 'text-indigo-400'
-                              : 'text-slate-500 group-hover:text-slate-300'
+                              ? 'text-white'
+                              : 'text-gray-400 group-hover:text-gray-500 opacity-80'
                           }
                         />
-                        <span className="flex-1 truncate">{label}</span>
+                        <span className="flex-1 truncate font-medium">{label}</span>
                         {badge === 'notifications' && unreadCount > 0 && (
-                          <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold leading-none">
+                          <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                             {unreadCount > 99 ? '99+' : unreadCount}
                           </span>
-                        )}
-                        {isActive && !badge && (
-                          <ChevronRight size={12} className="text-indigo-400" />
                         )}
                       </>
                     )}
@@ -153,10 +151,10 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-700/50">
-          <div className="rounded-lg p-3 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/20">
-            <p className="text-xs text-indigo-300 font-semibold">v1.0.0</p>
-            <p className="text-xs text-slate-400 mt-0.5">Çoklu Pazaryeri AI Zekası</p>
+        <div className="mt-auto p-4">
+          <div className="bg-[#f0ece7] rounded-xl p-4">
+            <p className="text-[10px] font-bold text-gray-600">v1.0.0</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">Çoklu Pazaryeri AI Zekası</p>
           </div>
         </div>
       </aside>

@@ -59,7 +59,7 @@ def _build_overview(user_id: int) -> dict:
     }
 
 
-def run_basiret_agent(user_message: str, user_id: int) -> str:
+def run_arkus_agent(user_message: str, user_id: int) -> str:
     """
     Gemini Agent: function-calling tools (DB) + Google Search grounding (web).
     Tum magaza ozeti context olarak verilir, gerektiginde araclarla detayli veri ceker.
@@ -101,7 +101,7 @@ def run_basiret_agent(user_message: str, user_id: int) -> str:
     ]
 
     system_instruction = (
-        "Sen Basiret AI'sin, profesyonel bir e-ticaret danismanisin.\n\n"
+        "Sen Arkus AI'sin, profesyonel bir e-ticaret danismanisin.\n\n"
         "Asagidaki SATICI DURUM OZETI'ni bilerek konusuyorsun:\n"
         f"{json.dumps(overview, ensure_ascii=False, indent=2)}\n\n"
         "Kurallar:\n"

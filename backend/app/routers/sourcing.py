@@ -259,6 +259,10 @@ Su basliklarda analiz ver:
 4. **50 adet yatirimi icin sermaye analizi** — nakit yeterli mi?
 5. **Hangi urunu kac adet alip nerede satmali?** Somut oneri.
 6. **Tedarikci degisim onerisi** — kayilirsa kar marji ne kadar artar?
+
+EN SONA "WEB KAYNAKLARI (Fiyata Gore Sirali)" basligi altinda, buldugun tedarikcileri BIRIM FIYATINA GORE BUYUKTEN KUCUGE (en pahali en ustte) siralayarak Markdown listesi seklinde mutlaka ekle.
+Format su sekilde olsun:
+- [Firma/Site Adi - X TL](https://link-buraya)
 """
     system = (
         "Sen bir e-ticaret toptan tedarik uzmansin. Amac en az 50 adet toptan alip "
@@ -329,6 +333,10 @@ Son olarak "OZET VE KARARLILIK ANALIZI" basligiyla:
 - Tahmini satis fiyati Trendyol/HB'de: X TL (piyasa arastir)
 - Brut kar marji tahmini: %X
 - TAVSIYE: Hangi kaynaktan kac adet alinmali?
+
+EN SONA "WEB KAYNAKLARI (Fiyata Gore Sirali)" basligi altinda, buldugun tedarikcileri BIRIM FIYATINA GORE BUYUKTEN KUCUGE (en pahali en ustte) siralayarak Markdown listesi seklinde mutlaka ekle.
+Format su sekilde olsun:
+- [Firma/Site Adi - X TL](https://link-buraya)
 """
     system = (
         "Sen bir e-ticaret toptan tedarik uzmansin. Amac karla satis yapabilmek icin "

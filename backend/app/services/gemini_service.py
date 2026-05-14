@@ -267,14 +267,26 @@ async def ask_gemini_with_search(
             error_type=type(err).__name__ if err else "unknown",
             duration_ms=duration_ms, user_id=user_id,
         )
-        if strict:
-            raise GeminiError(f"Gemini grounding basarisiz: {err}")
-        return {
-            "text": _ai_unavailable_message(
-                f"Gemini Google Search grounding kullanilamadi ({type(err).__name__ if err else 'unknown'})"
-            ),
-            "sources": [], "used_search": False, "model": None,
-        }
+        logger.warning(f"Google Search grounding failed ({err}), falling back to standard ask_gemini...")
+        
+        # Fallback to standard ask_gemini without search
+        try:
+            fallback_text = await ask_gemini(prompt, system_instruction, endpoint, user_id, strict)
+            return {
+                "text": fallback_text,
+                "sources": [], 
+                "used_search": False, 
+                "model": "fallback"
+            }
+        except Exception as fallback_err:
+            if strict:
+                raise GeminiError(f"Gemini fallback basarisiz: {fallback_err}")
+            return {
+                "text": _ai_unavailable_message(
+                    f"Gemini Google Search grounding ve fallback kullanilamadi ({type(err).__name__ if err else 'unknown'})"
+                ),
+                "sources": [], "used_search": False, "model": None,
+            }
 
     sources = []
     try:

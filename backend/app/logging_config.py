@@ -66,7 +66,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
         except Exception:
             duration_ms = int((time.perf_counter() - start) * 1000)
-            logger = logging.getLogger("basiret.access")
+            logger = logging.getLogger("arkus.access")
             logger.exception(
                 "request failed",
                 extra={
@@ -80,7 +80,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         duration_ms = int((time.perf_counter() - start) * 1000)
         response.headers["X-Request-ID"] = request_id
 
-        logger = logging.getLogger("basiret.access")
+        logger = logging.getLogger("arkus.access")
         logger.info(
             "request",
             extra={

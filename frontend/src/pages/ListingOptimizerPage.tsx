@@ -93,27 +93,27 @@ export default function ListingOptimizerPage() {
       <GlassCard>
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            <label className="text-slate-400 text-sm">Ürün:</label>
+            <label className="text-gray-500 text-sm">Ürün:</label>
             <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+              className="bg-white border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
               {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-slate-400 text-sm">Pazaryeri:</label>
+            <label className="text-gray-500 text-sm">Pazaryeri:</label>
             <select value={targetMP} onChange={e => setTargetMP(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+              className="bg-white border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
               {MARKETPLACES.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
           <div className="flex gap-2 ml-auto">
             <button onClick={handleOptimize} disabled={actionLoading}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
               {actionLoading ? <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> : <Sparkles size={14} />}
               Başlık Optimize Et
             </button>
             <button onClick={handleKeywords} disabled={actionLoading}
-              className="flex items-center gap-2 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-800 rounded-xl text-sm transition-all disabled:opacity-50">
               <Search size={14} /> Keyword Bul
             </button>
           </div>
@@ -125,7 +125,7 @@ export default function ListingOptimizerPage() {
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              tab === t.id ? 'bg-indigo-600 text-white' : 'bg-slate-800/60 text-slate-400 hover:text-white'
+              tab === t.id ? 'bg-indigo-600 text-slate-800' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
             }`}>{t.label}</button>
         ))}
       </div>
@@ -138,20 +138,20 @@ export default function ListingOptimizerPage() {
               <GlassCard className={`bg-gradient-to-br ${scoreBg} to-transparent`}>
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-slate-400 text-sm">Mevcut Başlık</p>
-                    <p className="text-white font-semibold mt-1 text-lg">{currentAnalysis.current_title}</p>
-                    <p className="text-slate-400 text-xs mt-1">Hedef: <MarketplaceBadge marketplace={currentAnalysis.target_marketplace} /></p>
+                    <p className="text-gray-500 text-sm">Mevcut Başlık</p>
+                    <p className="text-slate-800 font-semibold mt-1 text-lg">{currentAnalysis.current_title}</p>
+                    <p className="text-gray-500 text-xs mt-1">Hedef: <MarketplaceBadge marketplace={currentAnalysis.target_marketplace} /></p>
                   </div>
                   <div className="text-center">
                     <p className={`text-4xl font-bold ${scoreColor}`}>{seoScore}</p>
-                    <p className="text-slate-400 text-xs">SEO Skoru</p>
-                    <p className="text-slate-300 text-sm font-medium mt-1">{currentAnalysis.recommendation}</p>
+                    <p className="text-gray-500 text-xs">SEO Skoru</p>
+                    <p className="text-gray-600 text-sm font-medium mt-1">{currentAnalysis.recommendation}</p>
                   </div>
                 </div>
               </GlassCard>
               {analysis?.warnings && analysis.warnings.length > 0 && (
                 <GlassCard>
-                  <h3 className="text-white font-semibold mb-3 flex items-center gap-2"><AlertCircle size={16} className="text-amber-400" /> Uyarılar</h3>
+                  <h3 className="text-slate-800 font-semibold mb-3 flex items-center gap-2"><AlertCircle size={16} className="text-amber-400" /> Uyarılar</h3>
                   <div className="space-y-2">
                     {analysis.warnings.map((w: string, i: number) => (
                       <div key={i} className="flex items-start gap-2 text-sm text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
@@ -162,7 +162,7 @@ export default function ListingOptimizerPage() {
                 </GlassCard>
               )}
               <GlassCard>
-                <h3 className="text-white font-semibold mb-3">Başlık Metrikleri</h3>
+                <h3 className="text-slate-800 font-semibold mb-3">Başlık Metrikleri</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {[
                     { label: 'Karakter Sayısı', value: analysis?.length ?? '—' },
@@ -170,9 +170,9 @@ export default function ListingOptimizerPage() {
                     { label: 'Limit İçinde', value: analysis?.in_hard_limit ? '✅ Evet' : '❌ Hayır' },
                     { label: 'İdeal Aralık', value: analysis?.in_ideal_range ? '✅ Evet' : '⚠️ Hayır' },
                   ].map(m => (
-                    <div key={m.label} className="p-3 bg-slate-800/40 rounded-xl">
-                      <p className="text-slate-400 text-xs">{m.label}</p>
-                      <p className="text-white font-semibold mt-1">{String(m.value)}</p>
+                    <div key={m.label} className="p-3 bg-white/40 rounded-xl">
+                      <p className="text-gray-500 text-xs">{m.label}</p>
+                      <p className="text-slate-800 font-semibold mt-1">{String(m.value)}</p>
                     </div>
                   ))}
                 </div>
@@ -186,20 +186,20 @@ export default function ListingOptimizerPage() {
       {tab === 'optimize' && (
         <>
           {!optimizeResult
-            ? <GlassCard><p className="text-slate-400 text-sm text-center py-8">Başlık optimize etmek için yukarıdaki "Başlık Optimize Et" butonuna tıklayın.</p></GlassCard>
+            ? <GlassCard><p className="text-gray-500 text-sm text-center py-8">Başlık optimize etmek için yukarıdaki "Başlık Optimize Et" butonuna tıklayın.</p></GlassCard>
             : (
               <div className="space-y-4">
                 <GlassCard>
-                  <h3 className="text-white font-semibold mb-4">Eski vs Yeni Başlık</h3>
+                  <h3 className="text-slate-800 font-semibold mb-4">Eski vs Yeni Başlık</h3>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl">
                       <p className="text-rose-400 text-xs font-medium mb-2">ESKİ BAŞLIK</p>
-                      <p className="text-white">{optimizeResult.comparison.original.title}</p>
+                      <p className="text-slate-800">{optimizeResult.comparison.original.title}</p>
                       <p className="text-rose-400 font-bold text-2xl mt-2">{optimizeResult.comparison.original.analysis?.seo_score}/100</p>
                     </div>
                     <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                       <p className="text-emerald-400 text-xs font-medium mb-2">YENİ BAŞLIK ✨</p>
-                      <p className="text-white">{optimizeResult.comparison.optimized.title}</p>
+                      <p className="text-slate-800">{optimizeResult.comparison.optimized.title}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <p className="text-emerald-400 font-bold text-2xl">{optimizeResult.comparison.optimized.analysis?.seo_score}/100</p>
                         <span className="text-emerald-400 text-sm font-medium">
@@ -212,10 +212,10 @@ export default function ListingOptimizerPage() {
 
                 {optimizeResult.keywords.length > 0 && (
                   <GlassCard>
-                    <h3 className="text-white font-semibold mb-3">🔑 Anahtar Kelimeler</h3>
+                    <h3 className="text-slate-800 font-semibold mb-3">🔑 Anahtar Kelimeler</h3>
                     <div className="flex flex-wrap gap-2">
                       {optimizeResult.keywords.map((kw: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 rounded-full text-indigo-300 text-sm">{kw}</span>
+                        <span key={i} className="px-3 py-1 bg-indigo-50 border border-indigo-500/30 rounded-full text-indigo-600 text-sm">{kw}</span>
                       ))}
                     </div>
                   </GlassCard>
@@ -223,8 +223,8 @@ export default function ListingOptimizerPage() {
 
                 {optimizeResult.description && (
                   <GlassCard>
-                    <h3 className="text-white font-semibold mb-3">📝 Optimize Edilmiş Açıklama</h3>
-                    <div className="ai-response text-sm text-slate-300 max-h-60 overflow-y-auto">
+                    <h3 className="text-slate-800 font-semibold mb-3">📝 Optimize Edilmiş Açıklama</h3>
+                    <div className="ai-response text-sm text-gray-600 max-h-60 overflow-y-auto">
                       <pre className="whitespace-pre-wrap font-sans">{optimizeResult.description}</pre>
                     </div>
                   </GlassCard>
@@ -232,7 +232,7 @@ export default function ListingOptimizerPage() {
 
                 {(optimizeResult.improvements || []).length > 0 && (
                   <GlassCard>
-                    <h3 className="text-white font-semibold mb-3">💡 İyileştirmeler</h3>
+                    <h3 className="text-slate-800 font-semibold mb-3">💡 İyileştirmeler</h3>
                     <div className="space-y-2">
                       {(optimizeResult.improvements as string[]).map((imp: string, i: number) => (
                         <div key={i} className="flex items-start gap-2 text-sm text-emerald-300">
@@ -252,23 +252,23 @@ export default function ListingOptimizerPage() {
       {tab === 'keywords' && (
         <>
           {!keywordsResult
-            ? <GlassCard><p className="text-slate-400 text-sm text-center py-8">"Keyword Bul" butonuna tıklayarak AI destekli anahtar kelime stratejisi oluşturun.</p></GlassCard>
+            ? <GlassCard><p className="text-gray-500 text-sm text-center py-8">"Keyword Bul" butonuna tıklayarak AI destekli anahtar kelime stratejisi oluşturun.</p></GlassCard>
             : (
               <div className="space-y-4">
                 {kbData && Object.entries(kbData).map(([group, kws]) => Array.isArray(kws) && kws.length > 0 ? (
                   <GlassCard key={group}>
-                    <h3 className="text-white font-semibold mb-3 capitalize">{group.replace('_', ' ')}</h3>
+                    <h3 className="text-slate-800 font-semibold mb-3 capitalize">{group.replace('_', ' ')}</h3>
                     <div className="flex flex-wrap gap-2">
                       {(kws as string[]).map((kw: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-slate-800/60 border border-slate-700 rounded-full text-slate-300 text-sm hover:border-indigo-500/50 transition-colors">{kw}</span>
+                        <span key={i} className="px-3 py-1 bg-gray-50 border border-gray-200 rounded-full text-gray-600 text-sm hover:border-indigo-500/50 transition-colors">{kw}</span>
                       ))}
                     </div>
                   </GlassCard>
                 ) : null)}
                 {kbData?.strategy_note && (
-                  <GlassCard className="border border-indigo-500/20">
-                    <h3 className="text-indigo-300 font-semibold mb-2 flex items-center gap-2"><Brain size={14} /> Strateji Notu</h3>
-                    <p className="text-slate-300 text-sm">{String(kbData.strategy_note)}</p>
+                  <GlassCard className="border border-indigo-100">
+                    <h3 className="text-indigo-600 font-semibold mb-2 flex items-center gap-2"><Brain size={14} /> Strateji Notu</h3>
+                    <p className="text-gray-600 text-sm">{String(kbData.strategy_note)}</p>
                   </GlassCard>
                 )}
               </div>
@@ -288,10 +288,10 @@ export default function ListingOptimizerPage() {
                   <GlassCard key={i}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <p className="text-slate-400 text-xs">{formatDate(opt.created_at)}</p>
-                        <p className="text-white font-medium mt-1">{opt.optimized_title}</p>
+                        <p className="text-gray-500 text-xs">{formatDate(opt.created_at)}</p>
+                        <p className="text-slate-800 font-medium mt-1">{opt.optimized_title}</p>
                         {opt.description_preview && (
-                          <p className="text-slate-400 text-xs mt-1 line-clamp-2">{opt.description_preview}</p>
+                          <p className="text-gray-500 text-xs mt-1 line-clamp-2">{opt.description_preview}</p>
                         )}
                       </div>
                       {opt.seo_score !== null && (
@@ -300,7 +300,7 @@ export default function ListingOptimizerPage() {
                             (opt.seo_score ?? 0) >= 80 ? 'text-emerald-400' :
                             (opt.seo_score ?? 0) >= 50 ? 'text-amber-400' : 'text-rose-400'
                           }`}>{opt.seo_score}</p>
-                          <p className="text-slate-400 text-xs">SEO</p>
+                          <p className="text-gray-500 text-xs">SEO</p>
                         </div>
                       )}
                     </div>

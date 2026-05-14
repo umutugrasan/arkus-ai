@@ -72,14 +72,14 @@ export default function SettingsPage() {
     <div className="space-y-6 animate-fade-in max-w-2xl">
       {toast && (
         <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg animate-fade-in ${
-          toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+          toast.type === 'success' ? 'bg-emerald-600 text-slate-800' : 'bg-rose-600 text-slate-800'
         }`}>
           {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
           {toast.message}
         </div>
       )}
 
-      <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-gray-50 p-1 rounded-xl w-fit">
         {([
           { id: 'profile' as Tab, label: 'Profil' },
           { id: 'security' as Tab, label: 'Guvenlik' },
@@ -88,7 +88,7 @@ export default function SettingsPage() {
             key={item.id}
             onClick={() => setTab(item.id)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              tab === item.id ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+              tab === item.id ? 'bg-indigo-600 text-slate-800' : 'text-gray-500 hover:text-slate-800'
             }`}
           >
             {item.label}
@@ -98,7 +98,7 @@ export default function SettingsPage() {
 
       {tab === 'profile' && (
         <GlassCard>
-          <h3 className="text-white font-semibold mb-4">Profil Bilgileri</h3>
+          <h3 className="text-slate-800 font-semibold mb-4">Profil Bilgileri</h3>
           <div className="space-y-4">
             {[
               { label: 'Ad Soyad', value: name, setter: setName, placeholder: 'Adiniz', type: 'text' },
@@ -106,20 +106,20 @@ export default function SettingsPage() {
               { label: 'Magaza Adi', value: storeName, setter: setStoreName, placeholder: 'Magazanizin adi', type: 'text' },
             ].map((field) => (
               <div key={field.label}>
-                <label className="text-slate-400 text-xs block mb-1.5">{field.label}</label>
+                <label className="text-gray-500 text-xs block mb-1.5">{field.label}</label>
                 <input
                   value={field.value}
                   onChange={(event) => field.setter(event.target.value)}
                   placeholder={field.placeholder}
                   type={field.type}
-                  className="w-full bg-slate-800/60 border border-slate-700 focus:border-indigo-500 text-white rounded-xl px-4 py-3 text-sm outline-none transition-colors"
+                  className="w-full bg-gray-50 border border-gray-200 focus:border-indigo-500 text-slate-800 rounded-xl px-4 py-3 text-sm outline-none transition-colors"
                 />
               </div>
             ))}
             <button
               onClick={handleProfileSave}
               disabled={profileSaving}
-              className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
             >
               {profileSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
               Kaydet
@@ -130,8 +130,8 @@ export default function SettingsPage() {
 
       {tab === 'security' && (
         <GlassCard>
-          <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-            <Lock size={16} className="text-indigo-400" /> Sifre Degistir
+          <h3 className="text-slate-800 font-semibold mb-4 flex items-center gap-2">
+            <Lock size={16} className="text-indigo-600" /> Sifre Degistir
           </h3>
           <div className="space-y-4">
             {[
@@ -140,17 +140,17 @@ export default function SettingsPage() {
               { label: 'Yeni Sifre (Tekrar)', value: confirmPw, setter: setConfirmPw },
             ].map((field) => (
               <div key={field.label}>
-                <label className="text-slate-400 text-xs block mb-1.5">{field.label}</label>
+                <label className="text-gray-500 text-xs block mb-1.5">{field.label}</label>
                 <div className="relative">
                   <input
                     value={field.value}
                     onChange={(event) => field.setter(event.target.value)}
                     type={showPw ? 'text' : 'password'}
-                    className="w-full bg-slate-800/60 border border-slate-700 focus:border-indigo-500 text-white rounded-xl px-4 py-3 pr-10 text-sm outline-none transition-colors"
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-indigo-500 text-slate-800 rounded-xl px-4 py-3 pr-10 text-sm outline-none transition-colors"
                   />
                   <button
                     onClick={() => setShowPw(!showPw)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-800"
                   >
                     {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -165,7 +165,7 @@ export default function SettingsPage() {
             <button
               onClick={handlePasswordChange}
               disabled={pwSaving || !currentPw || !newPw || !confirmPw}
-              className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
             >
               {pwSaving ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
               Sifreyi Guncelle

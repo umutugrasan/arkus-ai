@@ -92,19 +92,19 @@ export default function CompetitorsPage() {
     <div className="space-y-6 animate-fade-in">
       <GlassCard>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="text-slate-400 text-sm font-medium">Ürün Seç:</label>
+          <label className="text-gray-500 text-sm font-medium">Ürün Seç:</label>
           <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)}
-            className="bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+            className="bg-white border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
             {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
-          {competitors && <span className="text-slate-400 text-sm">{competitors.total} rakip bulundu</span>}
+          {competitors && <span className="text-gray-500 text-sm">{competitors.total} rakip bulundu</span>}
         </div>
       </GlassCard>
 
       <div className="flex gap-2">
         {(['list', 'pricemap', 'track'] as SubTab[]).map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t ? 'bg-indigo-600 text-white' : 'bg-slate-800/60 text-slate-400 hover:text-white'}`}>
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t ? 'bg-indigo-600 text-slate-800' : 'bg-gray-50 text-gray-500 hover:text-slate-800'}`}>
             {t === 'list' ? '📋 Rakip Listesi' : t === 'pricemap' ? '🗺 Fiyat Haritası' : '📈 Fiyat Takibi'}
           </button>
         ))}
@@ -120,21 +120,21 @@ export default function CompetitorsPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <MarketplaceBadge marketplace={c.marketplace} />
-                      <span className="text-white font-semibold">{c.competitor_name}</span>
+                      <span className="text-slate-800 font-semibold">{c.competitor_name}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         c.we_are === 'ucuz' ? 'bg-emerald-500/20 text-emerald-400' :
-                        c.we_are === 'pahali' ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-700 text-slate-400'
+                        c.we_are === 'pahali' ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-700 text-gray-500'
                       }`}>{c.we_are === 'ucuz' ? '💚 Biz daha ucuz' : c.we_are === 'pahali' ? '🔴 Biz daha pahalı' : '⚖️ Eşit'}</span>
                     </div>
                     <div className="flex flex-wrap gap-4 text-sm mt-2">
-                      <span className="text-slate-400">Rakip: <span className="text-white font-medium">{formatCurrency(c.competitor_price)}</span></span>
-                      <span className="text-slate-400">Bizim: <span className="text-white font-medium">{formatCurrency(c.our_price)}</span></span>
-                      <span className="text-slate-400">Fark: <span className={`font-medium ${c.price_diff > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>{formatCurrency(Math.abs(c.price_diff))}</span></span>
+                      <span className="text-gray-500">Rakip: <span className="text-slate-800 font-medium">{formatCurrency(c.competitor_price)}</span></span>
+                      <span className="text-gray-500">Bizim: <span className="text-slate-800 font-medium">{formatCurrency(c.our_price)}</span></span>
+                      <span className="text-gray-500">Fark: <span className={`font-medium ${c.price_diff > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>{formatCurrency(Math.abs(c.price_diff))}</span></span>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-white font-bold text-lg">{c.competitor_rating?.toFixed(1)}</p>
-                    <p className="text-slate-400 text-xs">{formatNumber(c.competitor_review_count)} yorum</p>
+                    <p className="text-slate-800 font-bold text-lg">{c.competitor_rating?.toFixed(1)}</p>
+                    <p className="text-gray-500 text-xs">{formatNumber(c.competitor_review_count)} yorum</p>
                   </div>
                 </div>
               </GlassCard>
@@ -154,10 +154,10 @@ export default function CompetitorsPage() {
                 }`}>{data.position}</span>
               </div>
               <div className="flex flex-wrap gap-4 text-sm">
-                <span className="text-slate-400">Bizim: <span className="text-white font-bold">{formatCurrency(data.our_price)}</span></span>
-                <span className="text-slate-400">Min: <span className="text-emerald-400">{formatCurrency(data.min_competitor_price)}</span></span>
-                <span className="text-slate-400">Max: <span className="text-rose-400">{formatCurrency(data.max_competitor_price)}</span></span>
-                <span className="text-slate-400">Ort: <span className="text-white">{formatCurrency(data.avg_competitor_price)}</span></span>
+                <span className="text-gray-500">Bizim: <span className="text-slate-800 font-bold">{formatCurrency(data.our_price)}</span></span>
+                <span className="text-gray-500">Min: <span className="text-emerald-400">{formatCurrency(data.min_competitor_price)}</span></span>
+                <span className="text-gray-500">Max: <span className="text-rose-400">{formatCurrency(data.max_competitor_price)}</span></span>
+                <span className="text-gray-500">Ort: <span className="text-slate-800">{formatCurrency(data.avg_competitor_price)}</span></span>
               </div>
               {data.competitors.length > 0 && (
                 <div className="mt-3">
@@ -182,7 +182,7 @@ export default function CompetitorsPage() {
           ? <EmptyState title="Fiyat Geçmişi Yok" description="Henüz yeterli snapshot toplanmamış." />
           : (
             <GlassCard>
-              <h3 className="text-white font-semibold mb-4">Son 14 Gün Fiyat Değişimi</h3>
+              <h3 className="text-slate-800 font-semibold mb-4">Son 14 Gün Fiyat Değişimi</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <LineChart data={trackChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -198,10 +198,10 @@ export default function CompetitorsPage() {
               </ResponsiveContainer>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
                 {trackHistories.map((h, i) => (
-                  <div key={i} className="p-3 bg-slate-800/40 rounded-xl">
-                    <p className="text-slate-400 text-xs">{h.competitor}</p>
-                    <p className="text-white font-semibold">{formatCurrency(h.current_price)}</p>
-                    <p className={`text-xs font-medium mt-1 ${h.trend === 'dusus' ? 'text-emerald-400' : h.trend === 'yukselis' ? 'text-rose-400' : 'text-slate-400'}`}>
+                  <div key={i} className="p-3 bg-white/40 rounded-xl">
+                    <p className="text-gray-500 text-xs">{h.competitor}</p>
+                    <p className="text-slate-800 font-semibold">{formatCurrency(h.current_price)}</p>
+                    <p className={`text-xs font-medium mt-1 ${h.trend === 'dusus' ? 'text-emerald-400' : h.trend === 'yukselis' ? 'text-rose-400' : 'text-gray-500'}`}>
                       {h.trend === 'dusus' ? '↓' : h.trend === 'yukselis' ? '↑' : '→'} {h.change_pct}%
                     </p>
                   </div>
@@ -213,15 +213,15 @@ export default function CompetitorsPage() {
 
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-400" /> AI Rakip Analizi</h3>
+          <h3 className="text-slate-800 font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600" /> AI Rakip Analizi</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading || !selectedProduct}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Analiz ediliyor…</> : <><Brain size={14} /> Detaylı Analiz</>}
           </button>
         </div>
         {aiAnalysis
           ? <StreamingMarkdown content={aiAnalysis} webSources={aiSources} title="Rakip AI Analizi" />
-          : <p className="text-slate-500 text-sm">En tehlikeli rakip ve fiyat stratejisi önerileri için Analiz Et'e tıklayın.</p>
+          : <p className="text-gray-500 text-sm">En tehlikeli rakip ve fiyat stratejisi önerileri için Analiz Et'e tıklayın.</p>
         }
       </GlassCard>
     </div>

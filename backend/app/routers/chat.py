@@ -32,8 +32,8 @@ def ask(
         raise HTTPException(status_code=400, detail="Mesaj bos olamaz")
 
     # Agent'i lazy import et — startup'ta circular import olmasin
-    from app.agents.basiret_agent import run_basiret_agent
-    response = run_basiret_agent(msg.message, user.id)
+    from app.agents.arkus_agent import run_arkus_agent
+    response = run_arkus_agent(msg.message, user.id)
 
     record = ChatHistory(
         user_id=user.id,
@@ -97,10 +97,10 @@ async def ask_stream(
         raise HTTPException(status_code=400, detail="Mesaj bos olamaz")
 
     # Agent context'i ve prompt'u hazirla (tool calling olmadan, sadece overview)
-    from app.agents.basiret_agent import _build_overview
+    from app.agents.arkus_agent import _build_overview
     overview = _build_overview(user.id)
     system_instruction = (
-        "Sen Basiret AI'sin, profesyonel bir e-ticaret danismanisin.\n\n"
+        "Sen Arkus AI'sin, profesyonel bir e-ticaret danismanisin.\n\n"
         "SATICI DURUM OZETI:\n"
         f"{json.dumps(overview, ensure_ascii=False, indent=2)}\n\n"
         "Cevap formati: kisa giris + rakamlarla durum + somut 1-2 aksiyon onerisi. "

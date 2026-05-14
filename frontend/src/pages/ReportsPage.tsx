@@ -96,17 +96,17 @@ export default function ReportsPage() {
       <GlassCard>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="text-white font-semibold">AI Raporlar</h3>
-            <p className="text-slate-400 text-sm mt-0.5">Gemini destekli otomatik performans raporları</p>
+            <h3 className="text-slate-800 font-semibold">AI Raporlar</h3>
+            <p className="text-gray-500 text-sm mt-0.5">Gemini destekli otomatik performans raporları</p>
           </div>
           <div className="flex gap-2">
             <button onClick={() => handleStream('daily')} disabled={!!generating}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
               {generating === 'daily' ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
               Günlük Rapor
             </button>
             <button onClick={() => handleStream('weekly')} disabled={!!generating}
-              className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
               {generating === 'weekly' ? <Loader2 size={14} className="animate-spin" /> : <Calendar size={14} />}
               Haftalık Rapor
             </button>
@@ -124,7 +124,7 @@ export default function ReportsPage() {
         {(['all', 'daily', 'weekly'] as const).map(f => (
           <button key={f} onClick={() => setFilterType(f)}
             className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
-              filterType === f ? 'bg-indigo-600 text-white' : 'bg-slate-800/60 text-slate-400 hover:text-white'
+              filterType === f ? 'bg-indigo-600 text-slate-800' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
             }`}>
             {f === 'all' ? 'Tümü' : f === 'daily' ? '📅 Günlük' : '📊 Haftalık'}
           </button>
@@ -141,23 +141,23 @@ export default function ReportsPage() {
                 onClick={() => handleViewReport(r)}>
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-xl ${r.type === 'daily' ? 'bg-indigo-500/20' : 'bg-violet-500/20'}`}>
-                      <FileText size={16} className={r.type === 'daily' ? 'text-indigo-400' : 'text-violet-400'} />
+                    <div className={`p-2 rounded-xl ${r.type === 'daily' ? 'bg-indigo-50' : 'bg-violet-500/20'}`}>
+                      <FileText size={16} className={r.type === 'daily' ? 'text-indigo-600' : 'text-violet-400'} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-white font-semibold text-sm">{r.title}</p>
+                        <p className="text-slate-800 font-semibold text-sm">{r.title}</p>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                          r.type === 'daily' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-violet-500/20 text-violet-400'
+                          r.type === 'daily' ? 'bg-indigo-50 text-indigo-600' : 'bg-violet-500/20 text-violet-400'
                         }`}>{r.type === 'daily' ? 'Günlük' : 'Haftalık'}</span>
                       </div>
-                      <p className="text-slate-400 text-xs mt-0.5">{formatDate(r.created_at)}</p>
-                      {r.preview && <p className="text-slate-500 text-xs mt-1 line-clamp-2">{r.preview}</p>}
+                      <p className="text-gray-500 text-xs mt-0.5">{formatDate(r.created_at)}</p>
+                      {r.preview && <p className="text-gray-500 text-xs mt-1 line-clamp-2">{r.preview}</p>}
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="text-slate-400 text-xs">Gelir</p>
-                    <p className="text-white font-semibold text-sm">{formatCurrency(r.revenue)}</p>
+                    <p className="text-gray-500 text-xs">Gelir</p>
+                    <p className="text-slate-800 font-semibold text-sm">{formatCurrency(r.revenue)}</p>
                   </div>
                 </div>
               </GlassCard>
@@ -170,27 +170,27 @@ export default function ReportsPage() {
       {selectedReport && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onClick={() => setSelectedReport(null)}>
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col"
+          <div className="bg-gray-50 border border-gray-200 rounded-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col"
             onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-5 border-b border-slate-700/50">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100">
               <div>
-                <p className="text-white font-semibold">{selectedReport.title}</p>
-                <p className="text-slate-400 text-xs mt-0.5">{formatDate(selectedReport.created_at)}</p>
+                <p className="text-slate-800 font-semibold">{selectedReport.title}</p>
+                <p className="text-gray-500 text-xs mt-0.5">{formatDate(selectedReport.created_at)}</p>
               </div>
-              <button onClick={() => setSelectedReport(null)} className="p-2 hover:bg-slate-800 rounded-xl transition-colors">
-                <X size={16} className="text-slate-400" />
+              <button onClick={() => setSelectedReport(null)} className="p-2 hover:bg-white rounded-xl transition-colors">
+                <X size={16} className="text-gray-500" />
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-3 p-5 border-b border-slate-700/50">
+            <div className="grid grid-cols-3 gap-3 p-5 border-b border-gray-100">
               {[
                 { icon: <DollarSign size={14} />, label: 'Gelir', value: formatCurrency(selectedReport.revenue) },
                 { icon: <TrendingUp size={14} />, label: 'Net Kâr', value: formatCurrency(selectedReport.net_profit) },
                 { icon: <FileText size={14} />, label: 'Satış', value: formatNumber(selectedReport.sales) },
               ].map(m => (
-                <div key={m.label} className="p-3 bg-slate-800/50 rounded-xl text-center">
-                  <div className="flex justify-center text-slate-400 mb-1">{m.icon}</div>
-                  <p className="text-white font-bold">{m.value}</p>
-                  <p className="text-slate-400 text-xs">{m.label}</p>
+                <div key={m.label} className="p-3 bg-gray-50 rounded-xl text-center">
+                  <div className="flex justify-center text-gray-500 mb-1">{m.icon}</div>
+                  <p className="text-slate-800 font-bold">{m.value}</p>
+                  <p className="text-gray-500 text-xs">{m.label}</p>
                 </div>
               ))}
             </div>

@@ -31,7 +31,7 @@ export default function Layout() {
   const location = useLocation();
 
   const title =
-    PAGE_TITLES.find(([path]) => location.pathname.startsWith(path))?.[1] || 'Basiret AI';
+    PAGE_TITLES.find(([path]) => location.pathname.startsWith(path))?.[1] || 'Arkus AI';
 
   const refreshUnread = useCallback(() => {
     notificationService
@@ -53,7 +53,7 @@ export default function Layout() {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-screen bg-[#0f172a] overflow-hidden">
+    <div className="flex h-screen bg-[#f9f8f4] overflow-hidden text-slate-800">
       <Sidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -67,7 +67,7 @@ export default function Layout() {
           unreadCount={unreadCount}
           onUnreadRefresh={refreshUnread}
         />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-7xl mx-auto">
             <Outlet />
           </div>
