@@ -205,6 +205,47 @@
           "competitors": []
         }
       ]
+    },
+    "n11": {
+      "store_name": "TechStore n11 Magazasi",
+      "store_rating": 4.1,
+      "commission_rate": 11.0,
+      "ad_spend_30d": 22000,
+      "products": [
+        {
+          "id": "P001",
+          "name": "Kablosuz Bluetooth Kulaklik Pro Max",
+          "category": "Elektronik > Kulaklik",
+          "price": 869.99,
+          "cost": 420,
+          "stock": 96,
+          "sales_30d": 154,
+          "shipping_cost": 16,
+          "rating": 4.2,
+          "review_count": 512,
+          "return_rate": 4.8,
+          "competitors": [
+            {"name": "n11 Ses Merkezi", "price": 854.99, "rating": 4.3, "review_count": 740, "sales_30d": 190},
+            {"name": "TeknoSes n11", "price": 899.99, "rating": 4.0, "review_count": 320, "sales_30d": 88}
+          ]
+        },
+        {
+          "id": "P005",
+          "name": "Kablosuz Mouse Sessiz Tiklama",
+          "category": "Elektronik > Aksesuar",
+          "price": 329.99,
+          "cost": 118,
+          "stock": 260,
+          "sales_30d": 208,
+          "shipping_cost": 12,
+          "rating": 4.4,
+          "review_count": 980,
+          "return_rate": 2.9,
+          "competitors": [
+            {"name": "MousePark", "price": 309.99, "rating": 4.2, "review_count": 510, "sales_30d": 155}
+          ]
+        }
+      ]
     }
   },
   "reviews": {

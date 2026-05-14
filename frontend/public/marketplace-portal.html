@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basiret Marketplace Developer Portal</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f172a;
+      color: #e5eefc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(79, 70, 229, .25), transparent 34%),
+        radial-gradient(circle at 85% 5%, rgba(14, 165, 233, .18), transparent 30%),
+        #0f172a;
+    }
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0;
+    }
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 54px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      margin: 12px 0 0;
+      max-width: 640px;
+      color: #9fb0ca;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(34, 197, 94, .35);
+      background: rgba(34, 197, 94, .12);
+      color: #86efac;
+      padding: 10px 13px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(15, 23, 42, .78);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 18px 55px rgba(0, 0, 0, .22);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .brand h2 {
+      margin: 0;
+      color: #fff;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+    .pill {
+      border-radius: 999px;
+      padding: 4px 9px;
+      background: rgba(59, 130, 246, .14);
+      color: #93c5fd;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    label {
+      display: block;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+    .keybox {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    input {
+      min-width: 0;
+      flex: 1;
+      border: 1px solid rgba(148, 163, 184, .25);
+      background: rgba(30, 41, 59, .72);
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 11px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+    button, a.button {
+      border: 0;
+      border-radius: 8px;
+      color: white;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 0 13px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+    }
+    button.secondary {
+      width: 100%;
+      background: rgba(30, 41, 59, .95);
+      border: 1px solid rgba(148, 163, 184, .24);
+      margin-top: 6px;
+    }
+    dl {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0 0;
+    }
+    dt {
+      color: #64748b;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+    dd {
+      margin: 3px 0 0;
+      color: #e2e8f0;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .flow {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid rgba(148, 163, 184, .16);
+      padding-top: 16px;
+      color: #9fb0ca;
+      font-size: 14px;
+    }
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: #16a34a;
+      color: white;
+      padding: 12px 14px;
+      border-radius: 8px;
+      box-shadow: 0 16px 45px rgba(0, 0, 0, .28);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: .2s ease;
+      font-weight: 800;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      header { align-items: flex-start; flex-direction: column; }
+    }
+    @media (max-width: 560px) {
+      .grid { grid-template-columns: 1fr; }
+      main { width: min(100% - 22px, 1120px); padding: 28px 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Marketplace Developer Portal</h1>
+        <p class="subtitle">
+          Demo pazaryeri API anahtarlarini buradan al. Ana Basiret AI uygulamasinda
+          Entegrasyonlar ekranina yapistirip urun, yorum, stok, rakip ve finans verilerini APIden cek.
+        </p>
+      </div>
+      <div class="status">● Sandbox API aktif</div>
+    </header>
+
+    <section class="grid" id="cards"></section>
+
+    <section class="flow">
+      <span>1. Key'i kopyala</span>
+      <span>2. Basiret AI > Entegrasyonlar</span>
+      <span>3. Bagla, verileri APIden cek</span>
+      <a class="button" href="/integrations">Entegrasyonlara Don</a>
+    </section>
+  </main>
+
+  <div class="toast" id="toast">API key kopyalandi</div>
+
+  <script>
+    const marketplaces = [
+      { name: "Trendyol", slug: "trendyol", key: "TRY-DEMO-12345-ABCDE", store: "TechStore Official", products: 4 },
+      { name: "Hepsiburada", slug: "hepsiburada", key: "HB-DEMO-67890-FGHIJ", store: "TechStore HB", products: 3 },
+      { name: "Amazon TR", slug: "amazon_tr", key: "AMZ-DEMO-13579-KLMNO", store: "TechStore TR Amazon", products: 2 },
+      { name: "n11", slug: "n11", key: "N11-DEMO-24680-PRSTU", store: "TechStore n11 Magazasi", products: 2 },
+    ];
+
+    const cards = document.getElementById("cards");
+    const toast = document.getElementById("toast");
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.setTimeout(() => toast.classList.remove("show"), 1600);
+    }
+
+    function copyKey(key, name) {
+      navigator.clipboard.writeText(key).then(
+        () => showToast(`${name} API key kopyalandi`),
+        () => showToast("Kopyalama engellendi")
+      );
+    }
+
+    cards.innerHTML = marketplaces.map((mp) => `
+      <article class="card">
+        <div class="brand">
+          <h2>${mp.name}</h2>
+          <span class="pill">${mp.slug}</span>
+        </div>
+        <label>Sandbox API Key</label>
+        <div class="keybox">
+          <input readonly value="${mp.key}" aria-label="${mp.name} API key" />
+          <button type="button" data-key="${mp.key}" data-name="${mp.name}">Kopyala</button>
+        </div>
+        <button class="secondary" type="button" data-key="${mp.key}" data-name="${mp.name}">
+          Yeni test anahtari al
+        </button>
+        <dl>
+          <div>
+            <dt>Magaza</dt>
+            <dd>${mp.store}</dd>
+          </div>
+          <div>
+            <dt>Veri</dt>
+            <dd>${mp.products} urun + yorumlar</dd>
+          </div>
+        </dl>
+      </article>
+    `).join("");
+
+    cards.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-key]");
+      if (!button) return;
+      copyKey(button.dataset.key, button.dataset.name);
+    });
+  </script>
+</body>
+</html>

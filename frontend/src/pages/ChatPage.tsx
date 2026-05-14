@@ -55,7 +55,7 @@ export default function ChatPage() {
 
     // SSE Streaming
     try {
-      const token = localStorage.getItem('access_token') || '';
+      const token = localStorage.getItem('basiret_access_token') || '';
       const url = '/api/v1/chat/ask/stream';
       setStreaming(true);
       setStreamText('');
@@ -91,7 +91,9 @@ export default function ChatPage() {
                 accumulated = data.full_text;
                 setStreamText(accumulated);
               }
-            } catch {}
+            } catch {
+              // Partial SSE chunks can split JSON lines; keep waiting for the next chunk.
+            }
           }
         }
       }
@@ -102,7 +104,7 @@ export default function ChatPage() {
       try {
         const res = await chatService.ask(text);
         setMessages(prev => [...prev, { role: 'ai', text: res.answer, created_at: res.created_at }]);
-      } catch (e2) {
+      } catch {
         setMessages(prev => [...prev, { role: 'ai', text: '⚠️ Yanıt alınamadı. Lütfen tekrar deneyin.' }]);
       }
     } finally {

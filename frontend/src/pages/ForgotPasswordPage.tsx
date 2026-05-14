@@ -21,7 +21,6 @@ export default function ForgotPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [demoToken, setDemoToken] = useState<string | null>(null);
 
   const handleRequest = async (e: FormEvent) => {
     e.preventDefault();
@@ -29,14 +28,7 @@ export default function ForgotPasswordPage() {
     setSubmitting(true);
     try {
       const r = await authService.forgotPassword(email);
-      // Backend dev mode'da demo_reset_token döner
-      if (r.demo_reset_token) {
-        setDemoToken(r.demo_reset_token);
-        setResetToken(r.demo_reset_token);
-        toast.info('Dev modunda: token aşağıda gösterildi.');
-      } else {
-        toast.success(r.message || 'E-posta gönderildi (eğer kayıtlıysa)');
-      }
+      toast.success(r.message || 'E-posta gonderildi (eger kayitliysa)');
       setStep('reset');
     } catch (err) {
       toast.error(getErrorMessage(err, 'İstek başarısız'));
@@ -129,13 +121,6 @@ export default function ForgotPasswordPage() {
                 <p className="text-slate-400 text-sm mb-4">
                   E-postana gelen sıfırlama token'ını gir ve yeni şifreni belirle.
                 </p>
-
-                {demoToken && (
-                  <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">
-                    <span className="font-semibold">Dev modu:</span> Token aşağıda otomatik
-                    dolduruldu. Production'da kullanıcı e-postasına bağlantıyla gider.
-                  </div>
-                )}
 
                 <form onSubmit={handleReset} className="space-y-4">
                   <Input

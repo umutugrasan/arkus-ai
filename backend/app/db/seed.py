@@ -26,8 +26,9 @@ DEMO_KEYS = {
     "trendyol": "demo-key-trendyol",
     "hepsiburada": "demo-key-hepsiburada",
     "amazon_tr": "demo-key-amazon_tr",
+    "n11": "demo-key-n11",
 }
-SLUG = {"trendyol": "trendyol", "hepsiburada": "hepsiburada", "amazon_tr": "amazon-tr"}
+SLUG = {"trendyol": "trendyol", "hepsiburada": "hepsiburada", "amazon_tr": "amazon-tr", "n11": "n11"}
 
 
 def _now() -> str:

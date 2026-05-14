@@ -23,6 +23,7 @@ VALID_API_KEYS = {
     "trendyol": ["demo-key-trendyol", "TRY-DEMO-12345-ABCDE"],
     "hepsiburada": ["demo-key-hepsiburada", "HB-DEMO-67890-FGHIJ"],
     "amazon_tr": ["demo-key-amazon_tr", "AMZ-DEMO-13579-KLMNO"],
+    "n11": ["demo-key-n11", "N11-DEMO-24680-PRSTU"],
 }
 
 # 3 sahte pazaryeri ana backend'in mock_raw.json'daki key'lerine eslesir
@@ -30,6 +31,7 @@ MARKETPLACE_KEY = {
     "trendyol": "trendyol",
     "hepsiburada": "hepsiburada",
     "amazon-tr": "amazon_tr",   # URL'de dash, JSON'da underscore
+    "n11": "n11",
 }
 
 
@@ -90,7 +92,8 @@ def root():
             "GET /trendyol/products",
             "GET /hepsiburada/products",
             "GET /amazon-tr/products",
-            "POST /{trendyol|hepsiburada|amazon-tr}/auth",
+            "GET /n11/products",
+            "POST /{trendyol|hepsiburada|amazon-tr|n11}/auth",
             "GET /{slug}/store-info",
             "GET /{slug}/reviews",
         ],

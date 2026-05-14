@@ -54,10 +54,7 @@ import type {
   ReviewAnalysis,
   ReviewAnalysisHistory,
   ReviewsListResponse,
-  RunAllAgentsResponse,
   SentimentResponse,
-  AgentResult,
-  AgentStatusResponse,
   SourcingOpportunitiesResponse,
   StoreConnectionsResponse,
   SuppliersResponse,
@@ -94,7 +91,7 @@ export const authService = {
     return r.data;
   },
   sendVerificationCode: async (email: string) => {
-    const r = await api.post<{ message: string; demo_code?: string | null }>('/auth/verify-email', { email });
+    const r = await api.post<{ message: string }>('/auth/verify-email', { email });
     return r.data;
   },
   confirmVerification: async (email: string, code: string) => {
@@ -102,7 +99,7 @@ export const authService = {
     return r.data;
   },
   forgotPassword: async (email: string) => {
-    const r = await api.post<{ message: string; demo_reset_token?: string | null }>('/auth/forgot-password', { email });
+    const r = await api.post<{ message: string }>('/auth/forgot-password', { email });
     return r.data;
   },
   resetPassword: async (reset_token: string, new_password: string) => {
@@ -509,18 +506,3 @@ export const uploadService = {
   },
 };
 
-// ===================== AGENTS =====================
-export const agentService = {
-  status: async (): Promise<AgentStatusResponse> => {
-    const r = await api.get<AgentStatusResponse>('/agents/status');
-    return r.data;
-  },
-  runAll: async (): Promise<RunAllAgentsResponse> => {
-    const r = await api.post<RunAllAgentsResponse>('/agents/run-all');
-    return r.data;
-  },
-  runOne: async (name: string): Promise<AgentResult> => {
-    const r = await api.post<AgentResult>(`/agents/${encodeURIComponent(name)}/run`);
-    return r.data;
-  },
-};

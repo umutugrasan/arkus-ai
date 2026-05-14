@@ -4,6 +4,7 @@ Production'da S3/MinIO presigned URL pattern'i tercih edilir.
 """
 
 import os
+import tempfile
 import uuid
 import base64
 from datetime import datetime
@@ -12,7 +13,7 @@ from app.dependencies import get_current_user
 
 router = APIRouter()
 
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/tmp/basiret_uploads")
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", os.path.join(tempfile.gettempdir(), "basiret_uploads"))
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 MAX_SIZE_MB = 10
 ALLOWED_MIME = {"image/jpeg", "image/png", "image/webp", "image/gif"}

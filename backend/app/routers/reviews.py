@@ -245,16 +245,16 @@ async def analyze_reviews(
 
     analysis = await _run_analysis(reviews, detail)
 
-    # Mock/fallback yanitlari cache'leme — sadece gercek AI cevaplari kalir
-    is_fallback = analysis.startswith("⚠️") or "mock yanit" in analysis.lower()
-    if is_fallback:
+    # Hata yanitlarini cache'leme; sadece gercek AI cevaplari kalir.
+    is_ai_error = analysis.startswith("⚠️") or "gercek ai/web analizi su anda alinamadi" in analysis.lower()
+    if is_ai_error:
         return {
             "product_id": product_id,
             "detail": detail,
             "cached": False,
             "ai_analysis": analysis,
             "total_reviews": len(reviews),
-            "warning": "AI cagrisi basarisiz, mock yanit dondu. Cache'e yazilmadi.",
+            "warning": "AI cagrisi basarisiz. Sahte analiz uretilmedi ve cache'e yazilmadi.",
         }
 
     record = ReviewAnalysis(
@@ -305,8 +305,8 @@ async def analyze_reviews_stream(
         ):
             if chunk.get("done"):
                 full_text = "".join(parts)
-                # Sadece gercek (non-fallback) cevaplari DB'ye yaz
-                is_fallback = full_text.startswith("⚠️") or "mock yanit" in full_text.lower()
+                # Sadece gercek AI cevaplarini DB'ye yaz.
+                is_fallback = full_text.startswith("⚠️") or "gercek ai/web analizi su anda alinamadi" in full_text.lower()
                 rec_id = None
                 if not is_fallback and full_text:
                     rec = ReviewAnalysis(

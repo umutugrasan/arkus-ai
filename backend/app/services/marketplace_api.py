@@ -21,15 +21,17 @@ MP_SLUG = {
     "trendyol": "trendyol",
     "hepsiburada": "hepsiburada",
     "amazon_tr": "amazon-tr",
+    "n11": "n11",
 }
 DEMO_KEYS = {
     "trendyol": "demo-key-trendyol",
     "hepsiburada": "demo-key-hepsiburada",
     "amazon_tr": "demo-key-amazon_tr",
+    "n11": "demo-key-n11",
 }
 
 
-def fetch_raw_marketplace_data(marketplace_name: str) -> Optional[Dict[str, Any]]:
+def fetch_raw_marketplace_data(marketplace_name: str, api_key: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
     Sahte pazaryeri API'sinden HAM veri ceker.
     JSON fallback YOK — mock-api ayakta olmali (docker depends_on healthcheck garanti eder).
@@ -40,7 +42,10 @@ def fetch_raw_marketplace_data(marketplace_name: str) -> Optional[Dict[str, Any]
         logger.warning(f"Bilinmeyen marketplace: {marketplace_name}")
         return None
 
-    api_key = DEMO_KEYS.get(marketplace_name, "")
+    api_key = api_key or DEMO_KEYS.get(marketplace_name, "")
+    if not api_key:
+        logger.warning(f"{marketplace_name} icin API key yok")
+        return None
     url = f"{MOCK_API_BASE}/{slug}/products"
     try:
         with httpx.Client(timeout=8.0) as client:
@@ -61,6 +66,35 @@ def fetch_raw_marketplace_data(marketplace_name: str) -> Optional[Dict[str, Any]
         return None
 
 
+def validate_marketplace_api_key(marketplace_name: str, api_key: str, store_url: str = "") -> Dict[str, Any]:
+    """
+    Mock marketplace auth endpoint'ine gidip kullanicinin girdigi API key'i dogrular.
+    Gercek entegrasyonda burasi Trendyol/HB/Amazon/n11 auth/OAuth kontrolune donusur.
+    """
+    slug = MP_SLUG.get(marketplace_name)
+    if not slug:
+        raise ValueError("Desteklenmeyen pazaryeri")
+    if not api_key:
+        raise ValueError("API key gerekli")
+
+    url = f"{MOCK_API_BASE}/{slug}/auth"
+    payload = {"api_key": api_key, "store_url": store_url or None}
+    try:
+        with httpx.Client(timeout=8.0) as client:
+            resp = client.post(url, json=payload)
+            if resp.status_code == 403:
+                raise ValueError("Gecersiz API key")
+            if resp.status_code == 404:
+                raise ValueError("Pazaryeri auth endpoint'i bulunamadi")
+            resp.raise_for_status()
+            return resp.json()
+    except ValueError:
+        raise
+    except Exception as e:
+        logger.error(f"mock-api auth {slug} failed: {type(e).__name__}: {e}")
+        raise ValueError("Pazaryeri API dogrulamasi basarisiz")
+
+
 def _get_db_session():
     return SessionLocal()
 
@@ -76,6 +110,7 @@ def fetch_store_info(marketplace_name: str, user_id: int) -> Optional[Dict[str, 
             .filter(
                 Marketplace.name == marketplace_name,
                 Marketplace.user_id == user_id,
+                Marketplace.status == "connected",
             )
             .first()
         )
@@ -101,6 +136,7 @@ def fetch_products(marketplace_name: str, user_id: int) -> List[Dict[str, Any]]:
             .filter(
                 Marketplace.name == marketplace_name,
                 Marketplace.user_id == user_id,
+                Marketplace.status == "connected",
             )
             .first()
         )
@@ -183,7 +219,11 @@ def fetch_all_marketplaces(user_id: int) -> List[str]:
     """Saticinin bagli oldugu tum pazaryerleri (DB)."""
     db = _get_db_session()
     try:
-        mps = db.query(Marketplace).filter(Marketplace.user_id == user_id).all()
+        mps = (
+            db.query(Marketplace)
+            .filter(Marketplace.user_id == user_id, Marketplace.status == "connected")
+            .all()
+        )
         return [m.name for m in mps]
     finally:
         db.close()

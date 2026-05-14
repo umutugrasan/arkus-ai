@@ -23,7 +23,6 @@ export interface LoginResponse {
 export interface RegisterResponse {
   message: string;
   user: AuthUser;
-  demo_verification_code: string | null;
 }
 
 export interface RefreshResponse {
@@ -857,36 +856,6 @@ export interface SyncResponse {
   product_count?: number;
   synced_at: string;
   results?: Record<string, { store_name: string; product_count: number }>;
-}
-
-// ============ Agents ============
-export interface AgentStatus {
-  name: string;
-  last_run: string | null;
-}
-
-export interface AgentStatusResponse {
-  agents: AgentStatus[];
-  total_agents: number;
-}
-
-export interface AgentResult {
-  agent: string;
-  status: 'ok' | 'partial' | 'error';
-  items_processed: number;
-  notifications_created: number;
-  events_emitted: string[];
-  details: Record<string, unknown>;
-  error: string | null;
-  finished_at: string;
-}
-
-export interface RunAllAgentsResponse {
-  user_id: number;
-  ran_at: string;
-  agents_run: number;
-  total_events_emitted: number;
-  results: AgentResult[];
 }
 
 // ============ Common ============

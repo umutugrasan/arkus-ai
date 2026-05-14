@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, Zap, LogIn, Beaker } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Zap, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import Button from '../components/ui/Button';
@@ -45,12 +45,6 @@ export default function LoginPage() {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const fillDemo = () => {
-    setEmail('demo@basiret.ai');
-    setPassword('demo123');
-    toast.info('Demo bilgileri dolduruldu, "Giriş Yap" butonuna bas.');
   };
 
   return (
@@ -127,27 +121,6 @@ export default function LoginPage() {
                 Giriş Yap
               </Button>
 
-              <div className="relative my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-700/60"></div>
-                </div>
-                <div className="relative flex justify-center">
-                  <span className="px-3 bg-slate-900/80 text-slate-500 text-[10px] uppercase tracking-wider">
-                    veya
-                  </span>
-                </div>
-              </div>
-
-              <Button
-                type="button"
-                variant="secondary"
-                size="md"
-                fullWidth
-                leftIcon={<Beaker size={14} />}
-                onClick={fillDemo}
-              >
-                Demo Hesapla Dene
-              </Button>
             </form>
 
             <p className="text-center text-sm text-slate-400 mt-6">

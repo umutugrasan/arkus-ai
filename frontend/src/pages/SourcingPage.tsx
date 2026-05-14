@@ -6,15 +6,24 @@ import EmptyState from '../components/shared/EmptyState';
 import StreamingMarkdown from '../components/shared/StreamingMarkdown';
 import { sourcingService } from '../services';
 import { formatCurrency } from '../utils/formatters';
-import type { SuppliersResponse, BestPriceResponse, SourcingOpportunitiesResponse, PriceAlertsResponse, Supplier, PriceAlert } from '../types/api';
+import type {
+  SuppliersResponse, BestPriceResponse, SourcingOpportunitiesResponse,
+  PriceAlertsResponse, Supplier, PriceAlert, RealSearchResponse,
+} from '../types/api';
 
 type Tab = 'suppliers' | 'search' | 'alerts' | 'opportunities';
+
+function getApiErrorMessage(error: unknown, fallback: string) {
+  const detail = (error as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
+  return typeof detail === 'string' ? detail : fallback;
+}
 
 export default function SourcingPage() {
   const [tab, setTab] = useState<Tab>('suppliers');
   const [suppliers, setSuppliers] = useState<SuppliersResponse | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [bestPrice, setBestPrice] = useState<BestPriceResponse | null>(null);
+  const [realSearch, setRealSearch] = useState<RealSearchResponse | null>(null);
   const [opportunities, setOpportunities] = useState<SourcingOpportunitiesResponse | null>(null);
   const [alerts, setAlerts] = useState<PriceAlertsResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,11 +51,19 @@ export default function SourcingPage() {
     setSearchLoading(true);
     setSearchError(null);
     setBestPrice(null);
+    setRealSearch(null);
     try {
-      const res = await sourcingService.bestPrice(searchQuery);
-      setBestPrice(res);
-    } catch (err: any) {
-      setSearchError(err.response?.data?.detail || "Arama sırasında bir hata oluştu.");
+      const [bestPriceResult, realSearchResult] = await Promise.allSettled([
+        sourcingService.bestPrice(searchQuery),
+        sourcingService.realSearch(searchQuery),
+      ]);
+      if (bestPriceResult.status === 'fulfilled') setBestPrice(bestPriceResult.value);
+      if (realSearchResult.status === 'fulfilled') setRealSearch(realSearchResult.value);
+      if (bestPriceResult.status === 'rejected' && realSearchResult.status === 'rejected') {
+        setSearchError(getApiErrorMessage(bestPriceResult.reason, 'Arama sirasinda bir hata olustu.'));
+      }
+    } catch (err: unknown) {
+      setSearchError(getApiErrorMessage(err, 'Arama sirasinda bir hata olustu.'));
     } finally { 
       setSearchLoading(false); 
     }
@@ -167,8 +184,7 @@ export default function SourcingPage() {
 
           {bestPrice && (
             <div className="space-y-3">
-              {/* En iyi fiyat kisminda gosterilecek liste: fiyata gore yuksekten dusuge */}
-              {([...bestPrice.all_suppliers || []].sort((a, b) => b.discounted_price - a.discounted_price)).map((s: Supplier, i: number) => {
+              {([...bestPrice.all_suppliers || []].sort((a, b) => a.discounted_price - b.discounted_price)).map((s: Supplier, i: number) => {
                 // Saticinin adina gore yonlendirilecek temsili URL (Alibaba/AliExpress aramasi)
                 const searchDomain = s.name.toLowerCase().includes('alibaba') ? 'alibaba.com/trade/search?SearchText=' : 
                                      s.name.toLowerCase().includes('aliexpress') ? 'aliexpress.com/w/wholesale-' : 
@@ -198,6 +214,14 @@ export default function SourcingPage() {
                 );
               })}
             </div>
+          )}
+
+          {realSearch && (
+            <StreamingMarkdown
+              content={realSearch.ai_analysis || ''}
+              webSources={realSearch.web_sources || []}
+              title="Guncel Web Tedarik Aramasi"
+            />
           )}
         </div>
       )}

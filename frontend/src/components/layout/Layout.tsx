@@ -4,24 +4,23 @@ import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import { notificationService } from '../../services';
 
-// Path prefix → görüntülenen başlık
 const PAGE_TITLES: Array<[string, string]> = [
-  ['/dashboard', '📊 Dashboard'],
-  ['/products', '📦 Ürün Yönetimi'],
-  ['/reviews', '💬 Yorum Analizi'],
-  ['/competitors', '⚔️ Rakip Analizi'],
-  ['/arbitrage', '🔄 Çapraz Pazaryeri Arbitraj'],
-  ['/financials', '💰 Finansal Panel'],
-  ['/health', '🏥 Mağaza Sağlık Skoru'],
-  ['/finance-guide', '🏦 Finansman Rehberi'],
-  ['/sourcing', '🔍 Tedarik Avcısı'],
-  ['/listing-optimizer', '✨ Listing Optimizer'],
-  ['/image-analyzer', '🖼️ Görsel Analiz'],
-  ['/chat', '🤖 AI Danışman'],
-  ['/agents', '🧠 Otonom Ajanlar'],
-  ['/notifications', '🔔 Bildirimler'],
-  ['/reports', '📋 Raporlar'],
-  ['/settings', '⚙️ Ayarlar'],
+  ['/dashboard', 'Dashboard'],
+  ['/products', 'Urun Yonetimi'],
+  ['/reviews', 'Yorum Analizi'],
+  ['/competitors', 'Rakip Analizi'],
+  ['/arbitrage', 'Capraz Pazaryeri Arbitraj'],
+  ['/financials', 'Finansal Panel'],
+  ['/health', 'Magaza Saglik Skoru'],
+  ['/finance-guide', 'Finansman Rehberi'],
+  ['/sourcing', 'Tedarik Avcisi'],
+  ['/listing-optimizer', 'Listing Optimizer'],
+  ['/image-analyzer', 'Gorsel Analiz'],
+  ['/chat', 'AI Danisman'],
+  ['/notifications', 'Bildirimler'],
+  ['/reports', 'Raporlar'],
+  ['/integrations', 'Entegrasyonlar'],
+  ['/settings', 'Ayarlar'],
 ];
 
 const POLL_UNREAD_MS = 30_000;
@@ -37,19 +36,18 @@ export default function Layout() {
   const refreshUnread = useCallback(() => {
     notificationService
       .unreadCount()
-      .then((d) => setUnreadCount(d.unread_count || 0))
+      .then((data) => setUnreadCount(data.unread_count || 0))
       .catch(() => {
-        /* sessiz fail — login öncesi gibi */
+        /* silent fail before auth settles */
       });
   }, []);
 
   useEffect(() => {
     refreshUnread();
-    const i = window.setInterval(refreshUnread, POLL_UNREAD_MS);
-    return () => window.clearInterval(i);
+    const interval = window.setInterval(refreshUnread, POLL_UNREAD_MS);
+    return () => window.clearInterval(interval);
   }, [refreshUnread]);
 
-  // Sayfa değişince mobile sidebar'ı kapat
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);

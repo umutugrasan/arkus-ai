@@ -121,8 +121,8 @@ async def ask_gemini(
 ) -> str:
     """
     Gemini text completion.
-    strict=True: hata olursa fallback verme, Exception raise et (analiz endpoint'leri icin).
-    strict=False: hata olursa mock fallback (chat girisi vs.).
+    Hata olursa sahte/mock analiz uretmez. strict=True exception raise eder,
+    strict=False kullaniciya gercek AI analizinin alinamadigini soyler.
     """
     t0 = time.perf_counter()
     client = get_client()
@@ -130,7 +130,7 @@ async def ask_gemini(
         _log_usage(endpoint, None, success=False, error_type="no_api_key", user_id=user_id)
         if strict:
             raise GeminiError("Gemini API key tanimli degil")
-        return _fallback_response(prompt)
+        return _ai_unavailable_message("Gemini API key tanimli degil")
 
     full_prompt = f"{system_instruction}\n\n{prompt}" if system_instruction else prompt
 
@@ -148,9 +148,8 @@ async def ask_gemini(
         )
         if strict:
             raise GeminiError(f"Gemini API basarisiz: {err}")
-        return (
-            f"⚠️ Gemini API cagrisi basarisiz ({type(err).__name__ if err else 'unknown'}). "
-            "Demo icin mock yanit.\n\n---\n\n" + _fallback_response(prompt)
+        return _ai_unavailable_message(
+            f"Gemini API basarisiz ({type(err).__name__ if err else 'unknown'})"
         )
 
     _log_usage(endpoint, used_model, success=True, duration_ms=duration_ms, user_id=user_id)
@@ -220,10 +219,6 @@ async def ask_gemini_stream(
     _log_usage(endpoint, None, success=False, used_search=use_search,
                error_type=type(last_err).__name__ if last_err else "unknown",
                duration_ms=int((time.perf_counter() - t0) * 1000), user_id=user_id)
-    # Cascade tamamen fail: fallback metin dondur (stream olarak)
-    fallback = _fallback_response(prompt)
-    yield {"text": "⚠️ Gemini cagrisi basarisiz, mock yanit:\n\n", "done": False}
-    yield {"text": fallback, "done": False}
     yield {"text": "", "done": True, "error": type(last_err).__name__ if last_err else "unknown"}
 
 
@@ -242,7 +237,7 @@ async def ask_gemini_with_search(
         if strict:
             raise GeminiError("Gemini API key tanimli degil")
         return {
-            "text": _fallback_response(prompt),
+            "text": _ai_unavailable_message("Gemini API key tanimli degil"),
             "sources": [], "used_search": False, "model": None,
         }
 
@@ -253,7 +248,7 @@ async def ask_gemini_with_search(
                    error_type="sdk_missing", user_id=user_id)
         if strict:
             raise GeminiError("Gemini SDK eksik")
-        return {"text": _fallback_response(prompt), "sources": [], "used_search": False, "model": None}
+        return {"text": _ai_unavailable_message("Gemini SDK eksik"), "sources": [], "used_search": False, "model": None}
 
     full_prompt = f"{system_instruction}\n\n{prompt}" if system_instruction else prompt
     config = genai_types.GenerateContentConfig(
@@ -275,10 +270,8 @@ async def ask_gemini_with_search(
         if strict:
             raise GeminiError(f"Gemini grounding basarisiz: {err}")
         return {
-            "text": (
-                f"⚠️ Gemini Google Search grounding kullanilamadi "
-                f"({type(err).__name__ if err else 'unknown'}). Mock yanit.\n\n---\n\n"
-                + _fallback_response(prompt)
+            "text": _ai_unavailable_message(
+                f"Gemini Google Search grounding kullanilamadi ({type(err).__name__ if err else 'unknown'})"
             ),
             "sources": [], "used_search": False, "model": None,
         }
@@ -372,21 +365,10 @@ class GeminiError(Exception):
     pass
 
 
-def _fallback_response(prompt: str) -> str:
-    if "yorum" in prompt.lower() or "duygu" in prompt.lower():
-        return ("## Yorum Analizi Ozeti\n\n"
-                "Genel duygu karisik. Kargo gecikmeleri ve urun kalitesi en sik sikayet.\n"
-                "Oneri: Kargo firmasini gozden gecirin, kalite kontrolunu sikilastirin.")
-    elif "rakip" in prompt.lower():
-        return ("## Rakip Analizi\n\n"
-                "Ana rakipler benzer fiyat seviyesinde. Kalite algisi ile farklilasin.")
-    elif "finansal" in prompt.lower() or "gelir" in prompt.lower():
-        return ("## Finansal Durum\n\n"
-                "Genel trend pozitif. Reklam ROI'sini takip edin.")
-    elif "saglik" in prompt.lower() or "skor" in prompt.lower():
-        return ("## Saglik Skoru\n\n"
-                "Magazaniz orta-iyi seviyede. Iade orani ve yorum puani gelistirilebilir.")
-    else:
-        return ("Merhaba! Ben Basiret AI. "
-                "Yorum analizi, rakip karsilastirma, arbitraj, finansal analiz ve "
-                "saglik skoru konularinda yardimci olabilirim.")
+def _ai_unavailable_message(reason: str) -> str:
+    return (
+        "Gercek AI/web analizi su anda alinamadi.\n\n"
+        f"Neden: {reason}.\n\n"
+        "Sahte veya mock analiz uretilmedi. Lutfen internet/Gemini erisimini kontrol edip tekrar deneyin."
+    )
+

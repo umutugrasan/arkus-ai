@@ -1,90 +1,89 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+import LoadingSpinner from './components/shared/LoadingSpinner';
 
-// Auth pages (Layout dışı)
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const ProductsPage = lazy(() => import('./pages/ProductsPage'));
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
+const ReviewsPage = lazy(() => import('./pages/ReviewsPage'));
+const CompetitorsPage = lazy(() => import('./pages/CompetitorsPage'));
+const ArbitragePage = lazy(() => import('./pages/ArbitragePage'));
+const FinancialsPage = lazy(() => import('./pages/FinancialsPage'));
+const HealthScorePage = lazy(() => import('./pages/HealthScorePage'));
+const FinanceGuidePage = lazy(() => import('./pages/FinanceGuidePage'));
+const SourcingPage = lazy(() => import('./pages/SourcingPage'));
+const ListingOptimizerPage = lazy(() => import('./pages/ListingOptimizerPage'));
+const ImageAnalyzerPage = lazy(() => import('./pages/ImageAnalyzerPage'));
+const ChatPage = lazy(() => import('./pages/ChatPage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const IntegrationsPage = lazy(() => import('./pages/IntegrationsPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
-// Business pages (Layout içi)
-import DashboardPage from './pages/DashboardPage';
-import ProductsPage from './pages/ProductsPage';
-import ProductDetailPage from './pages/ProductDetailPage';
-import ReviewsPage from './pages/ReviewsPage';
-import CompetitorsPage from './pages/CompetitorsPage';
-import ArbitragePage from './pages/ArbitragePage';
-import FinancialsPage from './pages/FinancialsPage';
-import HealthScorePage from './pages/HealthScorePage';
-import FinanceGuidePage from './pages/FinanceGuidePage';
-import SourcingPage from './pages/SourcingPage';
-import ListingOptimizerPage from './pages/ListingOptimizerPage';
-import ImageAnalyzerPage from './pages/ImageAnalyzerPage';
-import ChatPage from './pages/ChatPage';
-import AgentsPage from './pages/AgentsPage';
-import NotificationsPage from './pages/NotificationsPage';
-import ReportsPage from './pages/ReportsPage';
-import SettingsPage from './pages/SettingsPage';
-import NotFoundPage from './pages/NotFoundPage';
+const routeFallback = (
+  <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+    <LoadingSpinner message="Sayfa yukleniyor..." size="lg" />
+  </div>
+);
 
 function AppRoutes() {
   return (
-    <Routes>
-      {/* Public auth */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <Suspense fallback={routeFallback}>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-      {/* Protected app shell */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<DashboardPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<DashboardPage />} />
 
-        {/* Mağaza */}
-        <Route path="products" element={<ProductsPage />} />
-        <Route path="products/:id" element={<ProductDetailPage />} />
-        <Route path="reviews" element={<ReviewsPage />} />
-        <Route path="reviews/:id" element={<ReviewsPage />} />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="products/:id" element={<ProductDetailPage />} />
+          <Route path="reviews" element={<ReviewsPage />} />
+          <Route path="reviews/:id" element={<ReviewsPage />} />
 
-        {/* Analiz */}
-        <Route path="competitors" element={<CompetitorsPage />} />
-        <Route path="competitors/:id" element={<CompetitorsPage />} />
-        <Route path="arbitrage" element={<ArbitragePage />} />
-        <Route path="arbitrage/:id" element={<ArbitragePage />} />
-        <Route path="financials" element={<FinancialsPage />} />
-        <Route path="health" element={<HealthScorePage />} />
-        <Route path="finance-guide" element={<FinanceGuidePage />} />
+          <Route path="competitors" element={<CompetitorsPage />} />
+          <Route path="competitors/:id" element={<CompetitorsPage />} />
+          <Route path="arbitrage" element={<ArbitragePage />} />
+          <Route path="arbitrage/:id" element={<ArbitragePage />} />
+          <Route path="financials" element={<FinancialsPage />} />
+          <Route path="health" element={<HealthScorePage />} />
+          <Route path="finance-guide" element={<FinanceGuidePage />} />
 
-        {/* Optimizasyon */}
-        <Route path="sourcing" element={<SourcingPage />} />
-        <Route path="listing-optimizer" element={<ListingOptimizerPage />} />
-        <Route path="listing-optimizer/:id" element={<ListingOptimizerPage />} />
-        <Route path="image-analyzer" element={<ImageAnalyzerPage />} />
-        <Route path="image-analyzer/:id" element={<ImageAnalyzerPage />} />
+          <Route path="sourcing" element={<SourcingPage />} />
+          <Route path="listing-optimizer" element={<ListingOptimizerPage />} />
+          <Route path="listing-optimizer/:id" element={<ListingOptimizerPage />} />
+          <Route path="image-analyzer" element={<ImageAnalyzerPage />} />
+          <Route path="image-analyzer/:id" element={<ImageAnalyzerPage />} />
 
-        {/* AI */}
-        <Route path="chat" element={<ChatPage />} />
-        <Route path="agents" element={<AgentsPage />} />
+          <Route path="chat" element={<ChatPage />} />
 
-        {/* Sistem */}
-        <Route path="notifications" element={<NotificationsPage />} />
-        <Route path="reports" element={<ReportsPage />} />
-        <Route path="reports/:id" element={<ReportsPage />} />
-        <Route path="settings" element={<SettingsPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="reports" element={<ReportsPage />} />
+          <Route path="reports/:id" element={<ReportsPage />} />
+          <Route path="integrations" element={<IntegrationsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
 
-        {/* 404 — Layout içinde, sidebar ile birlikte */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 }
 

@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Package, MessageSquare, Swords, ArrowLeftRight,
   TrendingUp, Heart, Banknote, Search, Bot, Bell, FileText, Settings,
-  X, ChevronRight, Zap, Sparkles, ImageIcon, Cpu,
+  X, ChevronRight, Zap, Sparkles, ImageIcon, PlugZap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -50,7 +50,6 @@ const NAV_GROUPS: NavGroup[] = [
     title: 'AI',
     items: [
       { to: '/chat', icon: Bot, label: 'AI Danışman' },
-      { to: '/agents', icon: Cpu, label: 'Otonom Ajanlar' },
     ],
   },
   {
@@ -58,6 +57,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { to: '/notifications', icon: Bell, label: 'Bildirimler', badge: 'notifications' },
       { to: '/reports', icon: FileText, label: 'Raporlar' },
+      { to: '/integrations', icon: PlugZap, label: 'Entegrasyonlar' },
       { to: '/settings', icon: Settings, label: 'Ayarlar' },
     ],
   },

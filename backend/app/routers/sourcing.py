@@ -38,6 +38,17 @@ def _supplier_to_dict(s: Supplier) -> dict:
     }
 
 
+def _normalize_search_text(value: str) -> str:
+    table = str.maketrans("çğıöşüÇĞİÖŞÜ", "cgiosuCGIOSU")
+    return (value or "").translate(table).lower()
+
+
+def _supplier_matches_product(supplier: Supplier, product_name: str) -> bool:
+    haystack = _normalize_search_text(supplier.product)
+    words = [w for w in re.split(r"\W+", _normalize_search_text(product_name)) if len(w) >= 3]
+    return bool(words) and all(w in haystack for w in words)
+
+
 @router.get("/suppliers")
 def list_suppliers(
     product: Optional[str] = None,
@@ -60,6 +71,8 @@ def list_suppliers(
 @router.get("/best-price/{product_name}")
 async def best_price(product_name: str, user=Depends(get_current_user), db=Depends(get_db)):
     rows = db.query(Supplier).filter(Supplier.product.ilike(f"%{product_name}%")).all()
+    if not rows:
+        rows = [s for s in db.query(Supplier).all() if _supplier_matches_product(s, product_name)]
     
     if rows:
         suppliers = [_supplier_to_dict(s) for s in rows]
@@ -169,16 +182,12 @@ Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JS
                 })
         except Exception as e:
             logger.error(f"Sourcing JSON parse hatasi: {e} | raw: {raw_text[:300]}")
-            raise HTTPException(
-                status_code=503,
-                detail="AI yaniti islenemedi. Lutfen birkaç saniye bekleyip tekrar deneyin.",
-            )
+            suppliers = [_supplier_to_dict(s) for s in rows]
 
     if not suppliers:
         raise HTTPException(status_code=404, detail="Bu urun icin tedarikci bulunamadi")
 
-    # Fiyata gore yuksekten dusuge siralansin istenmisti front-end tarafinda, ama
-    # backend mantigi olarak hala cheapest best'tir. Frontend yuksekten dusuge siraliyor.
+    # Backend mantigi olarak cheapest best'tir; frontend de bu sirayi korur.
     suppliers.sort(key=lambda x: x["discounted_price"])
 
     best = suppliers[0]

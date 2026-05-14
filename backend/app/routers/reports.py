@@ -304,7 +304,7 @@ async def generate_daily_stream(
             if chunk.get("done"):
                 full_text = "".join(parts)
                 rec_id = None
-                is_fallback = full_text.startswith("⚠️") or "mock yanit" in full_text.lower()
+                is_fallback = full_text.startswith("⚠️") or "gercek ai/web analizi su anda alinamadi" in full_text.lower()
                 if not is_fallback and full_text:
                     rep = _save_report(
                         db, user.id, "daily",
@@ -346,7 +346,7 @@ async def generate_weekly_stream(
             if chunk.get("done"):
                 full_text = "".join(parts)
                 rec_id = None
-                is_fallback = full_text.startswith("⚠️") or "mock yanit" in full_text.lower()
+                is_fallback = full_text.startswith("⚠️") or "gercek ai/web analizi su anda alinamadi" in full_text.lower()
                 if not is_fallback and full_text:
                     rep = _save_report(
                         db, user.id, "weekly",
