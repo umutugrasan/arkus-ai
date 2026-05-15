@@ -37,7 +37,7 @@ export const tokenStorage = {
 };
 
 // Backend base URL — Vite proxy ile veya direct
-const BASE_URL = '/api/v1';
+const BASE_URL = 'https://backend-service-435783041080.europe-west3.run.app/api/v1';
 
 const api = axios.create({
   baseURL: BASE_URL,
