@@ -60,17 +60,17 @@ jobs:
       uses: google-github-actions/setup-gcloud@v2
 
     - name: Configure Docker
-      run: gcloud auth configure-docker ${{ env.FRONTEND_REGION }}-docker.pkg.dev
+      run: gcloud auth configure-docker ${{ env.BACKEND_REGION }}-docker.pkg.dev
 
     - name: Build and Push Frontend
       run: |
-        docker build -t ${{ env.FRONTEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest ./frontend
-        docker push ${{ env.FRONTEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest
+        docker build -t ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest ./frontend
+        docker push ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest
 
     - name: Deploy Frontend to Cloud Run
       run: |
         gcloud run deploy frontend-service \
-          --image ${{ env.FRONTEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest \
+          --image ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest \
           --region ${{ env.FRONTEND_REGION }} \
           --allow-unauthenticated \
           --port 8080
