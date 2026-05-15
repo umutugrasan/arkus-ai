@@ -1,0 +1,74 @@
+name: Deploy Fullstack to Cloud Run
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: europe-west3
+  REPO_NAME: uygulama-havuzu
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Google Auth
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker
+      run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+    - name: Build and Push Backend
+      run: |
+        docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/backend-service:latest ./backend
+        docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/backend-service:latest
+
+    - name: Deploy Backend to Cloud Run
+      run: |
+        gcloud run deploy backend-service \
+          --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/backend-service:latest \
+          --region ${{ env.REGION }} \
+          --allow-unauthenticated \
+          --port 8080 \
+          --add-cloudsql-instances=gen-lang-client-0173678969:europe-west3:arkus-db \
+          --set-env-vars DATABASE_URL="postgresql://postgres:d30R_MJG&tXqeq_4$I{p'pwgRA@localhost/postgres?host=/cloudsql/gen-lang-client-0173678969:europe-west3:arkus-db"
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Google Auth
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker
+      run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+    - name: Build and Push Frontend
+      run: |
+        docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest ./frontend
+        docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest
+
+    - name: Deploy Frontend to Cloud Run
+      run: |
+        gcloud run deploy frontend-service \
+          --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest \
+          --region ${{ env.REGION }} \
+          --allow-unauthenticated \
+          --port 8080
