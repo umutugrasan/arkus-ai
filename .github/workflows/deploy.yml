@@ -40,7 +40,7 @@ jobs:
           --allow-unauthenticated \
           --port 8080 \
           --add-cloudsql-instances=gen-lang-client-0173678969:europe-west3:arkus-db \
-          --set-env-vars DATABASE_URL='postgresql://postgres:d30R_MJG&tXqeq_4\$I{p\'pwgRA@localhost/postgres?host=/cloudsql/gen-lang-client-0173678969:europe-west3:arkus-db'
+          --set-env-vars DATABASE_URL="postgresql://postgres:d30R_MJG&tXqeq_4\$I{p'pwgRA@localhost/postgres?host=/cloudsql/gen-lang-client-0173678969:europe-west3:arkus-db"
 
   deploy-frontend:
     runs-on: ubuntu-latest
