@@ -12,8 +12,11 @@ env:
   FRONTEND_REGION: europe-west1
 
 jobs:
+  # ─── mock-api ──────────────────────────────────────────────────────────────
   deploy-mock-api:
     runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.mock-url.outputs.url }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -43,9 +46,20 @@ jobs:
           --port 8001 \
           --set-env-vars APP_ENV=production
 
+    - name: Capture mock-api URL
+      id: mock-url
+      run: |
+        URL=$(gcloud run services describe mock-api-service \
+          --region=${{ env.BACKEND_REGION }} \
+          --format='value(status.url)')
+        echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+  # ─── backend ───────────────────────────────────────────────────────────────
   deploy-backend:
     runs-on: ubuntu-latest
     needs: deploy-mock-api
+    outputs:
+      url: ${{ steps.backend-url.outputs.url }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -66,16 +80,55 @@ jobs:
         docker build -t ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/backend-service:latest ./backend
         docker push ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/backend-service:latest
 
-    - name: Deploy Backend to Cloud Run
+    # CORS: frontend-service zaten deploy edilmisse URL'ini al; ilk deploy'da bos
+    # birakip "*" fallback ile gec.
+    - name: Resolve existing frontend URL for CORS
+      id: cors
       run: |
+        FRONTEND_URL=$(gcloud run services describe frontend-service \
+          --region=${{ env.FRONTEND_REGION }} \
+          --format='value(status.url)' 2>/dev/null || echo "")
+        if [ -z "$FRONTEND_URL" ]; then
+          echo "origins=*" >> "$GITHUB_OUTPUT"
+        else
+          echo "origins=$FRONTEND_URL" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Deploy Backend to Cloud Run
+      env:
+        # Secrets'i env'e cek, gcloud --set-env-vars'a guvenle aktarmak icin
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        MOCK_API_URL: ${{ needs.deploy-mock-api.outputs.url }}
+        CORS_ORIGINS: ${{ steps.cors.outputs.origins }}
+      run: |
+        # Gcloud env-vars formati special karakterleri kotu islediginden ^|^
+        # delimiter syntax kullaniyoruz; tek "|" ayirici, virgul guvenli kalir.
+        ENV_VARS="^|^APP_ENV=production"
+        ENV_VARS="${ENV_VARS}|JWT_SECRET=${JWT_SECRET}"
+        ENV_VARS="${ENV_VARS}|GEMINI_API_KEY=${GEMINI_API_KEY}"
+        ENV_VARS="${ENV_VARS}|MOCK_MARKETPLACE_API_URL=${MOCK_API_URL}"
+        ENV_VARS="${ENV_VARS}|DATABASE_URL=${DATABASE_URL}"
+        ENV_VARS="${ENV_VARS}|CORS_ORIGINS=${CORS_ORIGINS}"
+
         gcloud run deploy backend-service \
           --image ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/backend-service:latest \
           --region ${{ env.BACKEND_REGION }} \
           --allow-unauthenticated \
           --port 8080 \
           --add-cloudsql-instances=gen-lang-client-0173678969:europe-west3:arkus-db \
-          --set-env-vars APP_ENV=production,GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}",MOCK_MARKETPLACE_API_URL="https://mock-api-service-435783041080.europe-west3.run.app",DATABASE_URL="postgresql://postgres:d30R_MJG%26tXqeq_4%24I{p%27pwgRA@localhost/postgres?host=/cloudsql/gen-lang-client-0173678969:europe-west3:arkus-db"
+          --set-env-vars "$ENV_VARS"
 
+    - name: Capture backend URL
+      id: backend-url
+      run: |
+        URL=$(gcloud run services describe backend-service \
+          --region=${{ env.BACKEND_REGION }} \
+          --format='value(status.url)')
+        echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+  # ─── frontend ──────────────────────────────────────────────────────────────
   deploy-frontend:
     runs-on: ubuntu-latest
     needs: deploy-backend
@@ -94,9 +147,16 @@ jobs:
     - name: Configure Docker
       run: gcloud auth configure-docker ${{ env.BACKEND_REGION }}-docker.pkg.dev
 
-    - name: Build and Push Frontend
+    # Vite import.meta.env.VITE_API_URL build-time'da gomulur; bu yuzden Dockerfile
+    # icin --build-arg ile gercek backend URL'ini geçiriyoruz.
+    - name: Build and Push Frontend (with VITE_API_URL baked in)
+      env:
+        BACKEND_URL: ${{ needs.deploy-backend.outputs.url }}
       run: |
-        docker build -t ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest ./frontend
+        docker build \
+          --build-arg VITE_API_URL="${BACKEND_URL}/api/v1" \
+          -t ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest \
+          ./frontend
         docker push ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend-service:latest
 
     - name: Deploy Frontend to Cloud Run
@@ -106,3 +166,14 @@ jobs:
           --region ${{ env.FRONTEND_REGION }} \
           --allow-unauthenticated \
           --port 8080
+
+    # frontend URL'i ogrendigimize gore backend'in CORS'unu gevsek "*" ile birakmak
+    # yerine kesin frontend domain'iyle daraltiyoruz (gerekli ikinci tur).
+    - name: Tighten backend CORS to actual frontend URL
+      run: |
+        FRONTEND_URL=$(gcloud run services describe frontend-service \
+          --region=${{ env.FRONTEND_REGION }} \
+          --format='value(status.url)')
+        gcloud run services update backend-service \
+          --region=${{ env.BACKEND_REGION }} \
+          --update-env-vars "CORS_ORIGINS=${FRONTEND_URL}"
