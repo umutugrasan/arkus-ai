@@ -12,8 +12,39 @@ env:
   FRONTEND_REGION: europe-west1
 
 jobs:
+  deploy-mock-api:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Google Auth
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker
+      run: gcloud auth configure-docker ${{ env.BACKEND_REGION }}-docker.pkg.dev
+
+    - name: Build and Push Mock API
+      run: |
+        docker build -t ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/mock-api-service:latest -f ./backend/mock_api/Dockerfile ./backend
+        docker push ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/mock-api-service:latest
+
+    - name: Deploy Mock API to Cloud Run
+      run: |
+        gcloud run deploy mock-api-service \
+          --image ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/mock-api-service:latest \
+          --region ${{ env.BACKEND_REGION }} \
+          --allow-unauthenticated \
+          --port 8001
+
   deploy-backend:
     runs-on: ubuntu-latest
+    needs: deploy-mock-api
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -42,7 +73,7 @@ jobs:
           --allow-unauthenticated \
           --port 8080 \
           --add-cloudsql-instances=gen-lang-client-0173678969:europe-west3:arkus-db \
-          --set-env-vars GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}",DATABASE_URL="postgresql://postgres:d30R_MJG%26tXqeq_4%24I{p%27pwgRA@localhost/postgres?host=/cloudsql/gen-lang-client-0173678969:europe-west3:arkus-db"
+          --set-env-vars GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}",MOCK_MARKETPLACE_API_URL="https://mock-api-service-435783041080.europe-west3.run.app",DATABASE_URL="postgresql://postgres:d30R_MJG%26tXqeq_4%24I{p%27pwgRA@localhost/postgres?host=/cloudsql/gen-lang-client-0173678969:europe-west3:arkus-db"
 
   deploy-frontend:
     runs-on: ubuntu-latest
