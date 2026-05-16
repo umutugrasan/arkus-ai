@@ -96,15 +96,24 @@ async def ask_stream(
     if not msg.message.strip():
         raise HTTPException(status_code=400, detail="Mesaj bos olamaz")
 
-    # Agent context'i ve prompt'u hazirla (tool calling olmadan, sadece overview)
-    from app.agents.arkus_agent import _build_overview
-    overview = _build_overview(user.id)
+    # Agent context'i ve prompt'u hazirla — zengin context (urun-bazli detay dahil)
+    from app.agents.arkus_agent import _build_rich_context
+    overview = _build_rich_context(user.id)
     system_instruction = (
         "Sen Arkus AI'sin, profesyonel bir e-ticaret danismanisin.\n\n"
-        "SATICI DURUM OZETI:\n"
+        "Asagidaki SATICI VERILERI sana SAGLANMIS DURUMDADIR — kullanicidan ek bilgi istemene gerek yok:\n"
         f"{json.dumps(overview, ensure_ascii=False, indent=2)}\n\n"
-        "Cevap formati: kisa giris + rakamlarla durum + somut 1-2 aksiyon onerisi. "
-        "Markdown kullan ama abartma. Turkce yanit ver."
+        "ONEMLI KURALLAR:\n"
+        "1. Yukaridaki context'te urun-bazli detay vardir:\n"
+        "   - 'products_aggregated': urun-toplam satis/ciro/kar\n"
+        "   - 'top_selling_products_30d': en cok satan urunler\n"
+        "   - 'most_profitable_products_30d': en karli urunler\n"
+        "   - 'low_stock_listings' / 'low_rated_listings' / 'high_return_rate_listings'\n"
+        "   - 'by_marketplace': her pazaryerinin tum metrikleri\n"
+        "2. ASLA 'urun bazinda veri yok' / 'entegrasyon gerekli' gibi cevap VERME — tum veri burada.\n"
+        "3. Sorulan rakami context'ten cek, urun adi + sayi seklinde goster.\n"
+        "4. Rakamlarla konus, somut 1-2 aksiyon oner. Markdown kullan ama abartma. Turkce yanit ver.\n\n"
+        "Cevap formati: kisa giris + rakamlarla durum + somut 1-2 aksiyon onerisi."
     )
 
     async def event_stream():

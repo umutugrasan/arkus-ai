@@ -371,29 +371,43 @@ export default function ReviewsPage() {
         )}
       </GlassCard>
 
-      {/* Analiz Geçmişi */}
-      {history && history.total > 0 && (
-        <GlassCard className="p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <History size={16} className="text-cyan-400" />
-            <h3 className="text-slate-800 font-semibold">Analiz Geçmişi</h3>
-            <span className="text-xs text-gray-500 ml-auto">{history.total} kayıt</span>
-          </div>
-          <ul className="space-y-2 max-h-72 overflow-y-auto">
-            {history.analyses.slice(0, 10).map((a) => (
-              <li key={a.id} className="p-3 rounded-lg bg-white/40 border border-gray-200/40">
+      {/* Analiz Geçmişi (her zaman görünür — boşken empty state) */}
+      <GlassCard className="p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <History size={16} className="text-cyan-400" />
+          <h3 className="text-slate-800 font-semibold">Analiz Geçmişi</h3>
+          <span className="text-xs text-gray-500 ml-auto">
+            {history?.total ?? 0} kayıt
+          </span>
+        </div>
+
+        {!history || history.total === 0 ? (
+          <EmptyState
+            icon={<Brain size={20} />}
+            title="Henüz analiz yok"
+            description="Yukarıdaki 'Analiz Et' butonuyla ilk analizi başlat — kaydedilen tüm geçmiş analizler burada listelenir."
+          />
+        ) : (
+          <ul className="space-y-2 max-h-96 overflow-y-auto">
+            {history.analyses.slice(0, 20).map((a) => (
+              <li key={a.id} className="p-3 rounded-lg bg-white/40 border border-gray-200/40 hover:border-gray-300/60 transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 capitalize">
-                    {a.analysis_type}
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 capitalize font-medium">
+                    {a.analysis_type === 'short' ? 'Kısa' : a.analysis_type === 'detailed' ? 'Detaylı' : a.analysis_type}
                   </span>
                   <span className="text-gray-500 text-[10px]">{a.created_at}</span>
                 </div>
                 <p className="text-gray-600 text-xs line-clamp-3 whitespace-pre-wrap">{a.content}</p>
               </li>
             ))}
+            {history.total > 20 && (
+              <li className="text-center text-xs text-gray-400 py-2">
+                ...ve {history.total - 20} kayıt daha
+              </li>
+            )}
           </ul>
-        </GlassCard>
-      )}
+        )}
+      </GlassCard>
     </div>
   );
 }

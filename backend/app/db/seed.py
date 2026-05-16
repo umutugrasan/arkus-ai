@@ -11,6 +11,7 @@ import logging
 import time
 from datetime import datetime, timedelta
 import httpx
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.db.models import (
     User, Seller, Marketplace, Product, Competitor, Review, Supplier,
@@ -298,3 +299,60 @@ def seed_db(db: Session):
 
     logger.info("Database seeded successfully via mock-api (15 tables + sellers).")
     print("Database seeded successfully via mock-api (15 tables + sellers).")
+
+
+def refresh_demo_dates(db: Session) -> None:
+    """
+    Demo verisinin tarihlerini bugüne göre kaydırır.
+    Seed bir kez çalışır ama günler geçtikçe order tarihleri eskir; bu yüzden
+    her başlangıçta latest order tarihinden today'e olan farkı tüm tarih
+    alanlarına +shift olarak uygula. Spread korunur, "son 7 gün" doluluk garanti.
+
+    No-op şartları: demo user yok, latest tarih bugünden büyük/eşit, vs.
+    """
+    demo = db.query(User).filter(User.email == "demo@arkus.ai").first()
+    if not demo:
+        return
+
+    latest_str = db.query(func.max(Order.date)).filter(Order.user_id == demo.id).scalar()
+    if not latest_str:
+        return
+
+    try:
+        latest = datetime.fromisoformat(str(latest_str)[:10]).date()
+    except ValueError:
+        return
+
+    today = datetime.now().date()
+    shift_days = (today - latest).days
+    if shift_days <= 0:
+        return  # zaten güncel
+
+    logger.info("refresh_demo_dates: shifting all demo dates by +%d days", shift_days)
+
+    # Orders
+    for o in db.query(Order).filter(Order.user_id == demo.id).all():
+        try:
+            d = datetime.fromisoformat(str(o.date)[:10]).date()
+            o.date = (d + timedelta(days=shift_days)).isoformat()
+        except (TypeError, ValueError):
+            continue
+
+    # Competitor price history
+    for cph in db.query(CompetitorPriceHistory).all():
+        try:
+            d = datetime.fromisoformat(str(cph.captured_at)[:10]).date()
+            cph.captured_at = (d + timedelta(days=shift_days)).isoformat()
+        except (TypeError, ValueError):
+            continue
+
+    # Reviews (P001-P006 yorumları — yapay tarihlerle ama yine de bugüne yakın olsun)
+    for r in db.query(Review).all():
+        try:
+            d = datetime.fromisoformat(str(r.date)[:10]).date()
+            r.date = (d + timedelta(days=shift_days)).isoformat()
+        except (TypeError, ValueError):
+            continue
+
+    db.commit()
+    logger.info("refresh_demo_dates: done")

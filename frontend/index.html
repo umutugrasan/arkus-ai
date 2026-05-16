@@ -8,6 +8,17 @@
     <meta name="description" content="Arkus AI — Çoklu Pazaryeri Satıcı Zekası Paneli." />
     <meta name="theme-color" content="#f9f8f4" />
     <title>Arkus AI | Satıcı Zekası</title>
+    <!-- Anti-flash: React render olmadan ÖNCE temayı uygula -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('arkus_theme');
+          if (t === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (_) { /* private mode / disabled storage */ }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

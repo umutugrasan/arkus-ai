@@ -20,7 +20,7 @@ from app.config import settings
 from app.logging_config import setup_logging, RequestContextMiddleware
 from app.rate_limit import limiter
 from app.db.database import engine, Base, SessionLocal
-from app.db.seed import seed_db
+from app.db.seed import seed_db, refresh_demo_dates
 from app.agents.scheduler import start_scheduler, stop_scheduler
 from app.routers import (
     auth, store, dashboard, products, reviews,
@@ -43,6 +43,9 @@ async def lifespan(app: FastAPI):
     db = SessionLocal()
     try:
         seed_db(db)
+        # Demo verisinin tarihlerini bugüne kaydır (idempotent — eski seed sonra
+        # günler geçtiğinde "son 7 gün" pencerelerinin boş kalmasını önler).
+        refresh_demo_dates(db)
     finally:
         db.close()
 

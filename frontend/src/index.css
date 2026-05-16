@@ -1,13 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+/* Tailwind v4 — class-based dark mode variant */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
+  /* Light theme tokens (mevcut palet) */
   --bg-primary: #f9f8f4;
   --bg-secondary: #ffffff;
   --bg-card: #ffffff;
+  --bg-elevated: #fcfaf9;
+  --bg-muted: #f0ece7;
   --border-color: #f3f4f6;
+  --border-strong: #e5e7eb;
+  --text-primary: #1e293b;
+  --text-muted: #6b7280;
   --accent: #4a3f44;
   --accent-2: #8b5cf6;
+}
+
+/* Dark theme tokens — warm mauve-tinted dark (marka ile uyumlu) */
+.dark {
+  --bg-primary: #14101a;
+  --bg-secondary: #1f1a1d;
+  --bg-card: #1f1a1d;
+  --bg-elevated: #261f23;
+  --bg-muted: #2a2226;
+  --border-color: #2a2226;
+  --border-strong: #3a2f33;
+  --text-primary: #e9e1e3;
+  --text-muted: #a89b9e;
+  --accent: #c4b5b9;
+  --accent-2: #b794f6;
+
+  color-scheme: dark;
 }
 
 * {
@@ -23,8 +49,9 @@ html, body, #root {
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-primary);
-  color: #1e293b;
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 /* Scrollbar */
@@ -32,6 +59,8 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+.dark ::-webkit-scrollbar-thumb { background: #3a2f33; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #4a3d42; }
 
 /* Custom Light Cards */
 .kpi-card {
@@ -49,7 +78,7 @@ body {
   @apply bg-white/90 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm;
 }
 
-/* AI response box (Light Mode) */
+/* AI response box */
 .ai-response h2 {
   font-size: 1.1rem;
   font-weight: 700;
@@ -150,3 +179,150 @@ body {
   animation: shimmer 1.5s infinite;
   border-radius: 6px;
 }
+.dark .skeleton {
+  background: linear-gradient(90deg, #2a2226 25%, #3a2f33 50%, #2a2226 75%);
+  background-size: 200% 100%;
+}
+
+/* ============================================================================
+   DARK MODE — GLOBAL UTILITY OVERRIDES
+   Sayfa kodlarına dokunmadan, tüm uygulamada açık-tema utility class'larını
+   karanlık eşdeğerleriyle değiştirir. Smooth geçiş için body transition var.
+   ============================================================================ */
+
+.dark *,
+.dark *::before,
+.dark *::after {
+  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+}
+
+/* --- Backgrounds --- */
+.dark .bg-white { background-color: var(--bg-card) !important; }
+.dark .bg-white\/90 { background-color: rgb(31 26 29 / 0.9) !important; }
+.dark .bg-white\/80 { background-color: rgb(31 26 29 / 0.8) !important; }
+.dark .bg-white\/50 { background-color: rgb(31 26 29 / 0.5) !important; }
+
+.dark .bg-gray-50 { background-color: var(--bg-elevated) !important; }
+.dark .bg-gray-100 { background-color: var(--bg-muted) !important; }
+.dark .bg-gray-200 { background-color: #3a2f33 !important; }
+
+.dark .bg-\[\#f9f8f4\] { background-color: var(--bg-primary) !important; }
+.dark .bg-\[\#f9f8f4\]\/90 { background-color: rgb(20 16 26 / 0.9) !important; }
+.dark .bg-\[\#fcfaf9\] { background-color: var(--bg-elevated) !important; }
+.dark .bg-\[\#f0ece7\] { background-color: var(--bg-muted) !important; }
+.dark .bg-\[\#fff5f5\] { background-color: #2a1414 !important; }
+
+/* Sidebar active accent (#4a3f44) → dark modda biraz açılır */
+.dark .bg-\[\#4a3f44\] { background-color: #5e5054 !important; }
+.dark .hover\:bg-\[\#6b6266\]:hover { background-color: #7a6c70 !important; }
+.dark .bg-\[\#5e5458\] { background-color: #3a2f33 !important; }
+.dark .hover\:bg-\[\#6b6266\]:hover,
+.dark .bg-\[\#6b6266\] { background-color: #4a3f44 !important; }
+
+/* Hover varyantları */
+.dark .hover\:bg-white:hover { background-color: var(--bg-elevated) !important; }
+.dark .hover\:bg-gray-50:hover { background-color: var(--bg-elevated) !important; }
+.dark .hover\:bg-gray-100:hover { background-color: var(--bg-muted) !important; }
+.dark .hover\:bg-gray-200:hover { background-color: #3a2f33 !important; }
+
+/* Status renkleri (tinted) */
+.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.10) !important; }
+.dark .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.10) !important; }
+.dark .bg-rose-50 { background-color: rgba(244, 63, 94, 0.10) !important; }
+.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.10) !important; }
+.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.10) !important; }
+.dark .bg-indigo-50 { background-color: rgba(99, 102, 241, 0.10) !important; }
+.dark .bg-violet-50 { background-color: rgba(139, 92, 246, 0.10) !important; }
+.dark .bg-purple-50 { background-color: rgba(168, 85, 247, 0.10) !important; }
+.dark .bg-pink-50 { background-color: rgba(236, 72, 153, 0.10) !important; }
+.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.18) !important; }
+.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.18) !important; }
+.dark .bg-blue-100 { background-color: rgba(59, 130, 246, 0.18) !important; }
+
+/* --- Texts --- */
+.dark .text-slate-800,
+.dark .text-slate-900,
+.dark .text-gray-900,
+.dark .text-gray-800 { color: var(--text-primary) !important; }
+
+.dark .text-slate-700,
+.dark .text-slate-600,
+.dark .text-gray-700,
+.dark .text-gray-600 { color: #c4b8bb !important; }
+
+.dark .text-slate-500,
+.dark .text-gray-500 { color: var(--text-muted) !important; }
+
+.dark .text-slate-400,
+.dark .text-gray-400 { color: #847579 !important; }
+
+.dark .text-slate-300,
+.dark .text-gray-300 { color: #6b5d61 !important; }
+
+.dark .text-\[\#4a3f44\] { color: #d8c4ca !important; }
+.dark .text-\[\#6b6266\] { color: #b5a8ab !important; }
+
+/* hover text */
+.dark .hover\:text-\[\#4a3f44\]:hover { color: #e8d5db !important; }
+.dark .hover\:text-slate-800:hover,
+.dark .hover\:text-slate-700:hover { color: var(--text-primary) !important; }
+.dark .hover\:text-gray-800:hover,
+.dark .hover\:text-gray-700:hover { color: var(--text-primary) !important; }
+
+/* --- Borders --- */
+.dark .border-gray-100,
+.dark .border-gray-200 { border-color: var(--border-color) !important; }
+.dark .border-gray-300 { border-color: var(--border-strong) !important; }
+.dark .border-slate-200 { border-color: var(--border-color) !important; }
+.dark .border-white { border-color: rgba(255,255,255,0.06) !important; }
+.dark .border-\[\#4a3f44\] { border-color: #6e5e63 !important; }
+.dark .divide-gray-100 > * + * { border-color: var(--border-color) !important; }
+.dark .divide-gray-200 > * + * { border-color: var(--border-color) !important; }
+
+/* --- Selection / focus tints --- */
+.dark .selection\:bg-\[\#4a3f44\]\/20 *::selection { background: rgba(196,181,185,0.25); }
+.dark .focus\:ring-\[\#4a3f44\]:focus { --tw-ring-color: #c4b5b9 !important; }
+
+/* --- AI response (markdown) dark variants --- */
+.dark .ai-response h2 { color: #e8d5db; }
+.dark .ai-response h3 { color: #c4b8bb; }
+.dark .ai-response p,
+.dark .ai-response ul,
+.dark .ai-response ol { color: #b5a8ab; }
+.dark .ai-response strong { color: var(--text-primary); }
+.dark .ai-response th {
+  background: var(--bg-muted);
+  color: #e8d5db;
+  border-bottom-color: var(--border-strong);
+}
+.dark .ai-response td {
+  color: #b5a8ab;
+  border-bottom-color: var(--border-color);
+}
+.dark .ai-response code {
+  background: var(--bg-muted);
+  color: #e8d5db;
+}
+
+/* --- Form elements (input/textarea) --- */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+.dark input::placeholder,
+.dark textarea::placeholder { color: #7a6c70; }
+
+/* --- Backdrop / overlay --- */
+.dark .bg-black\/20 { background-color: rgba(0,0,0,0.5) !important; }
+.dark .bg-black\/30 { background-color: rgba(0,0,0,0.6) !important; }
+.dark .bg-black\/40 { background-color: rgba(0,0,0,0.65) !important; }
+
+/* --- Shadow softening on dark --- */
+.dark .shadow-sm,
+.dark .shadow,
+.dark .shadow-md,
+.dark .shadow-lg,
+.dark .shadow-xl { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important; }

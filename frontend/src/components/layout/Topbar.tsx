@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { storeService } from '../../services';
 import { getErrorMessage } from '../../utils/errors';
+import { ThemeToggle } from '@/components/ui/curtain-theme-toggle';
 
 interface TopbarProps {
   onMenuClick: () => void;
@@ -73,6 +74,9 @@ export default function Topbar({ onMenuClick, pageTitle, unreadCount, onUnreadRe
         >
           <RefreshCw size={16} className={syncing ? 'animate-spin' : ''} />
         </button>
+
+        {/* Tema değiştir (perde animasyonlu) */}
+        <ThemeToggle variant="icon" buttonSize={32} duration={550} />
 
         {/* Notifications */}
         <button

@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Package, MessageSquare, Swords, ArrowLeftRight,
   TrendingUp, Heart, Banknote, Search, Bot, Bell, FileText, Settings,
@@ -118,26 +119,32 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
                     to={to}
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors relative ${isActive
-                        ? 'bg-[#4a3f44] text-white font-medium shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-100'
+                      `flex items-center gap-3 px-3 py-2 rounded-lg text-sm relative ${
+                        isActive
+                          ? 'text-white font-medium'
+                          : 'text-gray-600 hover:bg-gray-100 transition-colors'
                       }`
                     }
                   >
                     {({ isActive }) => (
                       <>
+                        {isActive && (
+                          <motion.span
+                            layoutId="sidebar-active-pill"
+                            className="absolute inset-0 bg-[#4a3f44] rounded-lg shadow-sm"
+                            transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                          />
+                        )}
                         <Icon
                           size={16}
                           strokeWidth={isActive ? 2 : 1.5}
-                          className={
-                            isActive
-                              ? 'text-white'
-                              : 'text-gray-400 group-hover:text-gray-500 opacity-80'
-                          }
+                          className={`relative z-10 ${
+                            isActive ? 'text-white' : 'text-gray-400 opacity-80'
+                          }`}
                         />
-                        <span className="flex-1 truncate font-medium">{label}</span>
+                        <span className="relative z-10 flex-1 truncate font-medium">{label}</span>
                         {badge === 'notifications' && unreadCount > 0 && (
-                          <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                          <span className="relative z-10 ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                             {unreadCount > 99 ? '99+' : unreadCount}
                           </span>
                         )}

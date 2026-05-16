@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom';
-import { 
-  Bot, 
-  LineChart, 
-  Search, 
-  MessageSquare, 
-  ArrowRight, 
-  CheckCircle2, 
-  Zap,
+import {
+  Bot,
+  LineChart,
+  Search,
+  MessageSquare,
+  ArrowRight,
+  CheckCircle2,
+  Mail,
 } from 'lucide-react';
+import NavHeader from '@/components/ui/nav-header';
+import { ThemeToggle } from '@/components/ui/curtain-theme-toggle';
 
 export default function LandingPage() {
   return (
@@ -23,17 +25,26 @@ export default function LandingPage() {
             </span>
           </div>
           
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-            <a href="#ozellikler" className="hover:text-[#4a3f44] transition-colors">Özellikler</a>
-            <a href="#nasil-calisir" className="hover:text-[#4a3f44] transition-colors">Nasıl Çalışır</a>
+          <div className="hidden md:block">
+            <NavHeader
+              items={[
+                { label: 'Anasayfa', href: '#top' },
+                { label: 'Özellikler', href: '#ozellikler' },
+                { label: 'Nasıl Çalışır', href: '#nasil-calisir' },
+                { label: 'İletişim', href: '#iletisim' },
+              ]}
+            />
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Tema değiştir (perde animasyonlu) — Dashboard ile aynı */}
+            <ThemeToggle variant="icon" buttonSize={36} duration={550} />
+
             <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-[#4a3f44] transition-colors">
               Giriş Yap
             </Link>
-            <Link 
-              to="/register" 
+            <Link
+              to="/register"
               className="bg-[#4a3f44] hover:bg-[#6b6266] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-md hover:shadow-lg"
             >
               Hemen Başla
@@ -49,7 +60,11 @@ export default function LandingPage() {
 
         <div className="max-w-4xl mx-auto text-center space-y-8 relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-[#4a3f44] text-sm font-bold shadow-sm">
-            <Zap className="w-4 h-4 text-amber-500" />
+            <img
+              src="/assets/logos/logo-bird.png"
+              alt="Arkus"
+              className="w-5 h-5 object-contain"
+            />
             <span>E-Ticarette Yeni Dönem Başladı</span>
           </div>
           
@@ -185,8 +200,42 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* İletişim Section */}
+      <section id="iletisim" className="py-24 px-4 sm:px-6 lg:px-8 bg-white border-y border-gray-100 scroll-mt-24">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#f9f8f4] border border-gray-200 text-[#4a3f44] text-sm font-bold shadow-sm mb-6">
+            <Mail className="w-4 h-4 text-amber-500" />
+            <span>İletişim</span>
+          </div>
+
+          <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mb-4 tracking-tight">
+            Sorunuz mu var?{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4a3f44] to-pink-500">
+              Bize yazın.
+            </span>
+          </h2>
+          <p className="text-lg text-gray-500 mb-10 max-w-2xl mx-auto">
+            Demo talebi, entegrasyon veya işbirliği için doğrudan iletişime geçebilirsiniz.
+            En kısa sürede dönüş yaparız.
+          </p>
+
+          <a
+            href="mailto:arkusai.tr@gmail.com"
+            className="group inline-flex items-center gap-3 bg-[#4a3f44] hover:bg-[#6b6266] text-white px-8 py-5 rounded-2xl text-lg font-semibold transition-all shadow-xl shadow-[#4a3f44]/20 hover:-translate-y-1"
+          >
+            <Mail className="w-5 h-5" />
+            arkusai.tr@gmail.com
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </a>
+
+          <p className="text-xs text-gray-400 mt-6">
+            Ortalama yanıt süremiz: 1 iş günü
+          </p>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white py-12 mt-12">
+      <footer className="border-t border-gray-200 bg-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between text-gray-500 font-medium text-sm">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
