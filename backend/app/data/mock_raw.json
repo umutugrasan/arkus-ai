@@ -279,6 +279,18 @@
       {"marketplace": "hepsiburada", "rating": 2, "text": "Uygulama Turkce degil, Ingilizce kullaniyorum.", "date": "2026-05-02"},
       {"marketplace": "hepsiburada", "rating": 1, "text": "2 haftada kayis koptu. Kalite cok dusuk.", "date": "2026-05-04"},
       {"marketplace": "hepsiburada", "rating": 3, "text": "Idare eder, bu fiyata cok sey beklememek lazim.", "date": "2026-05-06"}
+    ],
+    "P003": [
+      {"marketplace": "trendyol", "rating": 5, "text": "Kablo cok saglam, hizli sarj destekliyor.", "date": "2026-05-10"},
+      {"marketplace": "hepsiburada", "rating": 4, "text": "2 metre olmasi buyuk avantaj.", "date": "2026-05-11"}
+    ],
+    "P004": [
+      {"marketplace": "trendyol", "rating": 5, "text": "Ses cikisi inanilmaz, kucuk ama etkili.", "date": "2026-05-08"},
+      {"marketplace": "trendyol", "rating": 4, "text": "Baglantisi cok hizli kuruluyor.", "date": "2026-05-09"}
+    ],
+    "P005": [
+      {"marketplace": "trendyol", "rating": 5, "text": "Laptopum artik isinmiyor, malzeme kalitesi cok iyi.", "date": "2026-05-12"},
+      {"marketplace": "hepsiburada", "rating": 5, "text": "Sirt agrim bitti, yukseklik ayari cok basarili.", "date": "2026-05-13"}
     ]
   },
   "suppliers": [
