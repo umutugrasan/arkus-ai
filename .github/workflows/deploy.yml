@@ -169,13 +169,19 @@ jobs:
 
     # frontend URL'i ogrendigimize gore backend'in CORS'unu gevsek "*" ile birakmak
     # yerine kesin frontend domain'iyle daraltiyoruz (gerekli ikinci tur).
+    # NOT: --update-env-vars URL'lerdeki :// karakterlerini yanlis yorumluyor;
+    # bu yuzden --env-vars-file + YAML yaklasimi kullaniyoruz.
     - name: Tighten backend CORS to actual frontend URL + custom domain
       run: |
         FRONTEND_URL=$(gcloud run services describe frontend-service \
           --region=${{ env.FRONTEND_REGION }} \
           --format='value(status.url)')
-        # arkus.tr custom domain + Cloud Run URL ikisine de izin ver
-        CORS_ORIGINS="${FRONTEND_URL},https://arkus.tr,https://www.arkus.tr"
+
+        # YAML dosyasina yaz — ozel karakter sorunu olmaz
+        cat > /tmp/cors_update.yaml << YAML
+        CORS_ORIGINS: "${FRONTEND_URL},https://arkus.tr,https://www.arkus.tr"
+        YAML
+
         gcloud run services update backend-service \
           --region=${{ env.BACKEND_REGION }} \
-          --update-env-vars "CORS_ORIGINS=${CORS_ORIGINS}"
+          --env-vars-file /tmp/cors_update.yaml
