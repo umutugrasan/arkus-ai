@@ -39,10 +39,23 @@ export default function DashboardPage() {
 
   // AI Summary streaming state
   const [aiText, setAiText] = useState('');
-  const [aiSources] = useState<AiSummaryResponse['web_sources']>([]);
+  const [aiSources, setAiSources] = useState<AiSummaryResponse['web_sources']>([]);
   const [aiStreaming, setAiStreaming] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [aiSnapshot, setAiSnapshot] = useState<AiSummaryResponse['snapshot'] | null>(null);
   const aiAbortRef = useRef<AbortController | null>(null);
+
+  /** DB snapshot'tan basit Türkçe özet üretir (Gemini yokken fallback) */
+  const buildFallbackSummary = (snap: AiSummaryResponse['snapshot']): string => {
+    const parts: string[] = [
+      `📊 **Son 30 Günün Özeti**: ${snap.total_revenue_30d.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} TL ciro, ${snap.net_profit_30d.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} TL net kâr (%${snap.net_margin_pct} marj).`,
+      `📅 **Son 7 gün**: ${snap.sales_7d} satış, ${snap.revenue_7d.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} TL ciro.`,
+    ];
+    if (snap.low_stock_count > 0) parts.push(`⚠️ **${snap.low_stock_count} ürün** kritik stok seviyesinde — acil sipariş gerekebilir.`);
+    if (snap.low_rated_count > 0) parts.push(`⭐ **${snap.low_rated_count} ürünün** puanı 4.0 altında — yorum analizine bakılması önerilir.`);
+    parts.push(`_AI analizi şu an kullanılamıyor — bu özet veritabanı verilerinden otomatik oluşturuldu._`);
+    return parts.join('\n\n');
+  };
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -85,6 +98,7 @@ export default function DashboardPage() {
     aiAbortRef.current = ctrl;
     setAiText('');
     setAiSnapshot(null);
+    setAiError(null);
     setAiStreaming(true);
 
     streamSSE(
@@ -96,16 +110,28 @@ export default function DashboardPage() {
           }
         },
         onChunk: (text) => setAiText((prev) => prev + text),
-        onDone: () => setAiStreaming(false),
+        onDone: (data) => {
+          setAiStreaming(false);
+          // full_text bazen done event'te tüm metni gönderir
+          if (data.full_text && typeof data.full_text === 'string' && !aiText) {
+            setAiText(data.full_text as string);
+          }
+          if (Array.isArray(data.sources)) setAiSources(data.sources as AiSummaryResponse['web_sources']);
+        },
         onError: (e) => {
           setAiStreaming(false);
-          const msg = e instanceof Error ? e.message : (e as Record<string, unknown>).error;
-          toast.error(typeof msg === 'string' ? msg : 'AI özet alınamadı');
+          const msg = e instanceof Error ? e.message : String((e as Record<string, unknown>).error || 'AI özet alınamadı');
+          setAiError(msg);
+          // Snapshot varsa fallback özet üret
+          setAiSnapshot((snap) => {
+            if (snap) setAiText(buildFallbackSummary(snap));
+            return snap;
+          });
         },
       },
       { signal: ctrl.signal },
     );
-  }, [toast]);
+  }, [toast]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!loading && overview) runAiSummary();
@@ -209,6 +235,13 @@ export default function DashboardPage() {
         streaming={aiStreaming}
         webSources={aiSources}
       />
+      {/* AI hata göstergesi (fallback özet gösteriliyorsa bilgi notu) */}
+      {aiError && !aiStreaming && (
+        <div className="flex items-center justify-between px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-600">
+          <span>⚠️ AI analizi alınamadı — veritabanı özeti gösteriliyor. ({aiError})</span>
+          <button onClick={runAiSummary} className="ml-4 underline font-medium hover:text-amber-700">Tekrar Dene</button>
+        </div>
+      )}
 
       {aiSnapshot && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

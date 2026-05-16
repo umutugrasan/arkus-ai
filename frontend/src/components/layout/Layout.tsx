@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import LoadingSpinner from '../shared/LoadingSpinner';
 import { notificationService } from '../../services';
 import { useI18n } from '../../context/I18nContext';
 import type { TranslationKey } from '../../i18n';
@@ -73,7 +74,13 @@ export default function Layout() {
         />
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-7xl mx-auto">
-            <Outlet />
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-20">
+                <LoadingSpinner message="Yükleniyor..." size="lg" />
+              </div>
+            }>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
       </div>

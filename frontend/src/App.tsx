@@ -38,54 +38,53 @@ const routeFallback = (
 
 function AppRoutes() {
   return (
-    <Suspense fallback={routeFallback}>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <Routes>
+      {/* Public routes — full-screen fallback OK here */}
+      <Route path="/login" element={<Suspense fallback={routeFallback}><LoginPage /></Suspense>} />
+      <Route path="/register" element={<Suspense fallback={routeFallback}><RegisterPage /></Suspense>} />
+      <Route path="/forgot-password" element={<Suspense fallback={routeFallback}><ForgotPasswordPage /></Suspense>} />
+      <Route path="/" element={<Suspense fallback={routeFallback}><LandingPage /></Suspense>} />
 
-        <Route path="/" element={<LandingPage />} />
+      {/* Protected routes — Suspense is inside Layout (sidebar stays visible) */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<DashboardPage />} />
 
-        <Route
-          element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="products" element={<ProductsPage />} />
+        <Route path="products/:id" element={<ProductDetailPage />} />
+        <Route path="reviews" element={<ReviewsPage />} />
+        <Route path="reviews/:id" element={<ReviewsPage />} />
 
-          <Route path="products" element={<ProductsPage />} />
-          <Route path="products/:id" element={<ProductDetailPage />} />
-          <Route path="reviews" element={<ReviewsPage />} />
-          <Route path="reviews/:id" element={<ReviewsPage />} />
+        <Route path="competitors" element={<CompetitorsPage />} />
+        <Route path="competitors/:id" element={<CompetitorsPage />} />
+        <Route path="arbitrage" element={<ArbitragePage />} />
+        <Route path="arbitrage/:id" element={<ArbitragePage />} />
+        <Route path="financials" element={<FinancialsPage />} />
+        <Route path="health" element={<HealthScorePage />} />
+        <Route path="finance-guide" element={<FinanceGuidePage />} />
 
-          <Route path="competitors" element={<CompetitorsPage />} />
-          <Route path="competitors/:id" element={<CompetitorsPage />} />
-          <Route path="arbitrage" element={<ArbitragePage />} />
-          <Route path="arbitrage/:id" element={<ArbitragePage />} />
-          <Route path="financials" element={<FinancialsPage />} />
-          <Route path="health" element={<HealthScorePage />} />
-          <Route path="finance-guide" element={<FinanceGuidePage />} />
+        <Route path="sourcing" element={<SourcingPage />} />
+        <Route path="listing-optimizer" element={<ListingOptimizerPage />} />
+        <Route path="listing-optimizer/:id" element={<ListingOptimizerPage />} />
+        <Route path="image-analyzer" element={<ImageAnalyzerPage />} />
+        <Route path="image-analyzer/:id" element={<ImageAnalyzerPage />} />
 
-          <Route path="sourcing" element={<SourcingPage />} />
-          <Route path="listing-optimizer" element={<ListingOptimizerPage />} />
-          <Route path="listing-optimizer/:id" element={<ListingOptimizerPage />} />
-          <Route path="image-analyzer" element={<ImageAnalyzerPage />} />
-          <Route path="image-analyzer/:id" element={<ImageAnalyzerPage />} />
+        <Route path="chat" element={<ChatPage />} />
 
-          <Route path="chat" element={<ChatPage />} />
+        <Route path="notifications" element={<NotificationsPage />} />
+        <Route path="reports" element={<ReportsPage />} />
+        <Route path="reports/:id" element={<ReportsPage />} />
+        <Route path="integrations" element={<IntegrationsPage />} />
+        <Route path="settings" element={<SettingsPage />} />
 
-          <Route path="notifications" element={<NotificationsPage />} />
-          <Route path="reports" element={<ReportsPage />} />
-          <Route path="reports/:id" element={<ReportsPage />} />
-          <Route path="integrations" element={<IntegrationsPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </Suspense>
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   );
 }
 
