@@ -37,27 +37,26 @@ export const tokenStorage = {
 };
 
 // Backend base URL
-// Oncelik: VITE_API_URL env (build-time) > localhost dev > same-origin "/api/v1"
+// Oncelik:
+//   1) VITE_API_URL env (build-time override)  — .env.local / .env.production
+//   2) localhost / arkus.tr dev host         — http://localhost:8000/api/v1
+//   3) Production Cloud Run fallback           — VITE_API_URL yoksa kullanilir
 //
-// .env.local veya .env.production icinde:
-//   VITE_API_URL=https://api.arkus.example.com/api/v1
-//
-// Tanimli degilse: localhost'ta 8000'e, diger hostlarda reverse-proxy ile
-// same-origin "/api/v1" kullanilir.
+// Ornek: VITE_API_URL=https://api.arkus.example.com/api/v1
 const ENV_API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
 
 function resolveBaseUrl(): string {
   if (ENV_API_URL) return ENV_API_URL;
   if (typeof window !== 'undefined') {
     const { hostname } = window.location;
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === 'arkus.tr') {
       return 'http://localhost:8000/api/v1';
     }
   }
-  return '/api/v1';
+  return 'https://backend-service-4j5v3h6mxa-uc.a.run.app/api/v1';
 }
 
-const BASE_URL = resolveBaseUrl();
+export const BASE_URL = resolveBaseUrl();
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -152,4 +151,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-export { BASE_URL };
