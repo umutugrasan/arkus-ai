@@ -2,7 +2,17 @@
 // Backend /api/v1/*/stream endpoint'leri "event: X\ndata: Y\n\n" formatinda gonderir.
 // Bu helper her event'i parse edip callback'i tetikler.
 
-import { tokenStorage } from '../api/client';
+import { tokenStorage, BASE_URL } from '../api/client';
+
+function resolveStreamUrl(url: string): string {
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  const apiPrefix = '/api/v1';
+  if (url.startsWith(apiPrefix)) {
+    const basePart = BASE_URL.replace(/\/api\/v1\/?$/, '');
+    return basePart + url;
+  }
+  return url;
+}
 
 export interface SSEHandlers {
   onChunk?: (text: string) => void;
@@ -33,7 +43,9 @@ export async function streamSSE(
   if (access) headers.Authorization = `Bearer ${access}`;
   if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
 
-  const response = await fetch(url, {
+  const resolvedUrl = resolveStreamUrl(url);
+
+  const response = await fetch(resolvedUrl, {
     method: opts.method || (opts.body ? 'POST' : 'GET'),
     headers,
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,

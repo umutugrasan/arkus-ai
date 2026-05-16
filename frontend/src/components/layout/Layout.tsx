@@ -3,24 +3,27 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import { notificationService } from '../../services';
+import { useI18n } from '../../context/I18nContext';
+import type { TranslationKey } from '../../i18n';
 
-const PAGE_TITLES: Array<[string, string]> = [
-  ['/dashboard', 'Dashboard'],
-  ['/products', 'Urun Yonetimi'],
-  ['/reviews', 'Yorum Analizi'],
-  ['/competitors', 'Rakip Analizi'],
-  ['/arbitrage', 'Capraz Pazaryeri Arbitraj'],
-  ['/financials', 'Finansal Panel'],
-  ['/health', 'Magaza Saglik Skoru'],
-  ['/finance-guide', 'Finansman Rehberi'],
-  ['/sourcing', 'Tedarik Avcisi'],
-  ['/listing-optimizer', 'Listing Optimizer'],
-  ['/image-analyzer', 'Gorsel Analiz'],
-  ['/chat', 'AI Danisman'],
-  ['/notifications', 'Bildirimler'],
-  ['/reports', 'Raporlar'],
-  ['/integrations', 'Entegrasyonlar'],
-  ['/settings', 'Ayarlar'],
+const PAGE_TITLES: Array<[string, TranslationKey]> = [
+  ['/dashboard', 'nav.dashboard'],
+  ['/products', 'nav.products'],
+  ['/reviews', 'nav.reviews'],
+  ['/competitors', 'nav.competitors'],
+  ['/arbitrage', 'nav.arbitrage'],
+  ['/financials', 'nav.financials'],
+  ['/health', 'nav.health'],
+  ['/finance-guide', 'nav.finance_guide'],
+  ['/sourcing', 'nav.sourcing'],
+  ['/listing-optimizer', 'nav.listing_optimizer'],
+  ['/image-analyzer', 'nav.image_analyzer'],
+  ['/showme', 'nav.showme'],
+  ['/chat', 'nav.chat'],
+  ['/notifications', 'nav.notifications'],
+  ['/reports', 'nav.reports'],
+  ['/integrations', 'nav.integrations'],
+  ['/settings', 'nav.settings'],
 ];
 
 const POLL_UNREAD_MS = 30_000;
@@ -29,9 +32,11 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
+  const { t } = useI18n();
 
-  const title =
-    PAGE_TITLES.find(([path]) => location.pathname.startsWith(path))?.[1] || 'Arkus AI';
+  const titleKey =
+    PAGE_TITLES.find(([path]) => location.pathname.startsWith(path))?.[1];
+  const title = titleKey ? t(titleKey) : 'Arkus AI';
 
   const refreshUnread = useCallback(() => {
     notificationService

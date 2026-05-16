@@ -20,6 +20,7 @@ import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errors';
 import { formatCurrency, formatNumber, formatPercent } from '../utils/formatters';
 import { MARKETPLACES, MP_CHART_COLORS } from '../utils/constants';
+import { useI18n } from '../context/I18nContext';
 import type {
   AiSummaryResponse, DashboardOverview, MarketplaceSummary, TrendsResponse,
 } from '../types/api';
@@ -28,6 +29,7 @@ type TrendPeriod = 7 | 30;
 
 export default function DashboardPage() {
   const toast = useToast();
+  const { t } = useI18n();
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [mpSummaries, setMpSummaries] = useState<MarketplaceSummary[]>([]);
   const [trends, setTrends] = useState<TrendsResponse | null>(null);
@@ -114,7 +116,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Dashboard" subtitle="Yükleniyor…" />
+        <PageHeader title={t('dashboard.title')} subtitle={t('dashboard.loading')} />
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
@@ -124,7 +126,7 @@ export default function DashboardPage() {
   }
 
   if (!overview) {
-    return <EmptyState title="Veri yok" description="Bağlı pazaryeri görünmüyor." />;
+    return <EmptyState title={t('dashboard.no_data')} description={t('dashboard.no_data_desc')} />;
   }
 
   const o = overview.overall;
@@ -141,8 +143,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        title="Dashboard"
-        subtitle="Tüm pazaryerlerinin birleşik genel görünümü"
+        title={t('dashboard.title')}
+        subtitle={t('dashboard.subtitle')}
         icon={<BarChart3 size={20} />}
         actions={
           <Button
@@ -151,7 +153,7 @@ export default function DashboardPage() {
             leftIcon={<RefreshCw size={14} />}
             onClick={() => { loadAll(); runAiSummary(); }}
           >
-            Yenile
+            {t('dashboard.refresh')}
           </Button>
         }
       />
@@ -159,41 +161,41 @@ export default function DashboardPage() {
       {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard
-          title="Toplam Ciro"
+          title={t('dashboard.total_revenue')}
           value={formatCurrency(o.total_revenue)}
           icon={<DollarSign size={18} />}
           accentColor="indigo"
-          subtitle="Son 30 gün"
+          subtitle={t('dashboard.last_30d')}
         />
         <StatCard
-          title="Net Kâr"
+          title={t('dashboard.net_profit')}
           value={formatCurrency(o.total_net_after_ads)}
           icon={<TrendingUp size={18} />}
           accentColor="emerald"
-          subtitle="Reklamdan sonra"
+          subtitle={t('dashboard.after_ads')}
         />
         <StatCard
-          title="Kâr Marjı"
+          title={t('dashboard.profit_margin')}
           value={formatPercent(o.overall_net_margin)}
           icon={<Percent size={18} />}
           accentColor="violet"
         />
         <StatCard
-          title="Toplam Satış"
+          title={t('dashboard.total_sales')}
           value={formatNumber(o.total_sales)}
           icon={<ShoppingCart size={18} />}
           accentColor="cyan"
-          subtitle="Adet"
+          subtitle={t('dashboard.units')}
         />
         <StatCard
-          title="ROAS"
+          title={t('dashboard.roas')}
           value={o.overall_roas ? `${o.overall_roas.toFixed(2)}x` : '—'}
           icon={<Target size={18} />}
           accentColor="amber"
-          subtitle="Reklam getirisi"
+          subtitle={t('dashboard.ad_return')}
         />
         <StatCard
-          title="İade Oranı"
+          title={t('dashboard.return_rate')}
           value={formatPercent(o.overall_return_rate)}
           icon={<RotateCcw size={18} />}
           accentColor="rose"
@@ -202,7 +204,7 @@ export default function DashboardPage() {
 
       {/* AI Summary (streaming) */}
       <StreamingMarkdown
-        title="Bugünün Özeti — Arkus AI"
+        title={t('dashboard.ai_summary')}
         content={aiText}
         streaming={aiStreaming}
         webSources={aiSources}
@@ -210,15 +212,15 @@ export default function DashboardPage() {
 
       {aiSnapshot && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <MiniMetric label="Son 7g Satış" value={formatNumber(aiSnapshot.sales_7d)} />
-          <MiniMetric label="Son 7g Ciro" value={formatCurrency(aiSnapshot.revenue_7d)} />
+          <MiniMetric label={t('dashboard.7d_sales')} value={formatNumber(aiSnapshot.sales_7d)} />
+          <MiniMetric label={t('dashboard.7d_revenue')} value={formatCurrency(aiSnapshot.revenue_7d)} />
           <MiniMetric
-            label="Stok Kritik"
+            label={t('dashboard.low_stock')}
             value={aiSnapshot.low_stock_count}
             highlight={aiSnapshot.low_stock_count > 0}
           />
           <MiniMetric
-            label="Düşük Puan"
+            label={t('dashboard.low_rated')}
             value={aiSnapshot.low_rated_count}
             highlight={aiSnapshot.low_rated_count > 0}
           />
@@ -232,7 +234,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Calendar size={16} className="text-gray-400" />
-                <h3 className="text-slate-800 font-bold">Trend</h3>
+                <h3 className="text-slate-800 font-bold">{t('dashboard.trend')}</h3>
               </div>
               <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
                 {([7, 30] as const).map((p) => (
@@ -245,7 +247,7 @@ export default function DashboardPage() {
                         : 'text-gray-500 hover:text-slate-700 hover:bg-gray-50'
                     }`}
                   >
-                    {p} gün
+                    {p} {t('dashboard.days')}
                   </button>
                 ))}
               </div>
@@ -255,19 +257,19 @@ export default function DashboardPage() {
             ) : trendData.length === 0 ? (
               <EmptyState
                 icon={<TrendingDown size={24} />}
-                title="Trend verisi yok"
-                description="Henüz sipariş verisi yok ya da senkronize edilmedi."
+                title={t('dashboard.no_trend')}
+                description={t('dashboard.no_trend_desc')}
               />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={trendData}>
-                  <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" />
-                  <XAxis dataKey="name" stroke="#64748b" fontSize={11} />
-                  <YAxis stroke="#64748b" fontSize={11} />
+                  <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+                  <XAxis dataKey="name" stroke="#9ca3af" fontSize={11} />
+                  <YAxis stroke="#9ca3af" fontSize={11} />
                   <Tooltip
                     contentStyle={{
-                      background: '#0f172a',
-                      border: '1px solid #334155',
+                      background: '#ffffff',
+                      border: '1px solid #e5e7eb',
                       borderRadius: 8,
                       fontSize: 12,
                     }}
@@ -286,20 +288,20 @@ export default function DashboardPage() {
           <GlassCard className="p-5 h-full">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles size={16} className="text-gray-400" />
-              <h3 className="text-slate-800 font-bold">Pazaryeri Kırılımı</h3>
+              <h3 className="text-slate-800 font-bold">{t('dashboard.mp_breakdown')}</h3>
             </div>
             {mpBarData.length === 0 ? (
-              <EmptyState title="Pazaryeri yok" />
+              <EmptyState title={t('dashboard.no_mp')} />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={mpBarData} layout="vertical">
-                  <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" />
+                  <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
                   <XAxis type="number" stroke="#64748b" fontSize={11} />
                   <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={11} width={80} />
                   <Tooltip
                     contentStyle={{
-                      background: '#0f172a',
-                      border: '1px solid #334155',
+                      background: '#ffffff',
+                      border: '1px solid #e5e7eb',
                       borderRadius: 8,
                       fontSize: 12,
                     }}
@@ -318,7 +320,7 @@ export default function DashboardPage() {
 
       {/* Marketplace özet kartlar */}
       <div>
-        <h3 className="text-lg font-bold text-slate-800 mb-4 mt-8">Pazaryeri Özet Kartları</h3>
+        <h3 className="text-lg font-bold text-slate-800 mb-4 mt-8">{t('dashboard.mp_cards')}</h3>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {mpSummaries.map((mp) => {
             const cfg = MARKETPLACES[mp.marketplace];

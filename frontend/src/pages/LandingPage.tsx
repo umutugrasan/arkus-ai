@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import NavHeader from '@/components/ui/nav-header';
 import { ThemeToggle } from '@/components/ui/curtain-theme-toggle';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
 export default function LandingPage() {
   return (
@@ -37,7 +38,7 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Tema değiştir (perde animasyonlu) — Dashboard ile aynı */}
+            <LanguageSwitcher />
             <ThemeToggle variant="icon" buttonSize={36} duration={550} />
 
             <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-[#4a3f44] transition-colors">

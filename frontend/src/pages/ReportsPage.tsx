@@ -101,7 +101,7 @@ export default function ReportsPage() {
           </div>
           <div className="flex gap-2">
             <button onClick={() => handleStream('daily')} disabled={!!generating}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
               {generating === 'daily' ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
               Günlük Rapor
             </button>
@@ -124,7 +124,7 @@ export default function ReportsPage() {
         {(['all', 'daily', 'weekly'] as const).map(f => (
           <button key={f} onClick={() => setFilterType(f)}
             className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
-              filterType === f ? 'bg-indigo-600 text-slate-800' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
+              filterType === f ? 'bg-[#4a3f44] text-white' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
             }`}>
             {f === 'all' ? 'Tümü' : f === 'daily' ? '📅 Günlük' : '📊 Haftalık'}
           </button>

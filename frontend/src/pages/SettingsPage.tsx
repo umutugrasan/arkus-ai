@@ -88,7 +88,7 @@ export default function SettingsPage() {
             key={item.id}
             onClick={() => setTab(item.id)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              tab === item.id ? 'bg-indigo-600 text-slate-800' : 'text-gray-500 hover:text-slate-800'
+              tab === item.id ? 'bg-[#4a3f44] text-white' : 'text-gray-500 hover:text-slate-800'
             }`}
           >
             {item.label}
@@ -119,7 +119,7 @@ export default function SettingsPage() {
             <button
               onClick={handleProfileSave}
               disabled={profileSaving}
-              className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50"
             >
               {profileSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
               Kaydet
@@ -165,7 +165,7 @@ export default function SettingsPage() {
             <button
               onClick={handlePasswordChange}
               disabled={pwSaving || !currentPw || !newPw || !confirmPw}
-              className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50"
             >
               {pwSaving ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
               Sifreyi Guncelle

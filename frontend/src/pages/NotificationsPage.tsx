@@ -101,7 +101,7 @@ export default function NotificationsPage() {
             </button>
           )}
           <button onClick={handleGenerate} disabled={generating}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl transition-all disabled:opacity-50">
+            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl transition-all disabled:opacity-50">
             {generating ? <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> : <RefreshCw size={14} />}
             Bildirimleri Tara
           </button>
@@ -113,7 +113,7 @@ export default function NotificationsPage() {
         {filters.map(f => (
           <button key={f.id} onClick={() => setFilter(f.id)}
             className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
-              filter === f.id ? 'bg-indigo-600 text-slate-800' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
+              filter === f.id ? 'bg-[#4a3f44] text-white' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
             }`}>{f.label}</button>
         ))}
       </div>

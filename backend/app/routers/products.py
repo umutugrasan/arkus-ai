@@ -195,12 +195,12 @@ def get_product_images(
 
     images = []
     for product, mp in rows:
-        primary = product.image_url or f"https://placehold.co/600x600?text={product.product_code}"
-        # Pazaryeri basina 3 farkli aci sahte URL'i (gercekte API'den 5-8 gorsel gelir)
+        primary = product.image_url or f"https://placehold.co/600x600/e2e8f0/64748b?text={product.product_code}"
+        sep = "&" if "?" in primary else "?"
         gallery = [
             primary,
-            f"{primary}&angle=side",
-            f"{primary}&angle=detail",
+            f"{primary}{sep}angle=side",
+            f"{primary}{sep}angle=detail",
         ]
         images.append({
             "marketplace": mp.name,

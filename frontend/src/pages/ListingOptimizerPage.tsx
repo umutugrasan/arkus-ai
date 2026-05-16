@@ -108,7 +108,7 @@ export default function ListingOptimizerPage() {
           </div>
           <div className="flex gap-2 ml-auto">
             <button onClick={handleOptimize} disabled={actionLoading}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
               {actionLoading ? <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> : <Sparkles size={14} />}
               Başlık Optimize Et
             </button>
@@ -125,7 +125,7 @@ export default function ListingOptimizerPage() {
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              tab === t.id ? 'bg-indigo-600 text-slate-800' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
+              tab === t.id ? 'bg-[#4a3f44] text-white' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
             }`}>{t.label}</button>
         ))}
       </div>

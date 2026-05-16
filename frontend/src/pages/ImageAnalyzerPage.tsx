@@ -101,7 +101,7 @@ export default function ImageAnalyzerPage() {
           </div>
           <div className="flex gap-2">
             <button onClick={handleAnalyze} disabled={analyzing}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
               {analyzing ? <Loader2 size={14} className="animate-spin" /> : <BarChart2 size={14} />}
               Analiz Et
             </button>
@@ -119,7 +119,7 @@ export default function ImageAnalyzerPage() {
         {(['analyze', 'suggestions', 'history'] as Tab[]).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              tab === t ? 'bg-indigo-600 text-slate-800' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
+              tab === t ? 'bg-[#4a3f44] text-white' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
             }`}>
             {t === 'analyze' ? '📊 Analiz' : t === 'suggestions' ? '💡 Öneriler' : '📜 Geçmiş'}
           </button>

@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { I18nProvider } from './context/I18nContext';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
@@ -27,10 +28,11 @@ const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const IntegrationsPage = lazy(() => import('./pages/IntegrationsPage'));
+const ShowMePage = lazy(() => import('./pages/ShowMePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 const routeFallback = (
-  <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+  <div className="min-h-screen bg-[#f9f8f4] flex items-center justify-center">
     <LoadingSpinner message="Sayfa yukleniyor..." size="lg" />
   </div>
 );
@@ -72,6 +74,7 @@ function AppRoutes() {
           <Route path="listing-optimizer/:id" element={<ListingOptimizerPage />} />
           <Route path="image-analyzer" element={<ImageAnalyzerPage />} />
           <Route path="image-analyzer/:id" element={<ImageAnalyzerPage />} />
+          <Route path="showme" element={<ShowMePage />} />
 
           <Route path="chat" element={<ChatPage />} />
 
@@ -90,12 +93,14 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </AuthProvider>
-    </ToastProvider>
+    <I18nProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </AuthProvider>
+      </ToastProvider>
+    </I18nProvider>
   );
 }

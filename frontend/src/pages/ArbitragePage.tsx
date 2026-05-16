@@ -116,7 +116,7 @@ export default function ArbitragePage() {
                             </div>
                             <div className="flex justify-end">
                               <button onClick={(e) => { e.stopPropagation(); handleAi(); }} disabled={aiLoading}
-                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+                                className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
                                 {aiLoading ? <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> : <Brain size={14} />}
                                 AI Strateji Analizi
                               </button>

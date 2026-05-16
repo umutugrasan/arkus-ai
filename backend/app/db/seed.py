@@ -131,7 +131,7 @@ def seed_db(db: Session):
                 return_rate=prod_data.get("return_rate", 0.0),
                 image_url=prod_data.get(
                     "image_url",
-                    f"https://placehold.co/400x400?text={prod_data.get('id')}",
+                    f"https://placehold.co/400x400/e2e8f0/64748b?text={prod_data.get('id', 'product')}",
                 ),
             )
             db.add(product)

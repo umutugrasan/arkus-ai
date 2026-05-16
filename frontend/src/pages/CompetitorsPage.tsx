@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Brain } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -19,6 +19,38 @@ import type {
 type SubTab = 'list' | 'pricemap' | 'track';
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
+const CACHE_KEY = 'arkus_competitor_cache';
+
+interface CachedAnalysis {
+  productId: string;
+  aiAnalysis: string;
+  aiSources: Array<{ title: string; uri: string }>;
+  timestamp: number;
+}
+
+function getCachedAnalysis(productId: string): CachedAnalysis | null {
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const data: CachedAnalysis = JSON.parse(raw);
+    if (data.productId === productId && Date.now() - data.timestamp < 10 * 60 * 1000) {
+      return data;
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+function setCachedAnalysis(productId: string, aiAnalysis: string, aiSources: Array<{ title: string; uri: string }>) {
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+      productId,
+      aiAnalysis,
+      aiSources,
+      timestamp: Date.now(),
+    }));
+  } catch { /* ignore */ }
+}
+
 export default function CompetitorsPage() {
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState('');
@@ -31,10 +63,15 @@ export default function CompetitorsPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [tab, setTab] = useState<SubTab>('list');
   const didInit = useRef(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     productService.list().then(res => {
-      // Use id as the unique key — ProductListItem has 'id' not 'product_code'
       const seen = new Set<string>();
       const unique = res.products.filter(p => {
         if (seen.has(p.id)) return false;
@@ -49,26 +86,45 @@ export default function CompetitorsPage() {
     }).finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (!selectedProduct) return;
-    setCompetitors(null); setPriceMap(null); setTrack(null); setAiAnalysis('');
+  const loadProductData = useCallback((productId: string) => {
+    setCompetitors(null); setPriceMap(null); setTrack(null);
+    const cached = getCachedAnalysis(productId);
+    if (cached) {
+      setAiAnalysis(cached.aiAnalysis);
+      setAiSources(cached.aiSources);
+    } else {
+      setAiAnalysis('');
+      setAiSources([]);
+    }
     Promise.all([
-      competitorService.list(selectedProduct),
-      competitorService.priceMap(selectedProduct),
-      competitorService.track(selectedProduct, 14),
+      competitorService.list(productId),
+      competitorService.priceMap(productId),
+      competitorService.track(productId, 14),
     ]).then(([c, pm, tr]) => {
+      if (!mountedRef.current) return;
       setCompetitors(c); setPriceMap(pm); setTrack(tr);
     }).catch(() => {});
-  }, [selectedProduct]);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedProduct) return;
+    loadProductData(selectedProduct);
+  }, [selectedProduct, loadProductData]);
 
   const handleAiAnalysis = async () => {
     if (!selectedProduct) return;
     setAiLoading(true);
     try {
       const res: CompetitorAnalyzeResponse = await competitorService.analyze(selectedProduct, 'detailed', true);
-      setAiAnalysis(res.ai_analysis || '');
-      setAiSources(res.web_sources || []);
-    } finally { setAiLoading(false); }
+      if (!mountedRef.current) return;
+      const analysis = res.ai_analysis || '';
+      const sources = res.web_sources || [];
+      setAiAnalysis(analysis);
+      setAiSources(sources);
+      setCachedAnalysis(selectedProduct, analysis, sources);
+    } finally {
+      if (mountedRef.current) setAiLoading(false);
+    }
   };
 
   if (loading) return <LoadingSpinner message="Rakip verileri yükleniyor…" size="lg" />;
@@ -104,7 +160,7 @@ export default function CompetitorsPage() {
       <div className="flex gap-2">
         {(['list', 'pricemap', 'track'] as SubTab[]).map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t ? 'bg-indigo-600 text-slate-800' : 'bg-gray-50 text-gray-500 hover:text-slate-800'}`}>
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t ? 'bg-[#4a3f44] text-white' : 'bg-gray-50 text-gray-500 hover:text-slate-800'}`}>
             {t === 'list' ? '📋 Rakip Listesi' : t === 'pricemap' ? '🗺 Fiyat Haritası' : '📈 Fiyat Takibi'}
           </button>
         ))}
@@ -163,10 +219,10 @@ export default function CompetitorsPage() {
                 <div className="mt-3">
                   <ResponsiveContainer width="100%" height={Math.max(60, data.competitors.length * 30)}>
                     <BarChart data={data.competitors} layout="vertical">
-                      <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={(v: number) => `₺${v}`} />
-                      <YAxis type="category" dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} width={80} />
+                      <XAxis type="number" tick={{ fill: '#9ca3af', fontSize: 10 }} tickFormatter={(v: number) => `₺${v}`} />
+                      <YAxis type="category" dataKey="name" tick={{ fill: '#9ca3af', fontSize: 10 }} width={80} />
                       <Tooltip formatter={(value) => formatCurrency(Number(value))}
-                        contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8 }} />
+                        contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 8 }} />
                       <Bar dataKey="price" fill="#6366f1" radius={4} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -185,11 +241,11 @@ export default function CompetitorsPage() {
               <h3 className="text-slate-800 font-semibold mb-4">Son 14 Gün Fiyat Değişimi</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <LineChart data={trackChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                  <XAxis dataKey="date" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                  <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={(v: number) => `₺${v}`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="date" tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                  <YAxis tick={{ fill: '#9ca3af', fontSize: 10 }} tickFormatter={(v: number) => `₺${v}`} />
                   <Tooltip formatter={(value) => formatCurrency(Number(value))}
-                    contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8 }} />
+                    contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 8 }} />
                   <Legend />
                   {trackHistories.map((h, i) => (
                     <Line key={h.competitor} type="monotone" dataKey={h.competitor} stroke={COLORS[i % COLORS.length]} strokeWidth={2} dot={false} />
@@ -215,7 +271,7 @@ export default function CompetitorsPage() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-slate-800 font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600" /> AI Rakip Analizi</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading || !selectedProduct}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Analiz ediliyor…</> : <><Brain size={14} /> Detaylı Analiz</>}
           </button>
         </div>

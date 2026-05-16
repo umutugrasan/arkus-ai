@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Brain, XCircle, ExternalLink, Lightbulb } from 'lucide-react';
 import GlassCard from '../components/shared/GlassCard';
-import LoadingSpinner from '../components/shared/LoadingSpinner';
+import { Skeleton, SkeletonCard } from '../components/shared/Skeleton';
 import StreamingMarkdown from '../components/shared/StreamingMarkdown';
 import { financeGuideService } from '../services';
 import { formatCurrency, formatPercent } from '../utils/formatters';
@@ -14,27 +14,46 @@ export default function FinanceGuidePage() {
   const [aiSources, setAiSources] = useState<Array<{ title: string; uri: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
     Promise.all([
       financeGuideService.options(),
       financeGuideService.eligibility(),
     ]).then(([o, e]) => {
+      if (!mountedRef.current) return;
       setOptions(o);
       setEligibility(e);
-    }).finally(() => setLoading(false));
+    }).finally(() => {
+      if (mountedRef.current) setLoading(false);
+    });
+    return () => { mountedRef.current = false; };
   }, []);
 
   const handleAi = async () => {
     setAiLoading(true);
     try {
       const res: FinanceAnalyzeResponse = await financeGuideService.analyze(true);
+      if (!mountedRef.current) return;
       setAiAnalysis(res.ai_analysis || '');
       setAiSources(res.web_sources || []);
-    } finally { setAiLoading(false); }
+    } finally {
+      if (mountedRef.current) setAiLoading(false);
+    }
   };
 
-  if (loading) return <LoadingSpinner message="Gerçek zamanlı banka kredileri ve destekler AI ile taranıyor…" size="lg" />;
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
 
   // FinanceOptionsResponse.seller_profile has: eligibility_score, monthly_revenue, monthly_net_profit, net_margin_pct, cash_balance
   const profile = options?.seller_profile;
@@ -147,10 +166,13 @@ export default function FinanceGuidePage() {
                 )}
                 
                 {/* Application URL */}
-                {opt.url && (
+                {opt.url && opt.url.startsWith('http') && (
                   <div className="mt-3">
-                    <a href={opt.url} target="_blank" rel="noopener noreferrer" 
-                       className="inline-flex items-center justify-center gap-1.5 w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-lg text-sm font-medium transition-colors">
+                    <a href={opt.url} target="_blank" rel="noopener noreferrer"
+                       onClick={(e) => {
+                         try { new URL(opt.url!); } catch { e.preventDefault(); }
+                       }}
+                       className="inline-flex items-center justify-center gap-1.5 w-full py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-lg text-sm font-medium transition-colors">
                       <ExternalLink size={14} /> Hemen Başvur
                     </a>
                   </div>
@@ -166,7 +188,7 @@ export default function FinanceGuidePage() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-slate-800 font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600" /> AI Finansman Analizi</h3>
           <button onClick={handleAi} disabled={aiLoading}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Analiz ediliyor…</> : <><Brain size={14} /> Analiz Et</>}
           </button>
         </div>

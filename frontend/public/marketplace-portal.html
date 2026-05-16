@@ -243,6 +243,30 @@
       );
     }
 
+    function generateNewKey(slug) {
+      var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      var parts = [];
+      for (var p = 0; p < 3; p++) {
+        var seg = "";
+        for (var c = 0; c < 5; c++) seg += chars[Math.floor(Math.random() * chars.length)];
+        parts.push(seg);
+      }
+      var prefix = slug.toUpperCase().replace("_", "").slice(0, 3);
+      return prefix + "-" + parts.join("-");
+    }
+
+    function handleNewKey(slug, name) {
+      var newKey = generateNewKey(slug);
+      var mp = marketplaces.find(function(m) { return m.slug === slug; });
+      if (mp) mp.key = newKey;
+      var input = document.querySelector('[data-slug="' + slug + '"]');
+      if (input) input.value = newKey;
+      var btns = document.querySelectorAll('[data-key-slug="' + slug + '"]');
+      btns.forEach(function(btn) { btn.dataset.key = newKey; });
+      copyKey(newKey, name);
+      showToast(name + " icin yeni API key uretildi ve kopyalandi");
+    }
+
     cards.innerHTML = marketplaces.map((mp) => `
       <article class="card">
         <div class="brand">
@@ -251,10 +275,10 @@
         </div>
         <label>Sandbox API Key</label>
         <div class="keybox">
-          <input readonly value="${mp.key}" aria-label="${mp.name} API key" />
-          <button type="button" data-key="${mp.key}" data-name="${mp.name}">Kopyala</button>
+          <input readonly value="${mp.key}" data-slug="${mp.slug}" aria-label="${mp.name} API key" />
+          <button type="button" data-key="${mp.key}" data-key-slug="${mp.slug}" data-name="${mp.name}">Kopyala</button>
         </div>
-        <button class="secondary" type="button" data-key="${mp.key}" data-name="${mp.name}">
+        <button class="secondary" type="button" data-newkey data-slug="${mp.slug}" data-name="${mp.name}">
           Yeni test anahtari al
         </button>
         <dl>
@@ -271,9 +295,15 @@
     `).join("");
 
     cards.addEventListener("click", (event) => {
-      const button = event.target.closest("button[data-key]");
-      if (!button) return;
-      copyKey(button.dataset.key, button.dataset.name);
+      var newKeyBtn = event.target.closest("button[data-newkey]");
+      if (newKeyBtn) {
+        handleNewKey(newKeyBtn.dataset.slug, newKeyBtn.dataset.name);
+        return;
+      }
+      var copyBtn = event.target.closest("button[data-key]");
+      if (copyBtn) {
+        copyKey(copyBtn.dataset.key, copyBtn.dataset.name);
+      }
     });
   </script>
 </body>

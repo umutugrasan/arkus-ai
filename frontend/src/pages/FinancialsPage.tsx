@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { DollarSign, TrendingUp, BarChart2, Zap, Brain } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -6,7 +6,7 @@ import {
 } from 'recharts';
 import StatCard from '../components/shared/StatCard';
 import GlassCard from '../components/shared/GlassCard';
-import LoadingSpinner from '../components/shared/LoadingSpinner';
+import { Skeleton, SkeletonCard } from '../components/shared/Skeleton';
 import StreamingMarkdown from '../components/shared/StreamingMarkdown';
 import { financialService } from '../services';
 import { formatCurrency, formatPercent, formatNumber } from '../utils/formatters';
@@ -30,8 +30,11 @@ export default function FinancialsPage() {
   const [loading, setLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
   const [tab, setTab] = useState<Tab>('marketplace');
+  const abortRef = useRef<AbortController | null>(null);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
     Promise.all([
       financialService.overview(),
       financialService.byMarketplace(),
@@ -39,24 +42,52 @@ export default function FinancialsPage() {
       financialService.expenses(),
       financialService.cashFlow(),
     ]).then(([ov, mp, prod, exp, cf]) => {
+      if (!mountedRef.current) return;
       setOverview(ov);
       setByMP(mp.marketplaces);
       setByProduct(prod.products);
       setExpenses(exp);
       setCashFlow(cf);
-    }).finally(() => setLoading(false));
+    }).finally(() => {
+      if (mountedRef.current) setLoading(false);
+    });
+    return () => { mountedRef.current = false; };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
   }, []);
 
   const handleAiAnalysis = async () => {
+    abortRef.current?.abort();
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     setAiLoading(true);
     try {
       const res: FinancialAnalyzeResponse = await financialService.analyze(true);
+      if (ctrl.signal.aborted || !mountedRef.current) return;
       setAiAnalysis(res.ai_analysis || '');
       setAiSources(res.web_sources || []);
-    } finally { setAiLoading(false); }
+    } catch {
+      if (ctrl.signal.aborted || !mountedRef.current) return;
+    } finally {
+      if (mountedRef.current) setAiLoading(false);
+    }
   };
 
-  if (loading) return <LoadingSpinner message="Finansal veriler yükleniyor…" size="lg" />;
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
 
   const ov = overview?.overall;
   const history = overview?.monthly_history || [];
@@ -96,10 +127,10 @@ export default function FinancialsPage() {
           <h3 className="text-slate-800 font-semibold mb-4">Aylık Gelir & Kâr Trendi</h3>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={history}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis dataKey="month" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} tickFormatter={(v: number) => `₺${(v / 1000).toFixed(0)}K`} />
-              <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8 }}
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="month" tick={{ fill: '#9ca3af', fontSize: 11 }} />
+              <YAxis tick={{ fill: '#9ca3af', fontSize: 11 }} tickFormatter={(v: number) => `₺${(v / 1000).toFixed(0)}K`} />
+              <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 8 }}
                 formatter={(value) => formatCurrency(Number(value))} />
               <Legend />
               <Line type="monotone" dataKey="revenue" name="Gelir" stroke="#6366f1" strokeWidth={2} dot={false} />
@@ -113,7 +144,7 @@ export default function FinancialsPage() {
         <div className="flex gap-1 mb-5 bg-gray-50 p-1 rounded-xl w-fit">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${tab === t.id ? 'bg-indigo-600 text-slate-800 shadow' : 'text-gray-500 hover:text-slate-800'}`}>
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${tab === t.id ? 'bg-[#4a3f44] text-white shadow' : 'text-gray-500 hover:text-slate-800'}`}>
               {t.label}
             </button>
           ))}
@@ -173,7 +204,7 @@ export default function FinancialsPage() {
                   {pieData.map((_, idx) => <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
                 </Pie>
                 <Tooltip formatter={(value) => formatCurrency(Number(value))}
-                  contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8 }} />
+                  contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 8 }} />
               </PieChart>
             </ResponsiveContainer>
             <div className="space-y-3">
@@ -222,7 +253,7 @@ export default function FinancialsPage() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-slate-800 font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600" /> AI Finansal Analiz</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Analiz ediliyor…</> : <><Brain size={14} /> Analiz Et</>}
           </button>
         </div>

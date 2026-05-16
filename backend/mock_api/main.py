@@ -67,7 +67,7 @@ app = FastAPI(
     title="Sahte Pazaryeri API",
     description=(
         "Trendyol, Hepsiburada, Amazon TR satici panel API'lerinin demo simulasyonu. "
-        "Ana Basiret AI backend'i bu API'yi gercek pazaryeri API'siymis gibi cagirir."
+        "Ana Arkus AI backend'i bu API'yi gercek pazaryeri API'siymis gibi cagirir."
     ),
     version="1.0.0",
 )

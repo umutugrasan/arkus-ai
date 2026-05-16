@@ -3,63 +3,69 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Package, MessageSquare, Swords, ArrowLeftRight,
   TrendingUp, Heart, Banknote, Search, Bot, Bell, FileText, Settings,
-  X, Sparkles, ImageIcon, PlugZap,
+  X, Sparkles, ImageIcon, PlugZap, PenTool,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useI18n } from '../../context/I18nContext';
+import type { TranslationKey } from '../../i18n';
+import LanguageSwitcher from '../ui/LanguageSwitcher';
+
+interface NavItem {
+  to: string;
+  icon: LucideIcon;
+  labelKey: TranslationKey;
+  badge?: 'notifications';
+}
 
 interface NavGroup {
-  title: string;
-  items: Array<{
-    to: string;
-    icon: LucideIcon;
-    label: string;
-    badge?: 'notifications';
-  }>;
+  titleKey: TranslationKey;
+  items: NavItem[];
 }
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    title: 'Genel',
-    items: [{ to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' }],
+    titleKey: 'nav.general',
+    items: [{ to: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.dashboard' }],
   },
   {
-    title: 'Mağaza',
+    titleKey: 'nav.store',
     items: [
-      { to: '/products', icon: Package, label: 'Ürünler' },
-      { to: '/reviews', icon: MessageSquare, label: 'Yorum Analizi' },
+      { to: '/products', icon: Package, labelKey: 'nav.products' },
+      { to: '/reviews', icon: MessageSquare, labelKey: 'nav.reviews' },
     ],
   },
   {
-    title: 'Analiz',
+    titleKey: 'nav.analysis',
     items: [
-      { to: '/competitors', icon: Swords, label: 'Rakip Analizi' },
-      { to: '/arbitrage', icon: ArrowLeftRight, label: 'Arbitraj' },
-      { to: '/financials', icon: TrendingUp, label: 'Finansal Panel' },
-      { to: '/health', icon: Heart, label: 'Sağlık Skoru' },
-      { to: '/finance-guide', icon: Banknote, label: 'Finansman' },
+      { to: '/competitors', icon: Swords, labelKey: 'nav.competitors' },
+      { to: '/arbitrage', icon: ArrowLeftRight, labelKey: 'nav.arbitrage' },
+      { to: '/financials', icon: TrendingUp, labelKey: 'nav.financials' },
+      { to: '/health', icon: Heart, labelKey: 'nav.health' },
+      { to: '/finance-guide', icon: Banknote, labelKey: 'nav.finance_guide' },
     ],
   },
   {
-    title: 'Optimizasyon',
+    titleKey: 'nav.optimization',
     items: [
-      { to: '/sourcing', icon: Search, label: 'Tedarik Avcısı' },
-      { to: '/listing-optimizer', icon: Sparkles, label: 'Listing Optimizer' },
-      { to: '/image-analyzer', icon: ImageIcon, label: 'Görsel Analiz' },
+      { to: '/sourcing', icon: Search, labelKey: 'nav.sourcing' },
+      { to: '/listing-optimizer', icon: Sparkles, labelKey: 'nav.listing_optimizer' },
+      { to: '/image-analyzer', icon: ImageIcon, labelKey: 'nav.image_analyzer' },
+      { to: '/showme', icon: PenTool, labelKey: 'nav.showme' },
     ],
   },
   {
-    title: 'AI',
+    titleKey: 'nav.ai',
     items: [
-      { to: '/chat', icon: Bot, label: 'AI Danışman' },
+      { to: '/chat', icon: Bot, labelKey: 'nav.chat' },
     ],
   },
   {
-    title: 'Sistem',
+    titleKey: 'nav.system',
     items: [
-      { to: '/notifications', icon: Bell, label: 'Bildirimler', badge: 'notifications' },
-      { to: '/reports', icon: FileText, label: 'Raporlar' },
-      { to: '/integrations', icon: PlugZap, label: 'Entegrasyonlar' },
-      { to: '/settings', icon: Settings, label: 'Ayarlar' },
+      { to: '/notifications', icon: Bell, labelKey: 'nav.notifications', badge: 'notifications' },
+      { to: '/reports', icon: FileText, labelKey: 'nav.reports' },
+      { to: '/integrations', icon: PlugZap, labelKey: 'nav.integrations' },
+      { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
     ],
   },
 ];
@@ -71,6 +77,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps) {
+  const { t } = useI18n();
+
   return (
     <>
       {open && (
@@ -108,12 +116,12 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
         {/* Nav (grouped) */}
         <nav className="flex-1 overflow-y-auto py-2 px-6">
           {NAV_GROUPS.map((group) => (
-            <div key={group.title} className="mb-6">
+            <div key={group.titleKey} className="mb-6">
               <p className="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">
-                {group.title}
+                {t(group.titleKey)}
               </p>
               <div className="space-y-1">
-                {group.items.map(({ to, icon: Icon, label, badge }) => (
+                {group.items.map(({ to, icon: Icon, labelKey, badge }) => (
                   <NavLink
                     key={to}
                     to={to}
@@ -142,7 +150,7 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
                             isActive ? 'text-white' : 'text-gray-400 opacity-80'
                           }`}
                         />
-                        <span className="relative z-10 flex-1 truncate font-medium">{label}</span>
+                        <span className="relative z-10 flex-1 truncate font-medium">{t(labelKey)}</span>
                         {badge === 'notifications' && unreadCount > 0 && (
                           <span className="relative z-10 ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                             {unreadCount > 99 ? '99+' : unreadCount}
@@ -157,11 +165,12 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
           ))}
         </nav>
 
-        {/* Footer */}
-        <div className="mt-auto p-4">
+        {/* Footer with language switcher */}
+        <div className="mt-auto p-4 space-y-3">
+          <LanguageSwitcher className="w-full justify-center" />
           <div className="bg-[#f0ece7] rounded-xl p-4">
             <p className="text-[10px] font-bold text-gray-600">v1.0.0</p>
-            <p className="text-[10px] text-gray-400 mt-0.5">Çoklu Pazaryeri AI Zekası</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">Arkus AI Solutions</p>
           </div>
         </div>
       </aside>

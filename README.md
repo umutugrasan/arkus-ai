@@ -1,8 +1,8 @@
-# Basiret AI — Coklu Pazaryeri Satici Zekasi Paneli
+# Arkus AI — Coklu Pazaryeri Satici Zekasi Paneli
 
 **BTK Hackathon 26 | E-Ticaret Odakli AI Destekli Uygulama**
 
-Basiret AI, birden fazla pazaryerinde (Trendyol, Hepsiburada, Amazon TR) satis yapan e-ticaret saticilari icin yapay zeka destekli analiz ve danismanlik platformudur. Otonom ajanlar verileri toplar, analiz eder ve satiya proaktif strateji onerir.
+Arkus AI, birden fazla pazaryerinde (Trendyol, Hepsiburada, Amazon TR, N11) satis yapan e-ticaret saticilari icin yapay zeka destekli analiz ve danismanlik platformudur. Otonom ajanlar verileri toplar, analiz eder ve saticiya proaktif strateji onerir.
 
 > **"Veriyi gosteren degil, strateji ureten bir sistem."**
 
@@ -12,13 +12,13 @@ E-ticaret saticilari 3-4 farkli pazaryerinde ayri panellere girip verileri kontr
 
 ## Cozum
 
-Basiret AI 4 katmanli mimariyle:
+Arkus AI 4 katmanli mimariyle:
 1. **Veri Toplama** — Sahte/gercek pazaryeri API'lerinden otomatik veri cekme
 2. **Hesaplama Motoru** — Ham veriden kar marji, ROAS, saglik skoru otomatik hesap
 3. **Agentic AI** — Otonom ajanlar veri ceker, analiz eder, kullanici sormadan oneri sunar
 4. **Sunum** — Dashboard, grafikler, AI chat, bildirimler, raporlar
 
-## Moduller (17 Modul, 80+ Endpoint)
+## Moduller (17+ Modul, 80+ Endpoint)
 
 | Modul | Endpoint Prefix | Aciklama |
 |---|---|---|
@@ -121,11 +121,11 @@ Servisler:
 - **Frontend:** http://localhost:3000
 - **Backend API + Swagger:** http://localhost:8000/docs
 - **Sahte Pazaryeri API:** http://localhost:8001/docs
-- **Adminer (DB):** http://localhost:8080 (sistem: PostgreSQL, sunucu: `db`, kullanici: `basiret`, parola: `basiretpassword`, veritabani: `basiret_db`)
+- **Adminer (DB):** http://localhost:8080 (sistem: PostgreSQL, sunucu: `db`, kullanici: `arkus`, parola: `arkuspassword`, veritabani: `arkus_db`)
 
 Demo kullanici:
 ```
-Email: demo@basiret.ai
+Email: demo@arkus.ai
 Sifre: demo123
 ```
 
@@ -159,17 +159,18 @@ npm install && npm run dev
 
 ## Teknolojiler
 
-- **Frontend:** React 19, Tailwind CSS v4, Recharts
+- **Frontend:** React 19, TypeScript, Tailwind CSS v4, Recharts, Framer Motion
 - **Backend:** Python 3.11, FastAPI, SQLAlchemy, httpx
 - **AI:** Google Gemini API (2.5 Flash + Vision + Google Search Grounding)
 - **Database:** PostgreSQL 15 (Docker volume)
 - **Mock Marketplace:** Ayri FastAPI servisi (port 8001), X-API-KEY auth simulasyonu
 - **Container:** Docker Compose multi-service (db + mock-api + backend + frontend + adminer)
+- **i18n:** Turkce / Ingilizce dil destegi
 
 ## Repo Yapisi
 
 ```
-basiret-ai/
+arkus-ai/
 ├── backend/
 │   ├── app/
 │   │   ├── agents/              # Otonom ajanlar + orchestrator + scheduler
@@ -185,13 +186,21 @@ basiret-ai/
 │   ├── Dockerfile
 │   └── requirements.txt
 ├── frontend/
+│   ├── src/
+│   │   ├── components/          # UI bileşenleri (layout, shared, ui)
+│   │   ├── context/             # Auth, Toast, i18n context
+│   │   ├── i18n/                # Turkce/Ingilizce ceviriler
+│   │   ├── pages/               # Sayfa bileşenleri (17+ sayfa)
+│   │   ├── services/            # API servis katmani
+│   │   └── utils/               # Yardimci fonksiyonlar
+│   └── package.json
 ├── docker-compose.yml
 └── README.md
 ```
 
 ## Test Akisi (Swagger)
 
-1. `POST /api/auth/login` body `{"email": "demo@basiret.ai", "password": "demo123"}` → token
+1. `POST /api/auth/login` body `{"email": "demo@arkus.ai", "password": "demo123"}` → token
 2. `GET /api/dashboard/overview?token=...` → genel metrikler
 3. `GET /api/dashboard/ai-summary?token=...` → Gemini'den gunaydin ozeti + web piyasa notu
 4. `GET /api/reviews/P001/analyze?detail=detailed&token=...` → yorum analizi (cache'li)

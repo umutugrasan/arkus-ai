@@ -195,7 +195,7 @@ export default function ChatPage() {
                 </div>
                 <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm ${
                   m.role === 'user'
-                    ? 'bg-indigo-600 text-slate-800 rounded-tr-sm'
+                    ? 'bg-[#4a3f44] text-white rounded-tr-sm'
                     : 'bg-white/80 text-slate-200 rounded-tl-sm ai-response'
                 }`}>
                   {m.role === 'ai' ? (

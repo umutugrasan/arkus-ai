@@ -110,13 +110,15 @@ export default function ReviewsPage() {
     return Array.from(set).sort().reverse();
   }, [reviewsResp]);
 
+  const hasReviews = !!(reviewsResp && reviewsResp.reviews.length > 0);
+
   // AI Analyze streaming
   const runAnalyze = useCallback(() => {
-    if (!productId) return;
+    if (!productId || !hasReviews) return;
     aiAbortRef.current?.abort();
     const ctrl = new AbortController();
     aiAbortRef.current = ctrl;
-    
+
     setAiTexts({ short: '', detailed: '' });
     setAiStreaming({ short: false, detailed: false });
 
@@ -164,7 +166,7 @@ export default function ReviewsPage() {
       },
       { signal: ctrl.signal },
     );
-  }, [productId, detail, toast]);
+  }, [productId, detail, toast, hasReviews]);
 
   useEffect(() => () => aiAbortRef.current?.abort(), []);
 
@@ -208,8 +210,8 @@ export default function ReviewsPage() {
                     onClick={() => setDetail(d)}
                     className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                       detail === d
-                        ? 'bg-indigo-500/30 text-indigo-200'
-                        : 'text-gray-500 hover:text-slate-200'
+                        ? 'bg-[#4a3f44]/20 text-[#4a3f44] font-semibold'
+                        : 'text-gray-500 hover:text-gray-700'
                     }`}
                   >
                     {d === 'short' ? 'Kısa' : 'Detaylı'}
@@ -222,6 +224,7 @@ export default function ReviewsPage() {
                 leftIcon={<RefreshCw size={14} />}
                 onClick={runAnalyze}
                 loading={aiStreaming.short || aiStreaming.detailed}
+                disabled={!reviewsResp || reviewsResp.reviews.length === 0}
               >
                 Analiz Et
               </Button>
@@ -364,7 +367,7 @@ export default function ReviewsPage() {
                     <span className="text-gray-500 text-[11px]">{r.date}</span>
                   </div>
                 </div>
-                <p className="text-slate-200 text-sm mt-2 leading-relaxed">"{r.text}"</p>
+                <p className="text-gray-700 text-sm mt-2 leading-relaxed">"{r.text}"</p>
               </li>
             ))}
           </ul>

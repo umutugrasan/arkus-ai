@@ -129,7 +129,7 @@ export default function SourcingPage() {
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              tab === t.id ? 'bg-indigo-600 text-slate-800' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
+              tab === t.id ? 'bg-[#4a3f44] text-white' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
             }`}>{t.label}</button>
         ))}
       </div>
@@ -218,10 +218,11 @@ export default function SourcingPage() {
             <div className="space-y-3">
               {([...bestPrice.all_suppliers || []].sort((a, b) => a.discounted_price - b.discounted_price)).map((s: Supplier, i: number) => {
                 // Saticinin adina gore yonlendirilecek temsili URL (Alibaba/AliExpress aramasi)
-                const searchDomain = s.name.toLowerCase().includes('alibaba') ? 'alibaba.com/trade/search?SearchText=' : 
-                                     s.name.toLowerCase().includes('aliexpress') ? 'aliexpress.com/w/wholesale-' : 
+                const isValidUrl = s.url && (s.url.startsWith('http://') || s.url.startsWith('https://'));
+                const searchDomain = s.name.toLowerCase().includes('alibaba') ? 'alibaba.com/trade/search?SearchText=' :
+                                     s.name.toLowerCase().includes('aliexpress') ? 'aliexpress.com/w/wholesale-' :
                                      'google.com/search?q=buy+wholesale+';
-                const href = s.url || `https://www.${searchDomain}${encodeURIComponent(s.product + ' ' + s.name)}`;
+                const href = isValidUrl ? s.url! : `https://www.${searchDomain}${encodeURIComponent(s.product + ' ' + s.name)}`;
                 
                 return (
                   <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:scale-[1.01]">
@@ -271,7 +272,7 @@ export default function SourcingPage() {
                 placeholder="Hedef fiyat (₺)"
                 className="w-40 bg-gray-50 border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" />
               <button onClick={handleCreateAlert} disabled={alertCreating || !alertProduct || !alertPrice}
-                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+                className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
                 {alertCreating ? <Loader2 size={14} className="animate-spin" /> : <Bell size={14} />}
                 Alarm Ekle
               </button>

@@ -2,28 +2,28 @@ services:
   # ─── PostgreSQL Database ─────────────────────────────────────────────────────
   db:
     image: postgres:15-alpine
-    container_name: basiret-db
+    container_name: arkus-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: basiret
-      POSTGRES_PASSWORD: basiretpassword
-      POSTGRES_DB: basiret_db
+      POSTGRES_USER: arkus
+      POSTGRES_PASSWORD: arkuspassword
+      POSTGRES_DB: arkus_db
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U basiret -d basiret_db"]
+      test: ["CMD-SHELL", "pg_isready -U arkus -d arkus_db"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
-      - basiret-net
+      - arkus-net
 
   # ─── Sahte Pazaryeri API (Trendyol/HB/Amazon TR simulasyonu) ─────────────────
   mock-api:
     build:
       context: ./backend
       dockerfile: mock_api/Dockerfile
-    container_name: basiret-mock-api
+    container_name: arkus-mock-api
     restart: unless-stopped
     ports:
       - "8001:8001"       # http://localhost:8001 ile dogrudan erisim
@@ -34,20 +34,20 @@ services:
       retries: 5
       start_period: 5s
     networks:
-      - basiret-net
+      - arkus-net
 
   # ─── FastAPI Backend ─────────────────────────────────────────────────────────
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: basiret-backend
+    container_name: arkus-backend
     restart: unless-stopped
     env_file:
       - .env
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://basiret:basiretpassword@db:5432/basiret_db
+      - DATABASE_URL=postgresql://arkus:arkuspassword@db:5432/arkus_db
       - MOCK_MARKETPLACE_API_URL=http://mock-api:8001
     ports:
       - "8000:8080"       # Dışarıya 8000, içeriye 8080
@@ -63,14 +63,14 @@ services:
       retries: 5
       start_period: 20s
     networks:
-      - basiret-net
+      - arkus-net
 
   # ─── React Frontend (nginx) ───────────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: basiret-frontend
+    container_name: arkus-frontend
     restart: unless-stopped
     ports:
       - "3000:8080"         # http://localhost:3000 -> container:8080
@@ -78,22 +78,22 @@ services:
       backend:
         condition: service_healthy
     networks:
-      - basiret-net
+      - arkus-net
 
   # ─── Adminer (Veritabanı Görüntüleyici Arayüz) ────────────────────────────────
   adminer:
     image: adminer:latest
-    container_name: basiret-adminer
+    container_name: arkus-adminer
     restart: unless-stopped
     ports:
       - "8080:8080"       # http://localhost:8080 ile erişilir
     depends_on:
       - db
     networks:
-      - basiret-net
+      - arkus-net
 
 networks:
-  basiret-net:
+  arkus-net:
     driver: bridge
 
 volumes:
