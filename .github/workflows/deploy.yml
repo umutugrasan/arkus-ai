@@ -42,7 +42,7 @@ jobs:
           --allow-unauthenticated \
           --port 8080 \
           --add-cloudsql-instances=gen-lang-client-0173678969:europe-west3:arkus-db \
-          --set-env-vars DATABASE_URL="postgresql://postgres:d30R_MJG%26tXqeq_4%24I{p%27pwgRA@localhost/postgres?host=/cloudsql/gen-lang-client-0173678969:europe-west3:arkus-db"
+          --set-env-vars GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}",DATABASE_URL="postgresql://postgres:d30R_MJG%26tXqeq_4%24I{p%27pwgRA@localhost/postgres?host=/cloudsql/gen-lang-client-0173678969:europe-west3:arkus-db"
 
   deploy-frontend:
     runs-on: ubuntu-latest
