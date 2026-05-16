@@ -26,18 +26,32 @@ def _to_dict(n: Notification) -> dict:
 
 
 def _maybe_add(db, user_id, type_, title, message, severity):
-    """Ayni baslikta son 24 saat icinde bildirim varsa duplicate olarak ekleme."""
-    cutoff = (datetime.now() - timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")
-    existing = (
+    """Ayni baslikta:
+    - Son 1 saat icinde herhangi bir bildirim varsa ekleme (hizli tekrar tarama).
+    - Okunmamis bildirim varsa ekleme (aktif uyari zaten listede).
+    """
+    cutoff_1h = (datetime.now() - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
+    recent = (
         db.query(Notification)
         .filter(
             Notification.user_id == user_id,
             Notification.title == title,
-            Notification.created_at >= cutoff,
+            Notification.created_at >= cutoff_1h,
         )
         .first()
     )
-    if existing:
+    if recent:
+        return None
+    unread_existing = (
+        db.query(Notification)
+        .filter(
+            Notification.user_id == user_id,
+            Notification.title == title,
+            Notification.read == False,
+        )
+        .first()
+    )
+    if unread_existing:
         return None
     notif = Notification(
         user_id=user_id,

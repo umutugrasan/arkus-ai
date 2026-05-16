@@ -24,6 +24,31 @@ import type {
 
 type Detail = 'short' | 'detailed';
 
+// ─── SessionStorage cache for AI analysis results ───────────────────────────
+const REVIEWS_CACHE_KEY = 'arkus_reviews_ai_cache';
+
+interface ReviewsAICache {
+  productId: string;
+  aiTexts: { short: string; detailed: string };
+  timestamp: number;
+}
+
+function getReviewsCache(productId: string): ReviewsAICache | null {
+  try {
+    const raw = sessionStorage.getItem(REVIEWS_CACHE_KEY);
+    if (!raw) return null;
+    const data: ReviewsAICache = JSON.parse(raw);
+    if (data.productId === productId && Date.now() - data.timestamp < 15 * 60 * 1000) return data;
+  } catch { /* ignore */ }
+  return null;
+}
+
+function setReviewsCache(productId: string, aiTexts: { short: string; detailed: string }) {
+  try {
+    sessionStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify({ productId, aiTexts, timestamp: Date.now() }));
+  } catch { /* ignore */ }
+}
+
 export default function ReviewsPage() {
   const { id: paramId } = useParams<{ id?: string }>();
   const navigate = useNavigate();
@@ -77,6 +102,7 @@ export default function ReviewsPage() {
   const fetchReviews = useCallback(async () => {
     if (!productId) return;
     setLoadingList(true);
+    setReviewsResp(null); // stale data'yı temizle – button race condition önlenir
     try {
       const r = await reviewService.list(productId, {
         marketplace: marketplaceFilter,
@@ -104,7 +130,17 @@ export default function ReviewsPage() {
       setLoadingMeta(false);
     });
     fetchReviews();
-  }, [productId, fetchReviews]);
+  }, [productId, fetchReviews]);  // Ürün değiştiğinde AI cache'ini geri yükle
+  useEffect(() => {
+    if (!productId) return;
+    const cached = getReviewsCache(productId);
+    if (cached) {
+      setAiTexts(cached.aiTexts);
+    } else {
+      setAiTexts({ short: '', detailed: '' });
+    }
+  }, [productId]);
+
 
   const months = useMemo(() => {
     const set = new Set<string>();
@@ -137,6 +173,12 @@ export default function ReviewsPage() {
           onDone: (data) => {
             setAiStreaming((s) => ({ ...s, [second]: false }));
             if (!data.is_fallback) reviewService.history(productId).then(setHistory).catch(() => {});
+            // Cache'e yaz (her iki tab tamamlandığında güncelle)
+            setAiTexts((prev) => {
+              const updated = { ...prev };
+              setReviewsCache(productId, updated);
+              return prev;
+            });
           },
           onError: (e) => {
             setAiStreaming((s) => ({ ...s, [second]: false }));

@@ -27,6 +27,7 @@ export default function FinancialsPage() {
   const [cashFlow, setCashFlow] = useState<CashFlowResponse | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState('');
   const [aiSources, setAiSources] = useState<Array<{ title: string; uri: string }>>([]);
+  const [aiError, setAiError] = useState('');
   const [loading, setLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
   const [tab, setTab] = useState<Tab>('marketplace');
@@ -65,13 +66,17 @@ export default function FinancialsPage() {
     const ctrl = new AbortController();
     abortRef.current = ctrl;
     setAiLoading(true);
+    setAiError('');
+    setAiAnalysis('');
     try {
       const res: FinancialAnalyzeResponse = await financialService.analyze(true);
       if (ctrl.signal.aborted || !mountedRef.current) return;
       setAiAnalysis(res.ai_analysis || '');
       setAiSources(res.web_sources || []);
-    } catch {
+    } catch (err) {
       if (ctrl.signal.aborted || !mountedRef.current) return;
+      const msg = err instanceof Error ? err.message : 'Analiz alınamadı';
+      setAiError(msg);
     } finally {
       if (mountedRef.current) setAiLoading(false);
     }
@@ -259,7 +264,15 @@ export default function FinancialsPage() {
         </div>
         {aiAnalysis
           ? <StreamingMarkdown content={aiAnalysis} webSources={aiSources} title="Finansal AI Analizi" />
-          : <p className="text-gray-500 text-sm">Gelir/gider trendleri ve marj optimizasyonu için Analiz Et'e tıklayın.</p>
+          : aiError
+            ? (
+              <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl">
+                <p className="text-rose-400 text-sm font-medium">⚠️ AI Analizi Başarısız</p>
+                <p className="text-rose-400/80 text-xs mt-1">{aiError}</p>
+                <button onClick={handleAiAnalysis} className="mt-3 text-xs text-rose-400 underline">Tekrar Dene</button>
+              </div>
+            )
+            : <p className="text-gray-500 text-sm">Gelir/gider trendleri ve marj optimizasyonu için Analiz Et'e tıklayın.</p>
         }
       </GlassCard>
     </div>

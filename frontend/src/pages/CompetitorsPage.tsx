@@ -20,6 +20,7 @@ type SubTab = 'list' | 'pricemap' | 'track';
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 const CACHE_KEY = 'arkus_competitor_cache';
+const SELECTED_PRODUCT_KEY = 'arkus_competitor_product';
 
 interface CachedAnalysis {
   productId: string;
@@ -80,7 +81,10 @@ export default function CompetitorsPage() {
       });
       setProducts(unique);
       if (unique.length > 0 && !didInit.current) {
-        setSelectedProduct(unique[0].id);
+        // Önce sessionStorage'dan kaydedilmiş ürünü dene
+        const savedId = sessionStorage.getItem(SELECTED_PRODUCT_KEY);
+        const restoredId = savedId && unique.find(p => p.id === savedId) ? savedId : unique[0].id;
+        setSelectedProduct(restoredId);
         didInit.current = true;
       }
     }).finally(() => setLoading(false));
@@ -108,6 +112,8 @@ export default function CompetitorsPage() {
 
   useEffect(() => {
     if (!selectedProduct) return;
+    // Seçili ürünü sessionStorage'a kaydet
+    sessionStorage.setItem(SELECTED_PRODUCT_KEY, selectedProduct);
     loadProductData(selectedProduct);
   }, [selectedProduct, loadProductData]);
 

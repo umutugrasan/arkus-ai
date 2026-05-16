@@ -27,9 +27,42 @@ export interface StreamOptions {
   signal?: AbortSignal;
 }
 
+/** SSE bloğunu parse edip handlers'ı çağırır. true → done/error işlendi */
+function processSSEBlock(block: string, handlers: SSEHandlers): boolean {
+  if (!block.trim()) return false;
+  const lines = block.split('\n');
+  let eventType = 'message';
+  let dataStr = '';
+  for (const line of lines) {
+    if (line.startsWith('event:')) eventType = line.slice(6).trim();
+    else if (line.startsWith('data:')) dataStr += line.slice(5).trim();
+  }
+  if (!dataStr) return false;
+  let payload: Record<string, unknown> = {};
+  try {
+    payload = JSON.parse(dataStr);
+  } catch {
+    return false;
+  }
+  if (eventType === 'chunk') {
+    const txt = typeof payload.text === 'string' ? payload.text : '';
+    if (txt) handlers.onChunk?.(txt);
+  } else if (eventType === 'meta') {
+    handlers.onMeta?.(payload);
+  } else if (eventType === 'done') {
+    handlers.onDone?.(payload);
+    return true;
+  } else if (eventType === 'error') {
+    handlers.onError?.(payload);
+    return true;
+  }
+  return false;
+}
+
 /**
- * Verilen URL'e fetch ile baglanir, SSE chunk'larini parse edip callback'lere bolusturur.
+ * Verilen URL'e fetch ile bağlanır, SSE chunk'ları parse edip callback'lere iletir.
  * JWT Authorization header otomatik eklenir.
+ * Stream kapandığında done/error işlenmemişse güvenlik onDone çağrısı yapılır.
  */
 export async function streamSSE(
   url: string,
@@ -57,9 +90,7 @@ export async function streamSSE(
     try {
       const errBody = await response.json();
       detail = errBody.detail || detail;
-    } catch {
-      /* ignore */
-    }
+    } catch { /* ignore */ }
     handlers.onError?.(new Error(detail));
     return;
   }
@@ -72,6 +103,7 @@ export async function streamSSE(
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
+  let doneHandled = false;
 
   try {
     while (true) {
@@ -84,35 +116,26 @@ export async function streamSSE(
       buffer = blocks.pop() || '';
 
       for (const block of blocks) {
-        if (!block.trim()) continue;
-        const lines = block.split('\n');
-        let eventType = 'message';
-        let dataStr = '';
-        for (const line of lines) {
-          if (line.startsWith('event:')) eventType = line.slice(6).trim();
-          else if (line.startsWith('data:')) dataStr += line.slice(5).trim();
-        }
-        if (!dataStr) continue;
-        let payload: Record<string, unknown> = {};
-        try {
-          payload = JSON.parse(dataStr);
-        } catch {
-          continue;
-        }
-        if (eventType === 'chunk') {
-          const txt = typeof payload.text === 'string' ? payload.text : '';
-          if (txt) handlers.onChunk?.(txt);
-        } else if (eventType === 'meta') {
-          handlers.onMeta?.(payload);
-        } else if (eventType === 'done') {
-          handlers.onDone?.(payload);
-        } else if (eventType === 'error') {
-          handlers.onError?.(payload);
+        if (processSSEBlock(block, handlers)) {
+          doneHandled = true;
         }
       }
+    }
+
+    // Stream kapandı – kalan buffer'ı işle (son \n\n olmadan biten frameler için)
+    if (buffer.trim()) {
+      if (processSSEBlock(buffer, handlers)) {
+        doneHandled = true;
+      }
+    }
+
+    // Backend done/error göndermeden kapandıysa güvenlik çağrısı (sonsuz spinner'ı önler)
+    if (!doneHandled) {
+      handlers.onDone?.({});
     }
   } catch (e) {
     if ((e as Error).name === 'AbortError') return;
     handlers.onError?.(e as Error);
   }
 }
+
