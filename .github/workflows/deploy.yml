@@ -40,7 +40,8 @@ jobs:
           --image ${{ env.BACKEND_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/mock-api-service:latest \
           --region ${{ env.BACKEND_REGION }} \
           --allow-unauthenticated \
-          --port 8001
+          --port 8001 \
+          --set-env-vars APP_ENV=production
 
   deploy-backend:
     runs-on: ubuntu-latest
@@ -73,7 +74,7 @@ jobs:
           --allow-unauthenticated \
           --port 8080 \
           --add-cloudsql-instances=gen-lang-client-0173678969:europe-west3:arkus-db \
-          --set-env-vars GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}",MOCK_MARKETPLACE_API_URL="https://mock-api-service-435783041080.europe-west3.run.app",DATABASE_URL="postgresql://postgres:d30R_MJG%26tXqeq_4%24I{p%27pwgRA@localhost/postgres?host=/cloudsql/gen-lang-client-0173678969:europe-west3:arkus-db"
+          --set-env-vars APP_ENV=production,GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}",MOCK_MARKETPLACE_API_URL="https://mock-api-service-435783041080.europe-west3.run.app",DATABASE_URL="postgresql://postgres:d30R_MJG%26tXqeq_4%24I{p%27pwgRA@localhost/postgres?host=/cloudsql/gen-lang-client-0173678969:europe-west3:arkus-db"
 
   deploy-frontend:
     runs-on: ubuntu-latest
