@@ -17,10 +17,8 @@ export default function LandingPage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#f9f8f4]/90 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#4a3f44] rounded-xl flex items-center justify-center shadow-md">
-              <img src="/images/logos/arkaplansız kuş.png" alt="Arkus Logo" className="w-6 h-6 object-contain" />
-            </div>
-            <span className="text-2xl font-bold text-slate-800">
+            <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-14 h-14 object-contain" />
+            <span className="text-3xl font-black text-slate-800 tracking-tighter">
               Arkus
             </span>
           </div>
@@ -192,7 +190,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between text-gray-500 font-medium text-sm">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <img src="/images/logos/arkaplansız tam logo.png" alt="Arkus Logo" className="h-6 object-contain" />
+              <img src="/assets/logos/logo-full.png" alt="Arkus Logo" className="h-14 object-contain opacity-90 hover:opacity-100 transition-opacity" />
             </div>
             <p>© 2026 Arkus. Tüm hakları saklıdır.</p>
             <div className="flex gap-4 mt-4 md:mt-0">

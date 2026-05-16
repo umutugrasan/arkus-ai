@@ -87,15 +87,12 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
           ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
-        {/* Logo */}
         <div className="flex items-center justify-between p-6">
-          <NavLink to="/dashboard" onClick={onClose} className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#4a3f44] rounded flex items-center justify-center shadow-sm">
-              <img src="/images/logos/arkaplansız kuş.png" alt="Arkus Logo" className="w-5 h-5 object-contain" />
-            </div>
+          <NavLink to="/dashboard" onClick={onClose} className="flex items-center gap-3">
+            <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-12 h-12 object-contain" />
             <div>
-              <h1 className="font-bold text-sm leading-tight text-slate-800">Arkus</h1>
-              <p className="text-[10px] text-gray-500">Satıcı Zekası Paneli</p>
+              <h1 className="font-bold text-xl leading-tight text-slate-800 tracking-tighter">Arkus</h1>
+              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">AI Zekası</p>
             </div>
           </NavLink>
           <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-slate-800 p-1">

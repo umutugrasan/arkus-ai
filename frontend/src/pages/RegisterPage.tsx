@@ -71,11 +71,9 @@ export default function RegisterPage() {
       </div>
 
       <div className="relative z-10 w-full max-w-md p-4">
-        <div className="flex flex-col items-center mb-6">
-          <div className="w-14 h-14 rounded-xl bg-[#4a3f44] flex items-center justify-center shadow-lg mb-4">
-            <img src="/images/logos/arkaplansız kuş.png" alt="Arkus Logo" className="w-8 h-8 object-contain" />
-          </div>
-          <h1 className="text-3xl font-extrabold text-slate-800">Arkus</h1>
+        <div className="flex flex-col items-center mb-8">
+          <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-24 h-24 object-contain mb-4 drop-shadow-md" />
+          <h1 className="text-5xl font-black text-slate-800 tracking-tighter">Arkus</h1>
           <p className="text-gray-500 text-sm mt-1 font-medium">14 günlük ücretsiz dene</p>
         </div>
 
