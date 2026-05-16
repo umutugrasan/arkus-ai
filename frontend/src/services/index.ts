@@ -1,7 +1,8 @@
 // Backend /api/v1/* endpoint'leriyle %100 hizali servis katmani.
 // Tum cagrilar JWT Bearer ile authenticated, axios interceptor 401'de refresh dener.
 
-import api from '../api/client';
+import api, { BASE_URL } from '../api/client';
+
 import type {
   AiSummaryResponse,
   AnalyzeCurrentResponse,
@@ -220,7 +221,7 @@ export const reviewService = {
   },
   // Streaming endpoint URL (frontend bunu fetch ile çağırır)
   analyzeStreamUrl: (id: string, detail: 'short' | 'detailed' = 'short') =>
-    `/api/v1/reviews/${encodeURIComponent(id)}/analyze/stream?detail=${detail}`,
+    `${BASE_URL}/reviews/${encodeURIComponent(id)}/analyze/stream?detail=${detail}`,
 };
 
 // ===================== COMPETITORS =====================
@@ -376,7 +377,8 @@ export const chatService = {
     const r = await api.delete<{ message: string; deleted_count: number }>('/chat/history');
     return r.data;
   },
-  askStreamUrl: () => '/api/v1/chat/ask/stream',
+  askStreamUrl: () => `${BASE_URL}/chat/ask/stream`,
+
 };
 
 // ===================== NOTIFICATIONS =====================
@@ -434,8 +436,8 @@ export const reportService = {
     const r = await api.get<ReportItem>(`/reports/${id}`);
     return r.data;
   },
-  generateDailyStreamUrl: () => '/api/v1/reports/daily/stream',
-  generateWeeklyStreamUrl: () => '/api/v1/reports/weekly/stream',
+  generateDailyStreamUrl: () => `${BASE_URL}/reports/daily/stream`,
+  generateWeeklyStreamUrl: () => `${BASE_URL}/reports/weekly/stream`,
 };
 
 // ===================== LISTING OPTIMIZER =====================
