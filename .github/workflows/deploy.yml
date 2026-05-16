@@ -169,11 +169,13 @@ jobs:
 
     # frontend URL'i ogrendigimize gore backend'in CORS'unu gevsek "*" ile birakmak
     # yerine kesin frontend domain'iyle daraltiyoruz (gerekli ikinci tur).
-    - name: Tighten backend CORS to actual frontend URL
+    - name: Tighten backend CORS to actual frontend URL + custom domain
       run: |
         FRONTEND_URL=$(gcloud run services describe frontend-service \
           --region=${{ env.FRONTEND_REGION }} \
           --format='value(status.url)')
+        # arkus.tr custom domain + Cloud Run URL ikisine de izin ver
+        CORS_ORIGINS="${FRONTEND_URL},https://arkus.tr,https://www.arkus.tr"
         gcloud run services update backend-service \
           --region=${{ env.BACKEND_REGION }} \
-          --update-env-vars "CORS_ORIGINS=${FRONTEND_URL}"
+          --update-env-vars "CORS_ORIGINS=${CORS_ORIGINS}"
