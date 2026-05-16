@@ -36,8 +36,10 @@ export const tokenStorage = {
   },
 };
 
-// Backend base URL — Vite proxy ile veya direct
-const BASE_URL = 'https://backend-service-435783041080.europe-west3.run.app/api/v1';
+// Backend base URL — Yerelde localhost, canli ortamda Cloud Run adresini kullanir
+const BASE_URL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:8000/api/v1'
+  : 'https://backend-service-435783041080.europe-west3.run.app/api/v1';
 
 const api = axios.create({
   baseURL: BASE_URL,

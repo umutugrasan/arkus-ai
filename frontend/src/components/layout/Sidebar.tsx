@@ -89,10 +89,10 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
       >
         <div className="flex items-center justify-between p-6">
           <NavLink to="/dashboard" onClick={onClose} className="flex items-center gap-4 group">
-            <img 
-              src="/assets/logos/logo-bird.png" 
-              alt="Arkus Logo" 
-              className="w-12 h-12 object-contain group-hover:scale-105 transition-transform duration-300" 
+            <img
+              src="/assets/logos/logo-bird.png"
+              alt="Arkus Logo"
+              className="w-12 h-12 object-contain group-hover:scale-105 transition-transform duration-300"
             />
             <div className="flex flex-col justify-center">
               <h1 className="font-black text-2xl leading-none text-slate-800 tracking-tighter">Arkus</h1>
@@ -118,10 +118,9 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
                     to={to}
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors relative ${
-                        isActive
-                          ? 'bg-[#4a3f44] text-white font-medium shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-100'
+                      `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors relative ${isActive
+                        ? 'bg-[#4a3f44] text-white font-medium shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-100'
                       }`
                     }
                   >

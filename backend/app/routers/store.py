@@ -247,14 +247,21 @@ def _sync_products_for_marketplace(db, user, mp_row: Marketplace) -> int:
         count += 1
 
     # Yorumlari kaydet
-    for r in raw.get("reviews", []):
-        db.add(Review(
-            product_code=r.get("product_id"),
-            marketplace_name=mp_row.name,
-            rating=r.get("rating"),
-            text=r.get("text"),
-            date=r.get("date") or _now(),
-        ))
+    try:
+        reviews_data = raw.get("reviews", [])
+        if reviews_data:
+            for r in reviews_data:
+                new_review = Review(
+                    product_code=str(r.get("product_id")),
+                    marketplace_name=mp_row.name,
+                    rating=int(r.get("rating", 0)),
+                    text=str(r.get("text", "")),
+                    date=str(r.get("date") or _now()),
+                )
+                db.add(new_review)
+            db.flush()
+    except Exception as e:
+        logger.error(f"Yorum senkronizasyon hatasi: {e}")
 
     db.commit()
     return count
