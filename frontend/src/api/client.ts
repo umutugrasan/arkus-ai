@@ -36,10 +36,28 @@ export const tokenStorage = {
   },
 };
 
-// Backend base URL — Yerelde localhost, canli ortamda Cloud Run adresini kullanir
-const BASE_URL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? 'http://localhost:8000/api/v1'
-  : 'https://backend-service-435783041080.europe-west3.run.app/api/v1';
+// Backend base URL
+// Oncelik: VITE_API_URL env (build-time) > localhost dev > same-origin "/api/v1"
+//
+// .env.local veya .env.production icinde:
+//   VITE_API_URL=https://api.arkus.example.com/api/v1
+//
+// Tanimli degilse: localhost'ta 8000'e, diger hostlarda reverse-proxy ile
+// same-origin "/api/v1" kullanilir.
+const ENV_API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+
+function resolveBaseUrl(): string {
+  if (ENV_API_URL) return ENV_API_URL;
+  if (typeof window !== 'undefined') {
+    const { hostname } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:8000/api/v1';
+    }
+  }
+  return '/api/v1';
+}
+
+const BASE_URL = resolveBaseUrl();
 
 const api = axios.create({
   baseURL: BASE_URL,

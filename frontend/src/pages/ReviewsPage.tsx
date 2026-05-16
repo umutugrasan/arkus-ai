@@ -14,6 +14,7 @@ import { Skeleton } from '../components/shared/Skeleton';
 import { productService, reviewService } from '../services';
 import { streamSSE } from '../utils/streaming';
 import { useToast } from '../context/ToastContext';
+import { useI18n } from '../context/I18nContext';
 import { getErrorMessage } from '../utils/errors';
 import { formatPercent } from '../utils/formatters';
 import { MARKETPLACES } from '../utils/constants';
@@ -27,6 +28,7 @@ export default function ReviewsPage() {
   const { id: paramId } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useI18n();
 
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [productId, setProductId] = useState<string>('');
@@ -173,8 +175,8 @@ export default function ReviewsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        title="Yorum Analizi"
-        subtitle="Müşteri yorumları + Gemini analizi"
+        title={t('reviews.title')}
+        subtitle={t('reviews.subtitle')}
         icon={<MessageSquare size={20} />}
         actions={
           <div className="flex items-center gap-2">
@@ -200,8 +202,8 @@ export default function ReviewsPage() {
       <div className="grid lg:grid-cols-3 gap-4">
         <GlassCard className="p-5 lg:col-span-2">
           <div className="flex items-center gap-2 mb-4">
-            <Brain size={16} className="text-violet-400" />
-            <h3 className="text-slate-800 font-semibold">AI Analiz</h3>
+            <Brain size={16} className="text-[#6b6266]" />
+            <h3 className="text-slate-800 font-semibold">{t('reviews.ai_analysis')}</h3>
             <div className="ml-auto flex items-center gap-2">
               <div className="flex items-center gap-1 bg-gray-50 border border-gray-200/60 rounded-lg p-0.5">
                 {(['short', 'detailed'] as Detail[]).map((d) => (
@@ -214,7 +216,7 @@ export default function ReviewsPage() {
                         : 'text-gray-500 hover:text-gray-700'
                     }`}
                   >
-                    {d === 'short' ? 'Kısa' : 'Detaylı'}
+                    {d === 'short' ? t('reviews.short') : t('reviews.detailed')}
                   </button>
                 ))}
               </div>
@@ -226,19 +228,19 @@ export default function ReviewsPage() {
                 loading={aiStreaming.short || aiStreaming.detailed}
                 disabled={!reviewsResp || reviewsResp.reviews.length === 0}
               >
-                Analiz Et
+                {t('common.analyze')}
               </Button>
             </div>
           </div>
-          
+
           {(aiStreaming.short || aiStreaming.detailed) && !aiStreaming[detail] && (
-            <div className="mb-2 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-md text-xs text-indigo-600 flex items-center gap-2">
-              <RefreshCw size={12} className="animate-spin" /> Arka planda diğer analiz ({detail === 'short' ? 'Detaylı' : 'Kısa'}) tamamlanıyor...
+            <div className="mb-2 px-3 py-1.5 bg-[#4a3f44]/10 border border-[#4a3f44]/20 rounded-md text-xs text-[#4a3f44] flex items-center gap-2">
+              <RefreshCw size={12} className="animate-spin" /> {t('reviews.bg_analysis')}
             </div>
           )}
 
           <StreamingMarkdown
-            title="Yorum Analizi"
+            title={t('reviews.title')}
             content={aiTexts[detail]}
             streaming={aiStreaming[detail]}
             className="!border-0 !bg-transparent"
@@ -248,12 +250,12 @@ export default function ReviewsPage() {
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-3">
             <Star size={16} className="text-amber-400" />
-            <h3 className="text-slate-800 font-semibold">Duygu Özeti</h3>
+            <h3 className="text-slate-800 font-semibold">{t('reviews.sentiment')}</h3>
           </div>
           {loadingMeta ? (
             <Skeleton className="h-32 w-full" />
           ) : !sentiment ? (
-            <EmptyState title="Yorum yok" />
+            <EmptyState title={t('reviews.no_reviews')} />
           ) : (
             <div className="space-y-3">
               <div className="text-center py-2">
@@ -262,19 +264,19 @@ export default function ReviewsPage() {
               </div>
               <div className="space-y-2">
                 <SentimentBar
-                  label="Pozitif"
+                  label={t('reviews.positive')}
                   pct={sentiment.sentiment.positive_pct}
                   color="emerald"
                   icon={<Smile size={12} />}
                 />
                 <SentimentBar
-                  label="Nötr"
+                  label={t('reviews.neutral')}
                   pct={sentiment.sentiment.neutral_pct}
                   color="slate"
                   icon={<Meh size={12} />}
                 />
                 <SentimentBar
-                  label="Negatif"
+                  label={t('reviews.negative')}
                   pct={sentiment.sentiment.negative_pct}
                   color="rose"
                   icon={<Frown size={12} />}

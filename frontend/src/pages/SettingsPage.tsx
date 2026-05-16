@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react';
 import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, Lock, Save } from 'lucide-react';
 import GlassCard from '../components/shared/GlassCard';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
+import LanguageSwitcher from '../components/ui/LanguageSwitcher';
 import { authService } from '../services';
+import { useI18n } from '../context/I18nContext';
 
 type Tab = 'profile' | 'security';
 
 interface Toast { type: 'success' | 'error'; message: string }
 
 export default function SettingsPage() {
+  const { t } = useI18n();
   const [tab, setTab] = useState<Tab>('profile');
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
@@ -41,38 +44,38 @@ export default function SettingsPage() {
     setProfileSaving(true);
     try {
       await authService.updateProfile({ name, email, store_name: storeName });
-      showToast('success', 'Profil guncellendi');
+      showToast('success', t('settings.profile_updated'));
     } catch {
-      showToast('error', 'Profil guncellenemedi');
+      showToast('error', t('settings.profile_update_failed'));
     } finally {
       setProfileSaving(false);
     }
   };
 
   const handlePasswordChange = async () => {
-    if (newPw !== confirmPw) { showToast('error', 'Sifreler eslesmiyor'); return; }
-    if (newPw.length < 6) { showToast('error', 'Sifre en az 6 karakter olmali'); return; }
+    if (newPw !== confirmPw) { showToast('error', t('settings.passwords_mismatch')); return; }
+    if (newPw.length < 6) { showToast('error', t('settings.password_short')); return; }
     setPwSaving(true);
     try {
       await authService.changePassword(currentPw, newPw);
       setCurrentPw('');
       setNewPw('');
       setConfirmPw('');
-      showToast('success', 'Sifre guncellendi');
+      showToast('success', t('settings.password_updated'));
     } catch {
-      showToast('error', 'Sifre guncellenemedi. Mevcut sifrenizi kontrol edin.');
+      showToast('error', t('settings.password_update_failed'));
     } finally {
       setPwSaving(false);
     }
   };
 
-  if (loading) return <LoadingSpinner message="Ayarlar yukleniyor..." size="lg" />;
+  if (loading) return <LoadingSpinner message={t('settings.loading')} size="lg" />;
 
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       {toast && (
         <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg animate-fade-in ${
-          toast.type === 'success' ? 'bg-emerald-600 text-slate-800' : 'bg-rose-600 text-slate-800'
+          toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
         }`}>
           {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
           {toast.message}
@@ -81,8 +84,8 @@ export default function SettingsPage() {
 
       <div className="flex gap-1 bg-gray-50 p-1 rounded-xl w-fit">
         {([
-          { id: 'profile' as Tab, label: 'Profil' },
-          { id: 'security' as Tab, label: 'Guvenlik' },
+          { id: 'profile' as Tab, label: t('settings.tab_profile') },
+          { id: 'security' as Tab, label: t('settings.tab_security') },
         ]).map((item) => (
           <button
             key={item.id}
@@ -96,23 +99,29 @@ export default function SettingsPage() {
         ))}
       </div>
 
+      {/* Language section */}
+      <GlassCard>
+        <h3 className="text-slate-800 font-semibold mb-4">{t('settings.language')}</h3>
+        <LanguageSwitcher />
+      </GlassCard>
+
       {tab === 'profile' && (
         <GlassCard>
-          <h3 className="text-slate-800 font-semibold mb-4">Profil Bilgileri</h3>
+          <h3 className="text-slate-800 font-semibold mb-4">{t('settings.profile_info')}</h3>
           <div className="space-y-4">
             {[
-              { label: 'Ad Soyad', value: name, setter: setName, placeholder: 'Adiniz', type: 'text' },
-              { label: 'E-posta', value: email, setter: setEmail, placeholder: 'e-posta@adresiniz.com', type: 'email' },
-              { label: 'Magaza Adi', value: storeName, setter: setStoreName, placeholder: 'Magazanizin adi', type: 'text' },
+              { key: 'name', label: t('settings.name'), value: name, setter: setName, placeholder: t('settings.name_placeholder'), type: 'text' },
+              { key: 'email', label: t('settings.email'), value: email, setter: setEmail, placeholder: t('settings.email_placeholder'), type: 'email' },
+              { key: 'store', label: t('settings.store_name'), value: storeName, setter: setStoreName, placeholder: t('settings.store_placeholder'), type: 'text' },
             ].map((field) => (
-              <div key={field.label}>
+              <div key={field.key}>
                 <label className="text-gray-500 text-xs block mb-1.5">{field.label}</label>
                 <input
                   value={field.value}
                   onChange={(event) => field.setter(event.target.value)}
                   placeholder={field.placeholder}
                   type={field.type}
-                  className="w-full bg-gray-50 border border-gray-200 focus:border-indigo-500 text-slate-800 rounded-xl px-4 py-3 text-sm outline-none transition-colors"
+                  className="w-full bg-gray-50 border border-gray-200 focus:border-[#4a3f44] text-slate-800 rounded-xl px-4 py-3 text-sm outline-none transition-colors"
                 />
               </div>
             ))}
@@ -122,7 +131,7 @@ export default function SettingsPage() {
               className="flex items-center gap-2 px-5 py-2.5 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50"
             >
               {profileSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-              Kaydet
+              {t('settings.save')}
             </button>
           </div>
         </GlassCard>
@@ -131,22 +140,22 @@ export default function SettingsPage() {
       {tab === 'security' && (
         <GlassCard>
           <h3 className="text-slate-800 font-semibold mb-4 flex items-center gap-2">
-            <Lock size={16} className="text-indigo-600" /> Sifre Degistir
+            <Lock size={16} className="text-[#4a3f44]" /> {t('settings.change_password')}
           </h3>
           <div className="space-y-4">
             {[
-              { label: 'Mevcut Sifre', value: currentPw, setter: setCurrentPw },
-              { label: 'Yeni Sifre', value: newPw, setter: setNewPw },
-              { label: 'Yeni Sifre (Tekrar)', value: confirmPw, setter: setConfirmPw },
+              { key: 'current', label: t('settings.current_password'), value: currentPw, setter: setCurrentPw },
+              { key: 'new', label: t('settings.new_password'), value: newPw, setter: setNewPw },
+              { key: 'confirm', label: t('settings.confirm_password'), value: confirmPw, setter: setConfirmPw },
             ].map((field) => (
-              <div key={field.label}>
+              <div key={field.key}>
                 <label className="text-gray-500 text-xs block mb-1.5">{field.label}</label>
                 <div className="relative">
                   <input
                     value={field.value}
                     onChange={(event) => field.setter(event.target.value)}
                     type={showPw ? 'text' : 'password'}
-                    className="w-full bg-gray-50 border border-gray-200 focus:border-indigo-500 text-slate-800 rounded-xl px-4 py-3 pr-10 text-sm outline-none transition-colors"
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-[#4a3f44] text-slate-800 rounded-xl px-4 py-3 pr-10 text-sm outline-none transition-colors"
                   />
                   <button
                     onClick={() => setShowPw(!showPw)}
@@ -159,7 +168,7 @@ export default function SettingsPage() {
             ))}
             {newPw && confirmPw && newPw !== confirmPw && (
               <p className="text-rose-400 text-xs flex items-center gap-1">
-                <AlertCircle size={12} /> Sifreler eslesmiyor
+                <AlertCircle size={12} /> {t('settings.passwords_mismatch')}
               </p>
             )}
             <button
@@ -168,7 +177,7 @@ export default function SettingsPage() {
               className="flex items-center gap-2 px-5 py-2.5 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50"
             >
               {pwSaving ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
-              Sifreyi Guncelle
+              {t('settings.update_password')}
             </button>
           </div>
         </GlassCard>

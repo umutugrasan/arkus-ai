@@ -61,7 +61,7 @@ function ToastViewport() {
   const kindClass: Record<ToastKind, string> = {
     success: 'bg-emerald-600 border-emerald-400',
     error: 'bg-rose-600 border-rose-400',
-    info: 'bg-indigo-600 border-indigo-400',
+    info: 'bg-[#4a3f44] border-[#6b6266]',
     warning: 'bg-amber-500 border-amber-300',
   };
   return (

@@ -4,8 +4,10 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useI18n } from '../context/I18nContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import LanguageSwitcher from '../components/ui/LanguageSwitcher';
 import { getErrorMessage } from '../utils/errors';
 
 interface LocationState {
@@ -17,6 +19,7 @@ export default function LoginPage() {
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useI18n();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,17 +34,17 @@ export default function LoginPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error('E-posta ve şifre gerekli');
+      toast.error(t('auth.email_required'));
       return;
     }
     setSubmitting(true);
     try {
       await login(email, password);
-      toast.success('Hoş geldin!');
+      toast.success(t('auth.login_success'));
       const from = (location.state as LocationState)?.from || '/dashboard';
       navigate(from, { replace: true });
     } catch (err) {
-      toast.error(getErrorMessage(err, 'Giriş yapılamadı'));
+      toast.error(getErrorMessage(err, t('auth.login_failed')));
     } finally {
       setSubmitting(false);
     }
@@ -51,26 +54,30 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#f9f8f4] relative overflow-hidden flex items-center justify-center">
       <div className="absolute inset-0 -z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-amber-100 blur-3xl" />
-        <div className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-50 blur-3xl" />
+        <div className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[#4a3f44]/10 blur-3xl" />
+      </div>
+
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSwitcher />
       </div>
 
       <div className="relative z-10 w-full max-w-md p-4">
         <div className="flex flex-col items-center mb-10">
           <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-24 h-24 object-contain mb-4 drop-shadow-md" />
           <h1 className="text-5xl font-black text-slate-800 tracking-tighter">Arkus</h1>
-          <p className="text-gray-500 text-sm mt-1 font-medium">Çoklu Pazaryeri Satıcı Zekası</p>
+          <p className="text-gray-500 text-sm mt-1 font-medium">{t('auth.tagline')}</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 animate-fade-in">
-          <h2 className="text-xl font-bold text-slate-800 mb-1">Hoş Geldin</h2>
-          <p className="text-gray-500 text-sm mb-6">Devam etmek için giriş yap.</p>
+          <h2 className="text-xl font-bold text-slate-800 mb-1">{t('auth.welcome')}</h2>
+          <p className="text-gray-500 text-sm mb-6">{t('auth.login_subtitle')}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="E-posta"
+              label={t('auth.email')}
               type="email"
               name="email"
-              placeholder="ornek@firma.com"
+              placeholder={t('auth.email_placeholder')}
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -79,7 +86,7 @@ export default function LoginPage() {
             />
 
             <Input
-              label="Şifre"
+              label={t('auth.password')}
               type={showPassword ? 'text' : 'password'}
               name="password"
               placeholder="••••••••"
@@ -102,7 +109,7 @@ export default function LoginPage() {
 
             <div className="flex items-center justify-end -mt-1">
               <Link to="/forgot-password" className="text-xs text-[#4a3f44] font-medium hover:text-slate-800 transition-colors">
-                Şifremi unuttum
+                {t('auth.forgot_password')}
               </Link>
             </div>
 
@@ -115,21 +122,21 @@ export default function LoginPage() {
               leftIcon={<LogIn size={16} />}
               className="bg-[#4a3f44] hover:bg-[#6b6266] border-none shadow-md"
             >
-              Giriş Yap
+              {t('auth.login')}
             </Button>
 
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-6 font-medium">
-            Hesabın yok mu?{' '}
+            {t('auth.no_account')}{' '}
             <Link to="/register" className="text-[#4a3f44] hover:text-slate-800 font-bold transition-colors">
-              Kayıt ol
+              {t('auth.register')}
             </Link>
           </p>
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6 font-medium">
-          © 2026 Arkus · Tüm hakları saklıdır.
+          {t('auth.copyright')}
         </p>
       </div>
     </div>

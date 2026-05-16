@@ -11,6 +11,7 @@ import { Skeleton } from '../components/shared/Skeleton';
 import Input from '../components/ui/Input';
 import { productService } from '../services';
 import { useToast } from '../context/ToastContext';
+import { useI18n } from '../context/I18nContext';
 import { getErrorMessage } from '../utils/errors';
 import { formatCurrency, formatNumber } from '../utils/formatters';
 import type { LowStockAlert, ProductListItem } from '../types/api';
@@ -19,6 +20,7 @@ type SortKey = 'total_sales' | 'total_revenue' | 'total_net_profit' | 'rating' |
 
 export default function ProductsPage() {
   const toast = useToast();
+  const { t } = useI18n();
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [topSellers, setTopSellers] = useState<ProductListItem[]>([]);
   const [lowStock, setLowStock] = useState<LowStockAlert[]>([]);
@@ -38,7 +40,7 @@ export default function ProductsPage() {
         setTopSellers(top.top_sellers);
         setLowStock(low.low_stock_alerts);
       })
-      .catch((e) => toast.error(getErrorMessage(e, 'Ürünler yüklenemedi')))
+      .catch((e) => toast.error(getErrorMessage(e, t('products.loading'))))
       .finally(() => setLoading(false));
   }, [toast]);
 
@@ -64,7 +66,7 @@ export default function ProductsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Ürünler" subtitle="Yükleniyor…" />
+        <PageHeader title={t('products.title')} subtitle={t('common.loading')} />
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-96 w-full" />
       </div>
@@ -74,8 +76,8 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        title="Ürün Yönetimi"
-        subtitle={`${products.length} ürün, tüm pazaryerlerinden`}
+        title={t('products.title')}
+        subtitle={`${products.length} ${t('common.products_count')}`}
         icon={<Package size={20} />}
       />
 
@@ -84,10 +86,10 @@ export default function ProductsPage() {
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-3">
             <Trophy size={16} className="text-amber-400" />
-            <h3 className="text-slate-800 font-semibold">En Çok Satanlar</h3>
+            <h3 className="text-slate-800 font-semibold">{t('products.top_sellers')}</h3>
           </div>
           {topSellers.length === 0 ? (
-            <EmptyState title="Veri yok" />
+            <EmptyState title={t('products.no_data')} />
           ) : (
             <ul className="space-y-2">
               {topSellers.map((p, i) => (
@@ -102,14 +104,14 @@ export default function ProductsPage() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-slate-800 text-sm truncate">{p.name}</p>
-                        <p className="text-gray-500 text-[11px]">{formatNumber(p.total_sales)} satış</p>
+                        <p className="text-gray-500 text-[11px]">{formatNumber(p.total_sales)} {t('products.units')}</p>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-emerald-400 text-sm font-semibold">
                         {formatCurrency(p.total_net_profit)}
                       </p>
-                      <p className="text-gray-500 text-[10px]">net kâr</p>
+                      <p className="text-gray-500 text-[10px]">{t('products.net_profit_lbl')}</p>
                     </div>
                   </Link>
                 </li>
@@ -121,11 +123,11 @@ export default function ProductsPage() {
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle size={16} className="text-rose-400" />
-            <h3 className="text-slate-800 font-semibold">Stoku Kritik</h3>
-            <span className="ml-auto text-xs text-gray-500">{lowStock.length} uyarı</span>
+            <h3 className="text-slate-800 font-semibold">{t('products.low_stock_title')}</h3>
+            <span className="ml-auto text-xs text-gray-500">{lowStock.length} {t('products.low_stock_warnings')}</span>
           </div>
           {lowStock.length === 0 ? (
-            <EmptyState title="Tebrikler, stok problemi yok 🎉" />
+            <EmptyState title={t('products.low_stock_empty')} />
           ) : (
             <ul className="space-y-2 max-h-60 overflow-y-auto">
               {lowStock.map((a, i) => (
@@ -150,10 +152,10 @@ export default function ProductsPage() {
                   </div>
                   <div className="flex items-center justify-between mt-1">
                     <span className="text-gray-500 text-xs">
-                      {a.marketplace} · {a.stock} adet
+                      {a.marketplace} · {a.stock} {t('products.units_short')}
                     </span>
                     <span className="text-gray-600 text-xs font-medium">
-                      {a.days_until_stockout} günde tükenir
+                      {a.days_until_stockout} {t('products.days_until_stockout')}
                     </span>
                   </div>
                 </li>
@@ -166,9 +168,9 @@ export default function ProductsPage() {
       {/* Tüm ürünler */}
       <GlassCard className="p-5">
         <div className="flex flex-wrap items-center gap-3 mb-4">
-          <h3 className="text-slate-800 font-semibold flex-1">Tüm Ürünler</h3>
+          <h3 className="text-slate-800 font-semibold flex-1">{t('products.all_products')}</h3>
           <Input
-            placeholder="Ürün ara…"
+            placeholder={t('products.search_placeholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             leftIcon={<Search size={14} />}
@@ -182,7 +184,7 @@ export default function ProductsPage() {
               onChange={(e) => setCategory(e.target.value)}
               className="bg-gray-50 border border-gray-200/60 rounded-xl pl-8 pr-3 py-2.5 text-sm text-slate-800 outline-none"
             >
-              <option value="">Tüm kategoriler</option>
+              <option value="">{t('products.all_categories')}</option>
               {categories.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -195,31 +197,31 @@ export default function ProductsPage() {
               onChange={(e) => setSort(e.target.value as SortKey)}
               className="bg-gray-50 border border-gray-200/60 rounded-xl pl-8 pr-3 py-2.5 text-sm text-slate-800 outline-none"
             >
-              <option value="total_sales">Satışa göre</option>
-              <option value="total_revenue">Ciroya göre</option>
-              <option value="total_net_profit">Net kâra göre</option>
-              <option value="rating">Puana göre</option>
-              <option value="total_stock">Stok'a göre</option>
+              <option value="total_sales">{t('products.sort_sales')}</option>
+              <option value="total_revenue">{t('products.sort_revenue')}</option>
+              <option value="total_net_profit">{t('products.sort_profit')}</option>
+              <option value="rating">{t('products.sort_rating')}</option>
+              <option value="total_stock">{t('products.sort_stock')}</option>
             </select>
           </div>
         </div>
 
         {filtered.length === 0 ? (
-          <EmptyState title="Eşleşen ürün yok" description="Filtre ya da aramayı değiştir." />
+          <EmptyState title={t('products.empty')} description={t('products.empty_desc')} />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[10px] uppercase tracking-wider text-gray-500 border-b border-gray-100">
-                  <th className="py-2 pl-2">Ürün</th>
-                  <th className="py-2">Kategori</th>
-                  <th className="py-2 text-center">Puan</th>
-                  <th className="py-2 text-right">Satış</th>
-                  <th className="py-2 text-right">Ciro</th>
-                  <th className="py-2 text-right">Net Kâr</th>
-                  <th className="py-2 text-right">Birim Kâr</th>
-                  <th className="py-2 text-right">Stok</th>
-                  <th className="py-2 text-center">Pazaryeri</th>
+                  <th className="py-2 pl-2">{t('products.col_product')}</th>
+                  <th className="py-2">{t('products.col_category')}</th>
+                  <th className="py-2 text-center">{t('products.col_rating')}</th>
+                  <th className="py-2 text-right">{t('products.col_sales')}</th>
+                  <th className="py-2 text-right">{t('products.col_revenue')}</th>
+                  <th className="py-2 text-right">{t('products.col_net_profit')}</th>
+                  <th className="py-2 text-right">{t('products.col_unit_profit')}</th>
+                  <th className="py-2 text-right">{t('products.col_stock')}</th>
+                  <th className="py-2 text-center">{t('products.col_marketplace')}</th>
                   <th className="py-2" />
                 </tr>
               </thead>

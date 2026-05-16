@@ -28,7 +28,6 @@ const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const IntegrationsPage = lazy(() => import('./pages/IntegrationsPage'));
-const ShowMePage = lazy(() => import('./pages/ShowMePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 const routeFallback = (
@@ -74,7 +73,6 @@ function AppRoutes() {
           <Route path="listing-optimizer/:id" element={<ListingOptimizerPage />} />
           <Route path="image-analyzer" element={<ImageAnalyzerPage />} />
           <Route path="image-analyzer/:id" element={<ImageAnalyzerPage />} />
-          <Route path="showme" element={<ShowMePage />} />
 
           <Route path="chat" element={<ChatPage />} />
 

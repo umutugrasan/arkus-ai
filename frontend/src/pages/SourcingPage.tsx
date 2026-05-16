@@ -182,10 +182,10 @@ export default function SourcingPage() {
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSearch()}
                 placeholder="Ürün adı girin… (örn: Bluetooth Kulaklık)"
-                className="flex-1 bg-gray-50 border border-gray-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                className="flex-1 bg-gray-50 border border-gray-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#4a3f44] transition-colors"
               />
               <button onClick={handleSearch} disabled={searchLoading || !searchQuery.trim()}
-                className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+                className="flex items-center gap-2 px-5 py-3 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
                 {searchLoading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
                 Ara
               </button>
@@ -200,7 +200,7 @@ export default function SourcingPage() {
                 </div>
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-indigo-500 transition-all duration-300 ease-out"
+                    className="h-full bg-[#4a3f44] transition-all duration-300 ease-out"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -267,10 +267,10 @@ export default function SourcingPage() {
             <div className="flex flex-wrap gap-3">
               <input value={alertProduct} onChange={e => setAlertProduct(e.target.value)}
                 placeholder="Ürün adı"
-                className="flex-1 min-w-40 bg-gray-50 border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" />
+                className="flex-1 min-w-40 bg-gray-50 border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#4a3f44]" />
               <input value={alertPrice} onChange={e => setAlertPrice(e.target.value)} type="number"
                 placeholder="Hedef fiyat (₺)"
-                className="w-40 bg-gray-50 border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" />
+                className="w-40 bg-gray-50 border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#4a3f44]" />
               <button onClick={handleCreateAlert} disabled={alertCreating || !alertProduct || !alertPrice}
                 className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
                 {alertCreating ? <Loader2 size={14} className="animate-spin" /> : <Bell size={14} />}
@@ -316,7 +316,7 @@ export default function SourcingPage() {
                 <p className="text-gray-500 text-sm">Gemini web araması ile güncel tedarikçi fırsatları</p>
               </div>
               <button onClick={handleOpportunities} disabled={oppLoading}
-                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+                className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
                 {oppLoading ? <Loader2 size={14} className="animate-spin" /> : <Brain size={14} />}
                 Fırsatları Bul
               </button>
@@ -331,7 +331,7 @@ export default function SourcingPage() {
                 </div>
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-indigo-500 transition-all duration-300 ease-out"
+                    className="h-full bg-[#4a3f44] transition-all duration-300 ease-out"
                     style={{ width: `${progress}%` }}
                   />
                 </div>

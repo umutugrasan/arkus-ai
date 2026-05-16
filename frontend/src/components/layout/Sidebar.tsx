@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Package, MessageSquare, Swords, ArrowLeftRight,
   TrendingUp, Heart, Banknote, Search, Bot, Bell, FileText, Settings,
-  X, Sparkles, ImageIcon, PlugZap, PenTool,
+  X, Sparkles, ImageIcon, PlugZap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useI18n } from '../../context/I18nContext';
@@ -50,7 +50,6 @@ const NAV_GROUPS: NavGroup[] = [
       { to: '/sourcing', icon: Search, labelKey: 'nav.sourcing' },
       { to: '/listing-optimizer', icon: Sparkles, labelKey: 'nav.listing_optimizer' },
       { to: '/image-analyzer', icon: ImageIcon, labelKey: 'nav.image_analyzer' },
-      { to: '/showme', icon: PenTool, labelKey: 'nav.showme' },
     ],
   },
   {
@@ -105,7 +104,7 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
             />
             <div className="flex flex-col justify-center">
               <h1 className="font-black text-2xl leading-none text-slate-800 tracking-tighter">Arkus</h1>
-              <p className="text-[8px] text-indigo-600/70 font-black uppercase tracking-[0.25em] mt-1">AI SOLUTIONS</p>
+              <p className="text-[8px] text-[#4a3f44]/70 font-black uppercase tracking-[0.25em] mt-1">AI SOLUTIONS</p>
             </div>
           </NavLink>
           <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-slate-800 p-1">

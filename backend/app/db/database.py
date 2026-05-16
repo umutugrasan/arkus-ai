@@ -1,27 +1,19 @@
-import os
+"""
+SQLAlchemy engine + session factory.
+Session-per-request `get_db()` dependency'si app.dependencies modulundedir.
+"""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Production / docker-compose: PostgreSQL
-# Local hizli demo: SQLite (DATABASE_URL=sqlite:///./arkus.db)
-SQLALCHEMY_DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://arkus:arkuspassword@localhost:5432/arkus_db"
-)
+from app.config import settings
 
-# SQLite ozel connect_args
-connect_args = {}
-if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+# SQLite icin pool/thread ayari
+connect_args: dict = {}
+if settings.DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args=connect_args)
+engine = create_engine(settings.DATABASE_URL, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()

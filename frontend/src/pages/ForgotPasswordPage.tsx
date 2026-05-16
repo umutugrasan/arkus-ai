@@ -4,8 +4,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, KeyRound, Zap, ArrowLeft, Eye, EyeOff, Send } from 'lucide-react';
 import { authService } from '../services';
 import { useToast } from '../context/ToastContext';
+import { useI18n } from '../context/I18nContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import LanguageSwitcher from '../components/ui/LanguageSwitcher';
 import { getErrorMessage } from '../utils/errors';
 
 type Step = 'request' | 'reset' | 'done';
@@ -13,6 +15,7 @@ type Step = 'request' | 'reset' | 'done';
 export default function ForgotPasswordPage() {
   const toast = useToast();
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const [step, setStep] = useState<Step>('request');
   const [email, setEmail] = useState('');
@@ -28,10 +31,10 @@ export default function ForgotPasswordPage() {
     setSubmitting(true);
     try {
       const r = await authService.forgotPassword(email);
-      toast.success(r.message || 'E-posta gonderildi (eger kayitliysa)');
+      toast.success(r.message || t('auth.reset_email_sent'));
       setStep('reset');
     } catch (err) {
-      toast.error(getErrorMessage(err, 'İstek başarısız'));
+      toast.error(getErrorMessage(err, t('auth.reset_request_failed')));
     } finally {
       setSubmitting(false);
     }
@@ -40,25 +43,25 @@ export default function ForgotPasswordPage() {
   const handleReset = async (e: FormEvent) => {
     e.preventDefault();
     if (!resetToken || !newPassword) {
-      toast.error('Token ve yeni şifre gerekli');
+      toast.error(t('auth.reset_token_required'));
       return;
     }
     if (newPassword.length < 8) {
-      toast.error('Şifre en az 8 karakter olmalı');
+      toast.error(t('auth.reset_password_short'));
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error('Şifreler eşleşmiyor');
+      toast.error(t('auth.password_mismatch'));
       return;
     }
     setSubmitting(true);
     try {
       await authService.resetPassword(resetToken, newPassword);
-      toast.success('Şifre sıfırlandı, giriş yapabilirsin');
+      toast.success(t('auth.reset_success'));
       setStep('done');
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
-      toast.error(getErrorMessage(err, 'Sıfırlama başarısız'));
+      toast.error(getErrorMessage(err, t('auth.reset_failed')));
     } finally {
       setSubmitting(false);
     }
@@ -67,35 +70,39 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-[#f9f8f4] relative overflow-hidden">
       <div className="absolute inset-0 -z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-600/20 blur-3xl" />
-        <div className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-violet-600/15 blur-3xl" />
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-amber-100 blur-3xl" />
+        <div className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[#4a3f44]/10 blur-3xl" />
+      </div>
+
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSwitcher />
       </div>
 
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-2xl shadow-indigo-500/40 mb-4">
-              <Zap size={26} className="text-slate-800" />
+            <div className="w-14 h-14 rounded-2xl bg-[#4a3f44] flex items-center justify-center shadow-2xl shadow-[#4a3f44]/30 mb-4">
+              <Zap size={26} className="text-white" />
             </div>
-            <h1 className="text-3xl font-extrabold gradient-text">Arkus AI</h1>
+            <h1 className="text-3xl font-extrabold text-slate-800 tracking-tighter">Arkus AI</h1>
           </div>
 
-          <div className="glass-card p-8 animate-fade-in">
-            <Link to="/login" className="flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-600 mb-4">
-              <ArrowLeft size={12} /> Giriş'e dön
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 animate-fade-in">
+            <Link to="/login" className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#4a3f44] mb-4">
+              <ArrowLeft size={12} /> {t('auth.forgot_back')}
             </Link>
 
             {step === 'request' && (
               <>
-                <h2 className="text-xl font-bold text-slate-800 mb-1">Şifremi Unuttum</h2>
+                <h2 className="text-xl font-bold text-slate-800 mb-1">{t('auth.forgot_title')}</h2>
                 <p className="text-gray-500 text-sm mb-6">
-                  Kayıtlı e-posta adresine sıfırlama bağlantısı göndereceğiz.
+                  {t('auth.forgot_subtitle')}
                 </p>
                 <form onSubmit={handleRequest} className="space-y-4">
                   <Input
-                    label="E-posta"
+                    label={t('auth.email')}
                     type="email"
-                    placeholder="ornek@firma.com"
+                    placeholder={t('auth.email_placeholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     leftIcon={<Mail size={15} />}
@@ -109,7 +116,7 @@ export default function ForgotPasswordPage() {
                     fullWidth
                     leftIcon={<Send size={16} />}
                   >
-                    Sıfırlama Bağlantısı Gönder
+                    {t('auth.forgot_send')}
                   </Button>
                 </form>
               </>
@@ -117,25 +124,25 @@ export default function ForgotPasswordPage() {
 
             {step === 'reset' && (
               <>
-                <h2 className="text-xl font-bold text-slate-800 mb-1">Yeni Şifre Belirle</h2>
+                <h2 className="text-xl font-bold text-slate-800 mb-1">{t('auth.reset_title')}</h2>
                 <p className="text-gray-500 text-sm mb-4">
-                  E-postana gelen sıfırlama token'ını gir ve yeni şifreni belirle.
+                  {t('auth.reset_subtitle')}
                 </p>
 
                 <form onSubmit={handleReset} className="space-y-4">
                   <Input
-                    label="Sıfırlama Token'ı"
+                    label={t('auth.reset_token')}
                     type="text"
-                    placeholder="e-postana gelen kod"
+                    placeholder={t('auth.reset_token_placeholder')}
                     value={resetToken}
                     onChange={(e) => setResetToken(e.target.value)}
                     leftIcon={<KeyRound size={15} />}
                     required
                   />
                   <Input
-                    label="Yeni Şifre"
+                    label={t('auth.reset_new')}
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="En az 8 karakter"
+                    placeholder={t('auth.reset_new_placeholder')}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     leftIcon={<Lock size={15} />}
@@ -152,7 +159,7 @@ export default function ForgotPasswordPage() {
                     required
                   />
                   <Input
-                    label="Şifre (Tekrar)"
+                    label={t('auth.confirm_password')}
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     value={confirmPassword}
@@ -160,7 +167,7 @@ export default function ForgotPasswordPage() {
                     leftIcon={<Lock size={15} />}
                     error={
                       confirmPassword && newPassword !== confirmPassword
-                        ? 'Şifreler eşleşmiyor'
+                        ? t('auth.password_mismatch')
                         : undefined
                     }
                     required
@@ -172,7 +179,7 @@ export default function ForgotPasswordPage() {
                     loading={submitting}
                     fullWidth
                   >
-                    Şifreyi Sıfırla
+                    {t('auth.reset_submit')}
                   </Button>
                 </form>
               </>
@@ -183,8 +190,8 @@ export default function ForgotPasswordPage() {
                 <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto mb-4">
                   <KeyRound size={26} className="text-emerald-400" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-800 mb-2">Şifre Sıfırlandı</h2>
-                <p className="text-gray-500 text-sm">Giriş sayfasına yönlendiriliyorsun…</p>
+                <h2 className="text-xl font-bold text-slate-800 mb-2">{t('auth.reset_done')}</h2>
+                <p className="text-gray-500 text-sm">{t('auth.reset_done_desc')}</p>
               </div>
             )}
           </div>

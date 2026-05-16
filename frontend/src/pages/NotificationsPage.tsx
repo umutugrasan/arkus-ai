@@ -1,27 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Bell, CheckCheck, RefreshCw, Info, AlertTriangle, XCircle } from 'lucide-react';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import EmptyState from '../components/shared/EmptyState';
 import { notificationService } from '../services';
 import { formatDate } from '../utils/formatters';
+import { useI18n } from '../context/I18nContext';
 import type { NotificationItem, NotificationsResponse } from '../types/api';
 
 type FilterType = 'all' | 'unread' | 'stok_uyarisi' | 'puan_dususu' | 'rakip_fiyat' | 'tedarikci_indirimi';
 
-const SEVERITY_CONFIG: Record<string, { icon: React.ReactNode; text: string; bg: string; label: string }> = {
-  critical: { icon: <XCircle size={14} />, text: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/30', label: 'Kritik' },
-  warning:  { icon: <AlertTriangle size={14} />, text: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30', label: 'Uyarı' },
-  info:     { icon: <Info size={14} />, text: 'text-indigo-600', bg: 'bg-indigo-50 border-indigo-500/30', label: 'Bilgi' },
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  stok_uyarisi: '📦 Stok Uyarısı',
-  puan_dususu: '⭐ Puan Düşüşü',
-  rakip_fiyat: '💰 Rakip Fiyat',
-  tedarikci_indirimi: '🏷️ Tedarikçi İndirimi',
-};
-
 export default function NotificationsPage() {
+  const { t } = useI18n();
+  const SEVERITY_CONFIG: Record<string, { icon: React.ReactNode; text: string; bg: string; label: string }> = useMemo(() => ({
+    critical: { icon: <XCircle size={14} />, text: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/30', label: t('notifications.severity_critical') },
+    warning:  { icon: <AlertTriangle size={14} />, text: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30', label: t('notifications.severity_warning') },
+    info:     { icon: <Info size={14} />, text: 'text-[#4a3f44]', bg: 'bg-[#4a3f44]/10 border-[#4a3f44]/30', label: t('notifications.severity_info') },
+  }), [t]);
+
+  const TYPE_LABELS: Record<string, string> = useMemo(() => ({
+    stok_uyarisi: '📦 ' + t('notifications.filter_stock').replace('📦 ', ''),
+    puan_dususu: '⭐ ' + t('notifications.filter_rating').replace('⭐ ', ''),
+    rakip_fiyat: '💰 ' + t('notifications.filter_competitor').replace('💰 ', ''),
+    tedarikci_indirimi: '🏷️ ' + t('notifications.filter_discount').replace('🏷️ ', ''),
+  }), [t]);
+
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [filter, setFilter] = useState<FilterType>('all');
@@ -69,41 +71,41 @@ export default function NotificationsPage() {
   };
 
   const filters: { id: FilterType; label: string }[] = [
-    { id: 'all', label: 'Tümü' },
-    { id: 'unread', label: `Okunmamış (${unreadCount})` },
-    { id: 'stok_uyarisi', label: '📦 Stok' },
-    { id: 'puan_dususu', label: '⭐ Puan' },
-    { id: 'rakip_fiyat', label: '💰 Rakip Fiyat' },
-    { id: 'tedarikci_indirimi', label: '🏷️ İndirim' },
+    { id: 'all', label: t('notifications.filter_all') },
+    { id: 'unread', label: `${t('notifications.filter_unread')} (${unreadCount})` },
+    { id: 'stok_uyarisi', label: t('notifications.filter_stock') },
+    { id: 'puan_dususu', label: t('notifications.filter_rating') },
+    { id: 'rakip_fiyat', label: t('notifications.filter_competitor') },
+    { id: 'tedarikci_indirimi', label: t('notifications.filter_discount') },
   ];
 
-  if (loading) return <LoadingSpinner message="Bildirimler yükleniyor…" size="lg" />;
+  if (loading) return <LoadingSpinner message={t('notifications.loading')} size="lg" />;
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-indigo-50 rounded-xl">
-            <Bell size={18} className="text-indigo-600" />
+          <div className="p-2 bg-[#4a3f44]/10 rounded-xl">
+            <Bell size={18} className="text-[#4a3f44]" />
           </div>
           <div>
-            <h2 className="text-slate-800 font-semibold">Bildirimler</h2>
-            {unreadCount > 0 && <p className="text-gray-500 text-xs">{unreadCount} okunmamış</p>}
+            <h2 className="text-slate-800 font-semibold">{t('notifications.title')}</h2>
+            {unreadCount > 0 && <p className="text-gray-500 text-xs">{unreadCount} {t('notifications.unread_count')}</p>}
           </div>
         </div>
         <div className="flex gap-2">
           {unreadCount > 0 && (
             <button onClick={handleMarkAll} disabled={markingAll}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm bg-white hover:bg-slate-700 text-gray-600 rounded-xl transition-all disabled:opacity-50">
+              className="flex items-center gap-1.5 px-3 py-2 text-sm bg-white hover:bg-slate-100 text-gray-600 rounded-xl transition-all disabled:opacity-50">
               {markingAll ? <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" /> : <CheckCheck size={14} />}
-              Tümünü Oku
+              {t('notifications.mark_all')}
             </button>
           )}
           <button onClick={handleGenerate} disabled={generating}
             className="flex items-center gap-1.5 px-3 py-2 text-sm bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl transition-all disabled:opacity-50">
             {generating ? <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> : <RefreshCw size={14} />}
-            Bildirimleri Tara
+            {t('notifications.scan')}
           </button>
         </div>
       </div>
@@ -120,7 +122,7 @@ export default function NotificationsPage() {
 
       {/* Bildirim Listesi */}
       {notifications.length === 0
-        ? <EmptyState title="Bildirim Yok" description='Henüz bildirim yok. "Bildirimleri Tara" butonuyla otomatik bildirim oluşturun.' />
+        ? <EmptyState title={t('notifications.empty_title')} description={t('notifications.empty_desc')} />
         : (
           <div className="space-y-2">
             {notifications.map(n => {
@@ -138,7 +140,7 @@ export default function NotificationsPage() {
                       <div>
                         <div className="flex items-center gap-2 mb-0.5">
                           <p className={`text-sm font-semibold ${!n.read ? 'text-slate-800' : 'text-gray-500'}`}>{n.title}</p>
-                          {!n.read && <span className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0" />}
+                          {!n.read && <span className="w-2 h-2 bg-[#4a3f44] rounded-full flex-shrink-0" />}
                         </div>
                         <p className="text-gray-500 text-xs leading-relaxed">{n.message}</p>
                         <div className="flex items-center gap-2 mt-1">

@@ -4,14 +4,17 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Store, Eye, EyeOff, UserPlus, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useI18n } from '../context/I18nContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import LanguageSwitcher from '../components/ui/LanguageSwitcher';
 import { getErrorMessage } from '../utils/errors';
 
 export default function RegisterPage() {
   const { register, user, isLoading: authLoading } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -26,20 +29,20 @@ export default function RegisterPage() {
   }
 
   const validatePassword = (p: string): string | null => {
-    if (p.length < 8) return 'Şifre en az 8 karakter olmalı';
-    if (!/[A-Za-z]/.test(p)) return 'Şifre en az bir harf içermeli';
-    if (!/[0-9]/.test(p)) return 'Şifre en az bir rakam içermeli';
+    if (p.length < 8) return t('auth.password_min');
+    if (!/[A-Za-z]/.test(p)) return t('auth.password_letter');
+    if (!/[0-9]/.test(p)) return t('auth.password_digit');
     return null;
   };
 
   const passwordError = password ? validatePassword(password) : null;
   const confirmError =
-    confirmPassword && password !== confirmPassword ? 'Şifreler eşleşmiyor' : null;
+    confirmPassword && password !== confirmPassword ? t('auth.password_mismatch') : null;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!name || !email || !password) {
-      toast.error('Ad, e-posta ve şifre alanları gerekli');
+      toast.error(t('auth.register_required'));
       return;
     }
     const pErr = validatePassword(password);
@@ -48,16 +51,16 @@ export default function RegisterPage() {
       return;
     }
     if (password !== confirmPassword) {
-      toast.error('Şifreler eşleşmiyor');
+      toast.error(t('auth.password_mismatch'));
       return;
     }
     setSubmitting(true);
     try {
       await register(name, email, password, storeName);
-      toast.success('Kayıt başarılı! Hoş geldin.');
+      toast.success(t('auth.register_success'));
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      toast.error(getErrorMessage(err, 'Kayıt olunamadı'));
+      toast.error(getErrorMessage(err, t('auth.register_failed')));
     } finally {
       setSubmitting(false);
     }
@@ -70,25 +73,29 @@ export default function RegisterPage() {
         <div className="absolute bottom-[-15%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-50 blur-3xl" />
       </div>
 
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSwitcher />
+      </div>
+
       <div className="relative z-10 w-full max-w-md p-4">
         <div className="flex flex-col items-center mb-8">
           <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-24 h-24 object-contain mb-4 drop-shadow-md" />
           <h1 className="text-5xl font-black text-slate-800 tracking-tighter">Arkus</h1>
-          <p className="text-gray-500 text-sm mt-1 font-medium">14 günlük ücretsiz dene</p>
+          <p className="text-gray-500 text-sm mt-1 font-medium">{t('auth.free_trial')}</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 animate-fade-in">
-          <h2 className="text-xl font-bold text-slate-800 mb-1">Hesap Oluştur</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-1">{t('auth.create_account')}</h2>
           <p className="text-gray-500 text-sm mb-6">
-            E-ticaret işini bir üst seviyeye taşı.
+            {t('auth.register_subtitle')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Ad Soyad"
+              label={t('auth.name')}
               type="text"
               name="name"
-              placeholder="Mehmet Yılmaz"
+              placeholder={t('auth.name_placeholder')}
               autoComplete="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -97,10 +104,10 @@ export default function RegisterPage() {
             />
 
             <Input
-              label="E-posta"
+              label={t('auth.email')}
               type="email"
               name="email"
-              placeholder="ornek@firma.com"
+              placeholder={t('auth.email_placeholder')}
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -109,26 +116,26 @@ export default function RegisterPage() {
             />
 
             <Input
-              label="Mağaza Adı (opsiyonel)"
+              label={t('auth.store_name')}
               type="text"
               name="storeName"
-              placeholder="TechStore TR"
+              placeholder={t('auth.store_placeholder')}
               value={storeName}
               onChange={(e) => setStoreName(e.target.value)}
               leftIcon={<Store size={15} />}
             />
 
             <Input
-              label="Şifre"
+              label={t('auth.password')}
               type={showPassword ? 'text' : 'password'}
               name="password"
-              placeholder="En az 8 karakter, harf+rakam"
+              placeholder={t('auth.password_placeholder_short')}
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               leftIcon={<Lock size={15} />}
               error={passwordError ?? undefined}
-              hint="En az 8 karakter, harf ve rakam içermeli"
+              hint={t('auth.password_hint')}
               rightAddon={
                 <button
                   type="button"
@@ -143,7 +150,7 @@ export default function RegisterPage() {
             />
 
             <Input
-              label="Şifre (Tekrar)"
+              label={t('auth.confirm_password')}
               type={showPassword ? 'text' : 'password'}
               name="confirmPassword"
               placeholder="••••••••"
@@ -172,24 +179,24 @@ export default function RegisterPage() {
               disabled={!!passwordError || !!confirmError}
               className="bg-[#4a3f44] hover:bg-[#6b6266] border-none shadow-md"
             >
-              Kayıt Ol
+              {t('auth.register')}
             </Button>
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-6 font-medium">
-            Zaten hesabın var mı?{' '}
+            {t('auth.has_account')}{' '}
             <Link to="/login" className="text-[#4a3f44] hover:text-slate-800 font-bold transition-colors">
-              Giriş yap
+              {t('auth.sign_in')}
             </Link>
           </p>
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6 font-medium">
-          Kayıt olarak{' '}
-          <a href="#" className="text-gray-500 hover:text-gray-700">Hizmet Şartları</a>'nı
-          ve{' '}
-          <a href="#" className="text-gray-500 hover:text-gray-700">Gizlilik Politikası</a>'nı
-          kabul etmiş olursun.
+          {t('auth.terms_prefix')}{' '}
+          <a href="#" className="text-gray-500 hover:text-gray-700">{t('auth.terms_link')}</a>
+          {t('auth.terms_and')}{' '}
+          <a href="#" className="text-gray-500 hover:text-gray-700">{t('auth.privacy_link')}</a>
+          {t('auth.terms_suffix')}
         </p>
       </div>
     </div>

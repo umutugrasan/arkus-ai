@@ -97,7 +97,7 @@ export default function ImageAnalyzerPage() {
             <label className="text-gray-500 text-xs block mb-1">Özel Görsel URL (opsiyonel)</label>
             <input value={customImageUrl} onChange={e => setCustomImageUrl(e.target.value)}
               placeholder="https://…"
-              className="w-full bg-white border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" />
+              className="w-full bg-white border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#4a3f44]" />
           </div>
           <div className="flex gap-2">
             <button onClick={handleAnalyze} disabled={analyzing}
@@ -106,7 +106,7 @@ export default function ImageAnalyzerPage() {
               Analiz Et
             </button>
             <button onClick={handleSuggestions} disabled={analyzing}
-              className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-slate-800 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 bg-[#6b6266] hover:bg-[#4a3f44] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
               {analyzing ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
               İyileştirme Öner
             </button>

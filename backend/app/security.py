@@ -21,12 +21,20 @@ def hash_password(plain: str) -> str:
     return bcrypt.hashpw(plain.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
+def _is_legacy_sha256_hash(hashed: str) -> bool:
+    """64 hex karakter -> eski sha256 formati."""
+    return len(hashed) == 64 and all(c in "0123456789abcdef" for c in hashed)
+
+
 def verify_password(plain: str, hashed: str) -> bool:
     if not hashed:
         return False
     try:
-        # Eski sha256 hash'lerine geriye donuk uyumluluk: 64 hex char ise sha256
-        if len(hashed) == 64 and all(c in "0123456789abcdef" for c in hashed):
+        if _is_legacy_sha256_hash(hashed):
+            # Yalnizca flag aciksa eski sha256 hash'lerini kabul et.
+            # Migration tamamlandiginda ALLOW_LEGACY_SHA256_PASSWORDS=false ile kapatilir.
+            if not settings.ALLOW_LEGACY_SHA256_PASSWORDS:
+                return False
             import hashlib
             return hashlib.sha256(plain.encode()).hexdigest() == hashed
         return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
@@ -38,7 +46,7 @@ def needs_rehash(hashed: str) -> bool:
     """sha256 ile saklanmis eski parolayi bcrypt'e yukseltmek icin login sonrasi cagrilir."""
     if not hashed:
         return False
-    return len(hashed) == 64 and all(c in "0123456789abcdef" for c in hashed)
+    return _is_legacy_sha256_hash(hashed)
 
 
 # ---- JWT ----

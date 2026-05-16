@@ -298,7 +298,6 @@ def seed_db(db: Session):
     db.commit()
 
     logger.info("Database seeded successfully via mock-api (15 tables + sellers).")
-    print("Database seeded successfully via mock-api (15 tables + sellers).")
 
 
 def refresh_demo_dates(db: Session) -> None:

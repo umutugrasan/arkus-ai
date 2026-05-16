@@ -18,7 +18,6 @@ const PAGE_TITLES: Array<[string, TranslationKey]> = [
   ['/sourcing', 'nav.sourcing'],
   ['/listing-optimizer', 'nav.listing_optimizer'],
   ['/image-analyzer', 'nav.image_analyzer'],
-  ['/showme', 'nav.showme'],
   ['/chat', 'nav.chat'],
   ['/notifications', 'nav.notifications'],
   ['/reports', 'nav.reports'],

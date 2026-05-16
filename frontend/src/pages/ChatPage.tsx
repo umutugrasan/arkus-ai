@@ -235,7 +235,7 @@ export default function ChatPage() {
             placeholder="Sorunuzu yazın… (Enter gönder, Shift+Enter yeni satır)"
             rows={1}
             disabled={sending || streaming}
-            className="w-full bg-gray-50 border border-gray-200 focus:border-indigo-500 text-slate-800 rounded-2xl px-4 py-3 text-sm resize-none outline-none transition-all disabled:opacity-50 placeholder:text-gray-500"
+            className="w-full bg-gray-50 border border-gray-200 focus:border-[#4a3f44] text-slate-800 rounded-2xl px-4 py-3 text-sm resize-none outline-none transition-all disabled:opacity-50 placeholder:text-gray-500"
             style={{ minHeight: 48, maxHeight: 160 }}
             onInput={e => {
               const t = e.target as HTMLTextAreaElement;
@@ -247,7 +247,7 @@ export default function ChatPage() {
         <button
           onClick={handleSend}
           disabled={!input.trim() || sending || streaming}
-          className="flex-shrink-0 w-12 h-12 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-slate-800 rounded-2xl flex items-center justify-center transition-all shadow-lg shadow-indigo-500/20"
+          className="flex-shrink-0 w-12 h-12 bg-[#4a3f44] hover:bg-[#6b6266] disabled:opacity-40 text-white rounded-2xl flex items-center justify-center transition-all shadow-lg shadow-[#4a3f44]/20"
         >
           {sending || streaming ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
         </button>

@@ -75,6 +75,8 @@ def get_trends(period: int = 30, user=Depends(get_current_user), db=Depends(get_
     Orders tablosundan tarih bazli gelir/satis/iade trendi cikarir.
     period=7  -> son 7 gun, gunluk
     period=30 -> son 30 gun, haftalik 4 grup
+    Hicbir order yoksa veya tum aktivite sifirsa, frontend'in EmptyState
+    gosterebilmesi icin daily/weekly bos array doner.
     """
     today = datetime.now().date()
     start = today - timedelta(days=period)
@@ -102,6 +104,9 @@ def get_trends(period: int = 30, user=Depends(get_current_user), db=Depends(get_
             {"date": d, **{k: round(v, 2) if isinstance(v, float) else v for k, v in vals.items()}}
             for d, vals in sorted(buckets.items())
         ]
+        # Eger hicbir gunde aktivite yoksa, dummy 0-fill grafik yerine bos dön.
+        if not any(d["revenue"] or d["sales"] or d["returns"] for d in daily):
+            return {"period": "7 gun", "daily": []}
         return {"period": "7 gun", "daily": daily}
 
     # period=30 -> 4 haftaya bol
@@ -119,6 +124,8 @@ def get_trends(period: int = 30, user=Depends(get_current_user), db=Depends(get_
             weeks[idx]["returns"] += o.quantity or 0
     for w in weeks:
         w["revenue"] = round(w["revenue"], 2)
+    if not any(w["revenue"] or w["sales"] or w["returns"] for w in weeks):
+        return {"period": "30 gun", "weekly": []}
     return {"period": "30 gun", "weekly": weeks}
 
 
