@@ -48,21 +48,35 @@ def fetch_raw_marketplace_data(marketplace_name: str, api_key: Optional[str] = N
         return None
     url = f"{MOCK_API_BASE}/{slug}/products"
     try:
-        with httpx.Client(timeout=8.0) as client:
-            resp = client.get(url, headers={"X-API-KEY": api_key})
-            if resp.status_code != 200:
-                logger.warning(f"mock-api {slug} non-200 ({resp.status_code})")
+        with httpx.Client(timeout=10.0) as client:
+            headers = {"X-API-KEY": api_key}
+            
+            # 1. Urunleri cek
+            prod_resp = client.get(f"{MOCK_API_BASE}/{slug}/products", headers=headers)
+            if prod_resp.status_code != 200:
+                logger.warning(f"mock-api {slug} products error ({prod_resp.status_code})")
                 return None
-            data = resp.json()
+            
+            prod_data = prod_resp.json()
+            
+            # 2. Yorumları cek
+            rev_resp = client.get(f"{MOCK_API_BASE}/{slug}/reviews", headers=headers)
+            reviews = []
+            if rev_resp.status_code == 200:
+                reviews = rev_resp.json().get("reviews", [])
+            else:
+                logger.warning(f"mock-api {slug} reviews error ({rev_resp.status_code})")
+
             return {
-                "store_name": data.get("store_name"),
-                "store_rating": data.get("store_rating"),
-                "commission_rate": data.get("commission_rate"),
-                "ad_spend_30d": data.get("ad_spend_30d"),
-                "products": data.get("products", []),
+                "store_name": prod_data.get("store_name"),
+                "store_rating": prod_data.get("store_rating"),
+                "commission_rate": prod_data.get("commission_rate"),
+                "ad_spend_30d": prod_data.get("ad_spend_30d"),
+                "products": prod_data.get("products", []),
+                "reviews": reviews
             }
     except Exception as e:
-        logger.error(f"mock-api {slug} failed: {type(e).__name__}: {e}")
+        logger.error(f"mock-api {slug} fetch failed: {type(e).__name__}: {e}")
         return None
 
 

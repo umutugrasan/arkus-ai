@@ -88,11 +88,15 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
         `}
       >
         <div className="flex items-center justify-between p-6">
-          <NavLink to="/dashboard" onClick={onClose} className="flex items-center gap-3">
-            <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-12 h-12 object-contain" />
-            <div>
-              <h1 className="font-bold text-xl leading-tight text-slate-800 tracking-tighter">Arkus</h1>
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">AI Zekası</p>
+          <NavLink to="/dashboard" onClick={onClose} className="flex items-center gap-4 group">
+            <img 
+              src="/assets/logos/logo-bird.png" 
+              alt="Arkus Logo" 
+              className="w-12 h-12 object-contain group-hover:scale-105 transition-transform duration-300" 
+            />
+            <div className="flex flex-col justify-center">
+              <h1 className="font-black text-2xl leading-none text-slate-800 tracking-tighter">Arkus</h1>
+              <p className="text-[8px] text-indigo-600/70 font-black uppercase tracking-[0.25em] mt-1">AI SOLUTIONS</p>
             </div>
           </NavLink>
           <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-slate-800 p-1">

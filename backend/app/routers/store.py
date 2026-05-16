@@ -246,6 +246,16 @@ def _sync_products_for_marketplace(db, user, mp_row: Marketplace) -> int:
                 ))
         count += 1
 
+    # Yorumlari kaydet
+    for r in raw.get("reviews", []):
+        db.add(Review(
+            product_code=r.get("product_id"),
+            marketplace_name=mp_row.name,
+            rating=r.get("rating"),
+            text=r.get("text"),
+            date=r.get("date") or _now(),
+        ))
+
     db.commit()
     return count
 
