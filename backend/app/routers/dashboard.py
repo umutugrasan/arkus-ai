@@ -73,11 +73,11 @@ def get_marketplace_summary(user=Depends(get_current_user)):
 def get_trends(period: int = 30, user=Depends(get_current_user), db=Depends(get_db)):
     """
     Orders tablosundan tarih bazli gelir/satis/iade trendi cikarir.
+    Order verisi yoksa mock API marketplace verilerinden sentetik trend uretir.
     period=7  -> son 7 gun, gunluk
     period=30 -> son 30 gun, haftalik 4 grup
-    Hicbir order yoksa veya tum aktivite sifirsa, frontend'in EmptyState
-    gosterebilmesi icin daily/weekly bos array doner.
     """
+    import math
     today = datetime.now().date()
     start = today - timedelta(days=period)
 
@@ -87,8 +87,10 @@ def get_trends(period: int = 30, user=Depends(get_current_user), db=Depends(get_
         .all()
     )
 
+    # ── Gercek Order verisi varsa normal akis ─────────────────────────────────
+    has_real_data = len(user_orders) > 0
+
     if period == 7:
-        # gunluk grupla
         buckets = {(start + timedelta(days=i)).isoformat(): {"revenue": 0.0, "sales": 0, "returns": 0}
                    for i in range(period + 1)}
         for o in user_orders:
@@ -104,12 +106,48 @@ def get_trends(period: int = 30, user=Depends(get_current_user), db=Depends(get_
             {"date": d, **{k: round(v, 2) if isinstance(v, float) else v for k, v in vals.items()}}
             for d, vals in sorted(buckets.items())
         ]
-        # Eger hicbir gunde aktivite yoksa, dummy 0-fill grafik yerine bos dön.
-        if not any(d["revenue"] or d["sales"] or d["returns"] for d in daily):
-            return {"period": "7 gun", "daily": []}
-        return {"period": "7 gun", "daily": daily}
+        if has_real_data and any(d["revenue"] or d["sales"] or d["returns"] for d in daily):
+            return {"period": "7 gun", "daily": daily}
 
-    # period=30 -> 4 haftaya bol
+        # ── Fallback: mock API'den sentetik gunluk trend ─────────────────────
+        marketplaces = fetch_all_marketplaces(user.id)
+        total_rev_30d = 0.0
+        total_sales_30d = 0
+        total_returns_30d = 0
+        for mp in marketplaces:
+            mp_data = fetch_store_info(mp, user.id)
+            if not mp_data:
+                continue
+            for p in mp_data.get("products", []):
+                price = p.get("price", 0) or 0
+                sales = p.get("sales_30d", 0) or 0
+                total_rev_30d += price * sales
+                total_sales_30d += sales
+                return_rate = p.get("return_rate", 0.04) or 0.04
+                total_returns_30d += int(sales * return_rate)
+
+        if total_rev_30d == 0:
+            return {"period": "7 gun", "daily": []}
+
+        # 30 gunluk toplami 7 gune dagit; hafta sonu biraz daha yuksek
+        daily_avg_rev = total_rev_30d / 30
+        daily_avg_sales = total_sales_30d / 30
+        daily_avg_returns = total_returns_30d / 30
+        # Salinim katsayilari (Pazartesi=1.0 ... Cumartesi=1.25 ... Pazar=1.15)
+        day_weights = [1.0, 1.05, 1.1, 1.2, 1.3, 1.25, 1.15]
+        synthetic_daily = []
+        for i in range(period + 1):
+            d = start + timedelta(days=i)
+            w = day_weights[d.weekday()]
+            synthetic_daily.append({
+                "date": d.isoformat(),
+                "revenue": round(daily_avg_rev * w, 2),
+                "sales": max(1, int(daily_avg_sales * w)),
+                "returns": max(0, int(daily_avg_returns * w)),
+            })
+        return {"period": "7 gun", "daily": synthetic_daily, "synthetic": True}
+
+    # ── period=30 → 4 haftaya bol ─────────────────────────────────────────────
     weeks = [{"week": f"Hafta {i+1}", "revenue": 0.0, "sales": 0, "returns": 0} for i in range(4)]
     for o in user_orders:
         try:
@@ -124,9 +162,42 @@ def get_trends(period: int = 30, user=Depends(get_current_user), db=Depends(get_
             weeks[idx]["returns"] += o.quantity or 0
     for w in weeks:
         w["revenue"] = round(w["revenue"], 2)
-    if not any(w["revenue"] or w["sales"] or w["returns"] for w in weeks):
+
+    if has_real_data and any(w["revenue"] or w["sales"] or w["returns"] for w in weeks):
+        return {"period": "30 gun", "weekly": weeks}
+
+    # ── Fallback: mock API'den sentetik haftalik trend ────────────────────────
+    marketplaces = fetch_all_marketplaces(user.id)
+    total_rev_30d = 0.0
+    total_sales_30d = 0
+    total_returns_30d = 0
+    for mp in marketplaces:
+        mp_data = fetch_store_info(mp, user.id)
+        if not mp_data:
+            continue
+        for p in mp_data.get("products", []):
+            price = p.get("price", 0) or 0
+            sales = p.get("sales_30d", 0) or 0
+            total_rev_30d += price * sales
+            total_sales_30d += sales
+            return_rate = p.get("return_rate", 0.04) or 0.04
+            total_returns_30d += int(sales * return_rate)
+
+    if total_rev_30d == 0:
         return {"period": "30 gun", "weekly": []}
-    return {"period": "30 gun", "weekly": weeks}
+
+    # 30 gunluk geliri 4 haftaya biraz artarak dagit
+    week_weights = [0.22, 0.24, 0.26, 0.28]
+    synthetic_weeks = []
+    for i, label in enumerate(["Hafta 1", "Hafta 2", "Hafta 3", "Hafta 4"]):
+        ww = week_weights[i]
+        synthetic_weeks.append({
+            "week": label,
+            "revenue": round(total_rev_30d * ww, 2),
+            "sales": max(1, int(total_sales_30d * ww)),
+            "returns": max(0, int(total_returns_30d * ww)),
+        })
+    return {"period": "30 gun", "weekly": synthetic_weeks, "synthetic": True}
 
 
 @router.get("/ai-summary")
