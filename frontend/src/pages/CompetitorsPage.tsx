@@ -155,13 +155,15 @@ export default function CompetitorsPage() {
         </div>
       </GlassCard>
 
-      <div className="flex gap-2">
-        {(['list', 'pricemap', 'track'] as SubTab[]).map(tb => (
-          <button key={tb} onClick={() => setTab(tb)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === tb ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)]' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>
-            {tabLabel(tb)}
-          </button>
-        ))}
+      <div className="overflow-x-auto -mx-1 px-1">
+        <div className="flex gap-2 min-w-fit">
+          {(['list', 'pricemap', 'track'] as SubTab[]).map(tb => (
+            <button key={tb} onClick={() => setTab(tb)}
+              className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === tb ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)]' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>
+              {tabLabel(tb)}
+            </button>
+          ))}
+        </div>
       </div>
 
       {tab === 'list' && (
@@ -268,8 +270,8 @@ export default function CompetitorsPage() {
       )}
 
       <GlassCard>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600 dark:text-indigo-300" /> {t('competitors.ai_analysis')}</h3>
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-indigo-600 dark:text-indigo-300" /> {t('competitors.ai_analysis')}</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading || !selectedProduct}
             className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> {t('common.analyzing')}</> : <><Brain size={14} /> {t('competitors.detailed_analysis')}</>}

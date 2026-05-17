@@ -128,7 +128,7 @@ export default function ChatPage() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-7rem)] animate-fade-in">
+    <div className="flex flex-col h-[calc(100dvh-7rem)] animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">

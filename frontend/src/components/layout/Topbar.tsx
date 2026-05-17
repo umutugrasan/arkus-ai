@@ -59,7 +59,7 @@ export default function Topbar({ onMenuClick, pageTitle, unreadCount, onUnreadRe
   };
 
   return (
-    <header className="h-16 bg-[var(--accent-solid)] text-white flex items-center px-8 gap-4 sticky top-0 z-20 shrink-0">
+    <header className="h-16 bg-[var(--accent-solid)] text-white flex items-center px-4 sm:px-6 gap-3 sm:gap-4 sticky top-0 z-20 shrink-0">
       <button
         onClick={onMenuClick}
         className="lg:hidden p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
@@ -70,7 +70,7 @@ export default function Topbar({ onMenuClick, pageTitle, unreadCount, onUnreadRe
 
       <h2 className="font-semibold text-sm flex-1 truncate">{pageTitle}</h2>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3 sm:gap-6">
         {/* Sync (tüm pazaryerlerini yenile) */}
         <button
           title={t('topbar.sync_all')}

@@ -167,22 +167,22 @@ export default function ProductsPage() {
 
       {/* Tüm ürünler */}
       <GlassCard className="p-5">
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <h3 className="text-[var(--text-primary)] font-semibold flex-1">{t('products.all_products')}</h3>
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 mb-4">
+          <h3 className="text-[var(--text-primary)] font-semibold sm:flex-1">{t('products.all_products')}</h3>
           <Input
             placeholder={t('products.search_placeholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             leftIcon={<Search size={14} />}
             fullWidth={false}
-            className="w-64"
+            className="w-full sm:w-64"
           />
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <Filter size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl pl-8 pr-3 py-2.5 text-sm text-[var(--text-primary)] outline-none"
+              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl pl-8 pr-3 py-2.5 text-sm text-[var(--text-primary)] outline-none"
             >
               <option value="">{t('products.all_categories')}</option>
               {categories.map((c) => (
@@ -190,12 +190,12 @@ export default function ProductsPage() {
               ))}
             </select>
           </div>
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <ArrowUpDown size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl pl-8 pr-3 py-2.5 text-sm text-[var(--text-primary)] outline-none"
+              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl pl-8 pr-3 py-2.5 text-sm text-[var(--text-primary)] outline-none"
             >
               <option value="total_sales">{t('products.sort_sales')}</option>
               <option value="total_revenue">{t('products.sort_revenue')}</option>

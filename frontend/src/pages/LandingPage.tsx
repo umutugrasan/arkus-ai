@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Bot,
@@ -11,6 +12,8 @@ import {
   Compass,
   Sparkles,
   BookOpen,
+  Menu,
+  X,
 } from 'lucide-react';
 import NavHeader from '@/components/ui/nav-header';
 import { ThemeToggle } from '@/components/ui/curtain-theme-toggle';
@@ -19,6 +22,7 @@ import { useI18n } from '@/context/I18nContext';
 
 export default function LandingPage() {
   const { t } = useI18n();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const features = [
     { icon: Bot, title: t('landing.feat1_title'), desc: t('landing.feat1_desc') },
@@ -40,8 +44,8 @@ export default function LandingPage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-primary)] backdrop-blur-md border-b border-[var(--border-strong)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-20 h-20 object-contain drop-shadow-sm" />
-            <span className="text-3xl font-black text-[var(--text-primary)] tracking-tighter">
+            <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-14 h-14 sm:w-20 sm:h-20 object-contain drop-shadow-sm" />
+            <span className="hidden sm:inline text-3xl font-black text-[var(--text-primary)] tracking-tighter">
               Arkus
             </span>
           </div>
@@ -58,21 +62,61 @@ export default function LandingPage() {
             />
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <LanguageSwitcher />
             <ThemeToggle variant="icon" buttonSize={36} duration={550} />
 
-            <Link to="/login" className="text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors">
+            <Link to="/login" className="hidden md:block text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors">
               {t('auth.login')}
             </Link>
             <Link
               to="/register"
-              className="bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-md hover:shadow-lg"
+              className="bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-sm font-semibold transition-all shadow-md hover:shadow-lg"
             >
               {t('landing.get_started')}
             </Link>
+
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              className="md:hidden p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)] transition-colors"
+              aria-label="Menüyü aç"
+            >
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile nav dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-[var(--border-strong)] bg-[var(--bg-primary)] px-4 py-4 flex flex-col gap-1">
+            {[
+              { label: t('landing.nav_home'), href: '#top' },
+              { label: t('landing.nav_features'), href: '#ozellikler' },
+              { label: t('landing.nav_how'), href: '#nasil-calisir' },
+              { label: t('landing.nav_about'), href: '#hakkimizda' },
+              { label: t('landing.contact'), href: '#iletisim' },
+            ].map(({ label, href }) => (
+              <a
+                key={href}
+                href={href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)] font-medium text-sm transition-colors"
+              >
+                {label}
+              </a>
+            ))}
+            <div className="border-t border-[var(--border-color)] mt-2 pt-3">
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-4 py-3 rounded-xl text-[var(--text-secondary)] hover:text-[var(--accent)] font-bold text-sm transition-colors"
+              >
+                {t('auth.login')}
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}

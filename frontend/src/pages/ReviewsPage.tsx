@@ -166,12 +166,12 @@ export default function ReviewsPage() {
         subtitle={t('reviews.subtitle')}
         icon={<MessageSquare size={20} />}
         actions={
-          <div className="flex items-center gap-2">
-            <div className="relative">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative w-full sm:w-auto">
               <select
                 value={productId}
                 onChange={(e) => setProductId(e.target.value)}
-                className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl pl-3 pr-8 py-2 text-sm text-[var(--text-primary)] outline-none appearance-none min-w-[220px]"
+                className="w-full sm:min-w-[220px] bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl pl-3 pr-8 py-2 text-sm text-[var(--text-primary)] outline-none appearance-none"
               >
                 {products.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -188,10 +188,10 @@ export default function ReviewsPage() {
       {/* Sentiment + AI controls */}
       <div className="grid lg:grid-cols-3 gap-4">
         <GlassCard className="p-5 lg:col-span-2">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex flex-wrap items-center gap-2 mb-4">
             <Brain size={16} className="text-[var(--accent)]" />
-            <h3 className="text-[var(--text-primary)] font-semibold">{t('reviews.ai_analysis')}</h3>
-            <div className="ml-auto flex items-center gap-2">
+            <h3 className="text-[var(--text-primary)] font-semibold flex-1">{t('reviews.ai_analysis')}</h3>
+            <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-1 bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-lg p-0.5">
                 {(['short', 'detailed'] as Detail[]).map((d) => (
                   <button
@@ -287,15 +287,15 @@ export default function ReviewsPage() {
 
       {/* Filters + Reviews list */}
       <GlassCard className="p-5">
-        <div className="flex flex-wrap items-end gap-3 mb-4">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3 mb-4">
+          <div className="w-full sm:w-auto">
             <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold mb-1">{t('common.marketplace')}</p>
             <div className="relative">
               <Filter size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
               <select
                 value={marketplaceFilter}
                 onChange={(e) => setMarketplaceFilter(e.target.value)}
-                className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl pl-8 pr-3 py-2 text-sm text-[var(--text-primary)] outline-none"
+                className="w-full sm:w-auto bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl pl-8 pr-3 py-2 text-sm text-[var(--text-primary)] outline-none"
               >
                 <option value="all">{t('common.all')}</option>
                 {Object.entries(MARKETPLACES).map(([k, v]) => (
@@ -304,12 +304,12 @@ export default function ReviewsPage() {
               </select>
             </div>
           </div>
-          <div>
+          <div className="w-full sm:w-auto">
             <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold mb-1">{t('common.month')}</p>
             <select
               value={monthFilter}
               onChange={(e) => setMonthFilter(e.target.value)}
-              className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] outline-none"
+              className="w-full sm:w-auto bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] outline-none"
             >
               <option value="">{t('common.all_months')}</option>
               {months.map((m) => (
@@ -317,14 +317,14 @@ export default function ReviewsPage() {
               ))}
             </select>
           </div>
-          <div>
+          <div className="w-full sm:w-auto">
             <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold mb-1">{t('common.last_n')}</p>
             <input
               type="number"
               placeholder={t('reviews.last_n_placeholder')}
               value={lastN}
               onChange={(e) => setLastN(e.target.value ? Number(e.target.value) : '')}
-              className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] outline-none w-24"
+              className="w-full sm:w-24 bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] outline-none"
             />
           </div>
           <Button variant="secondary" size="sm" onClick={fetchReviews} loading={loadingList}>

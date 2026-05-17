@@ -162,8 +162,8 @@ export default function HealthScorePage() {
 
       {/* AI Analiz */}
       <GlassCard>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600 dark:text-indigo-300" /> {t('health.ai_title')}</h3>
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-indigo-600 dark:text-indigo-300" /> {t('health.ai_title')}</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading}
             className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> {t('common.analyzing')}</> : <><Brain size={14} /> {t('common.analyze')}</>}

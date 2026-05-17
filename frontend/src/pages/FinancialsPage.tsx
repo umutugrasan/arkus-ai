@@ -144,13 +144,15 @@ export default function FinancialsPage() {
       )}
 
       <GlassCard>
-        <div className="flex gap-1 mb-5 bg-[var(--bg-muted)] p-1 rounded-xl w-fit">
-          {tabs.map(tb => (
-            <button key={tb.id} onClick={() => setTab(tb.id)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${tab === tb.id ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)] shadow' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>
-              {tb.label}
-            </button>
-          ))}
+        <div className="overflow-x-auto -mx-1 px-1 mb-5">
+          <div className="flex gap-1 bg-[var(--bg-muted)] p-1 rounded-xl w-fit min-w-full sm:min-w-0">
+            {tabs.map(tb => (
+              <button key={tb.id} onClick={() => setTab(tb.id)}
+                className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${tab === tb.id ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)] shadow' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>
+                {tb.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {tab === 'marketplace' && (
@@ -235,7 +237,7 @@ export default function FinancialsPage() {
                 <p className="text-[var(--text-secondary)] text-sm mt-1">{t('financials.runway').replace('{months}', String(cashFlow.runway_months))}</p>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { label: t('financials.cf_balance'), value: formatCurrency(cashFlow.current_balance) },
                 { label: t('financials.cf_monthly_revenue'), value: formatCurrency(cashFlow.monthly_revenue) },
@@ -254,8 +256,8 @@ export default function FinancialsPage() {
       </GlassCard>
 
       <GlassCard>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600 dark:text-indigo-300" /> {t('financials.ai_analysis')}</h3>
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-indigo-600 dark:text-indigo-300" /> {t('financials.ai_analysis')}</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading}
             className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> {t('common.analyzing')}</> : <><Brain size={14} /> {t('common.analyze')}</>}
