@@ -21,6 +21,8 @@ def _get_product_listings(user_id: int, product_code: str) -> list:
             if p["id"] != product_code:
                 continue
             listings.append({
+                "name": p.get("name"),
+                "category": p.get("category"),
                 "marketplace": mp,
                 "price": p["price"],
                 "cost": p["cost"],
@@ -121,7 +123,7 @@ async def analyze_arbitrage(
 
     web_note = (
         f"\n\nEK GOREV: Google Search ile bu urun kategorisi icin Trendyol/Hepsiburada/Amazon TR'de "
-        f"**anlik ortalama satis fiyatlarini** ara: \"{product_id}\". "
+        f"**anlik ortalama satis fiyatlarini** ara: \"{product_name}\". "
         "Pazaryeri arasi gerçek fiyat farkını DB verisiyle karşılaştır."
         if use_web else ""
     )

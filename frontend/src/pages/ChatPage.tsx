@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { chatService } from '../services';
 import { useI18n } from '../context/I18nContext';
+import { streamSSE } from '../utils/streaming';
 import type { ChatHistoryResponse } from '../types/api';
 
 interface Message {
@@ -55,54 +56,40 @@ export default function ChatPage() {
     const userMsg: Message = { role: 'user', text };
     setMessages(prev => [...prev, userMsg]);
 
-    // SSE Streaming
+    setStreaming(true);
+    setStreamText('');
+    let accumulated = '';
+    let streamFailed = false;
+
     try {
-      const token = localStorage.getItem('arkus_access_token') || '';
-      const url = '/api/v1/chat/ask/stream';
-      setStreaming(true);
-      setStreamText('');
-
-      const resp = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      await streamSSE(
+        chatService.askStreamUrl(),
+        {
+          onChunk: (chunk) => {
+            accumulated += chunk;
+            setStreamText(accumulated);
+          },
+          onDone: (data) => {
+            const full = typeof data.full_text === 'string' ? data.full_text : '';
+            if (full) accumulated = full;
+            if (data.error) streamFailed = true;
+          },
+          onError: () => {
+            streamFailed = true;
+          },
         },
-        body: JSON.stringify({ message: text }),
-      });
+        { method: 'POST', body: { message: text } },
+      );
 
-      if (!resp.ok || !resp.body) throw new Error('Stream başlatılamadı');
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = '';
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-        for (const line of lines) {
-          if (line.startsWith('data:')) {
-            try {
-              const data = JSON.parse(line.slice(5).trim());
-              if (data.text) {
-                accumulated += data.text;
-                setStreamText(accumulated);
-              }
-              if (data.full_text) {
-                accumulated = data.full_text;
-                setStreamText(accumulated);
-              }
-            } catch {
-              // Partial SSE chunks can split JSON lines; keep waiting for the next chunk.
-            }
-          }
-        }
+      if (streamFailed && !accumulated) {
+        // Stream koptu ve metin gelmedi → senkron fallback
+        const res = await chatService.ask(text);
+        setMessages(prev => [...prev, { role: 'ai', text: res.answer, created_at: res.created_at }]);
+      } else {
+        setMessages(prev => [...prev, { role: 'ai', text: accumulated || t('chat.error_response') }]);
       }
-
-      setMessages(prev => [...prev, { role: 'ai', text: accumulated }]);
     } catch {
-      // Fallback: senkron ask
+      // streamSSE'nin kendisi atarsa son çare olarak senkron çağrı
       try {
         const res = await chatService.ask(text);
         setMessages(prev => [...prev, { role: 'ai', text: res.answer, created_at: res.created_at }]);

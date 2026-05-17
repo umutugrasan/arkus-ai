@@ -5,7 +5,7 @@ import LoadingSpinner from '../components/shared/LoadingSpinner';
 import EmptyState from '../components/shared/EmptyState';
 import StreamingMarkdown from '../components/shared/StreamingMarkdown';
 import { reportService } from '../services';
-import { tokenStorage } from '../api/client';
+import { streamSSE } from '../utils/streaming';
 import { formatCurrency, formatDate, formatNumber } from '../utils/formatters';
 import { useI18n } from '../context/I18nContext';
 import type { ReportItem } from '../types/api';
@@ -40,33 +40,34 @@ export default function ReportsPage() {
     setGenerating(type);
     setStreamText('');
     setStreaming(true);
+    const url = type === 'daily'
+      ? reportService.generateDailyStreamUrl()
+      : reportService.generateWeeklyStreamUrl();
+    let accumulated = '';
+    let streamFailed = false;
     try {
-      const token = tokenStorage.getAccess() || '';
-      const url = type === 'daily' ? '/api/v1/reports/daily/stream' : '/api/v1/reports/weekly/stream';
-      const resp = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      await streamSSE(
+        url,
+        {
+          onChunk: (chunk) => {
+            accumulated += chunk;
+            setStreamText(accumulated);
+          },
+          onDone: (data) => {
+            const full = typeof data.full_text === 'string' ? data.full_text : '';
+            if (full) {
+              accumulated = full;
+              setStreamText(accumulated);
+            }
+            if (data.error) streamFailed = true;
+          },
+          onError: () => { streamFailed = true; },
         },
-      });
-      if (!resp.ok || !resp.body) throw new Error('Stream başlatılamadı');
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = '';
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split('\n')) {
-          if (line.startsWith('data:')) {
-            try {
-              const data = JSON.parse(line.slice(5).trim());
-              if (data.text) { accumulated += data.text; setStreamText(accumulated); }
-              if (data.full_text) { accumulated = data.full_text; setStreamText(accumulated); }
-            } catch { /* ignore */ }
-          }
-        }
+        { method: 'POST' },
+      );
+      if (streamFailed && !accumulated) {
+        const res = type === 'daily' ? await reportService.generateDaily(true) : await reportService.generateWeekly(true);
+        setStreamText(res.content || '');
       }
     } catch {
       try {

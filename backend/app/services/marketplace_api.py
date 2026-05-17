@@ -12,7 +12,7 @@ import logging
 from typing import List, Dict, Any, Optional
 import httpx
 from app.db.database import SessionLocal
-from app.db.models import Seller, Marketplace, Product, Competitor, Review, Supplier
+from app.db.models import Seller, Marketplace, Product, Competitor, Review, Supplier, Order
 
 logger = logging.getLogger(__name__)
 
@@ -46,13 +46,15 @@ def fetch_raw_marketplace_data(marketplace_name: str, api_key: Optional[str] = N
     if not api_key:
         logger.warning(f"{marketplace_name} icin API key yok")
         return None
-    url = f"{MOCK_API_BASE}/{slug}/products"
+
+    products_url = f"{MOCK_API_BASE}/{slug}/products"
+    reviews_url = f"{MOCK_API_BASE}/{slug}/reviews"
     try:
         with httpx.Client(timeout=10.0) as client:
             headers = {"X-API-KEY": api_key}
-            
+
             # 1. Urunleri cek
-            prod_resp = client.get(f"{MOCK_API_BASE}/{slug}/products", headers=headers)
+            prod_resp = client.get(products_url, headers=headers)
             if prod_resp.status_code != 200:
                 logger.warning(f"mock-api {slug} products error ({prod_resp.status_code})")
                 return None
@@ -60,7 +62,7 @@ def fetch_raw_marketplace_data(marketplace_name: str, api_key: Optional[str] = N
             prod_data = prod_resp.json()
             
             # 2. Yorumları cek
-            rev_resp = client.get(f"{MOCK_API_BASE}/{slug}/reviews", headers=headers)
+            rev_resp = client.get(reviews_url, headers=headers)
             reviews = []
             if rev_resp.status_code == 200:
                 reviews = rev_resp.json().get("reviews", [])
@@ -190,8 +192,27 @@ def fetch_products(marketplace_name: str, user_id: int) -> List[Dict[str, Any]]:
 
 
 def fetch_orders(marketplace_name: str, user_id: int) -> List[Dict[str, Any]]:
-    """Siparis verileri (su an Orders tablosundan)."""
-    return []
+    """Siparis verileri (son 30 gun, DB'den). marketplace='all' ise tum pazaryerleri."""
+    db = _get_db_session()
+    try:
+        q = db.query(Order).filter(Order.user_id == user_id)
+        if marketplace_name and marketplace_name != "all":
+            q = q.filter(Order.marketplace_name == marketplace_name)
+        orders = q.order_by(Order.date.desc()).limit(500).all()
+        return [
+            {
+                "id": o.id,
+                "product_id": o.product_id,
+                "marketplace": o.marketplace_name,
+                "quantity": o.quantity,
+                "total": o.total,
+                "date": o.date,
+                "status": o.status,
+            }
+            for o in orders
+        ]
+    finally:
+        db.close()
 
 
 def fetch_reviews(marketplace: str, user_id: int, product_id: str = "") -> List[Dict[str, Any]]:

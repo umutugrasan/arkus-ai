@@ -1,5 +1,6 @@
 import json
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 from datetime import datetime
 from app.dependencies import get_current_user, get_db
@@ -22,7 +23,7 @@ class ChatMessage(BaseModel):
 
 @router.post("/ask")
 @limiter.limit(settings.RATE_LIMIT_AI_PER_MIN)
-def ask(
+async def ask(
     request: Request,
     msg: ChatMessage,
     user=Depends(get_current_user),
@@ -31,9 +32,11 @@ def ask(
     if not msg.message.strip():
         raise HTTPException(status_code=400, detail="Mesaj bos olamaz")
 
-    # Agent'i lazy import et — startup'ta circular import olmasin
+    # Agent'i lazy import et — startup'ta circular import olmasin.
+    # run_arkus_agent senkron + blocking (Gemini chat). Threadpool'a alarak event loop'u
+    # bloklamiyoruz; ayni anda baska request'ler servis edilebilir.
     from app.agents.arkus_agent import run_arkus_agent
-    response = run_arkus_agent(msg.message, user.id)
+    response = await run_in_threadpool(run_arkus_agent, msg.message, user.id)
 
     record = ChatHistory(
         user_id=user.id,

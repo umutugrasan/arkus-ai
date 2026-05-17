@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from datetime import datetime
@@ -17,6 +18,7 @@ from app.db.models import (
 from app.services.marketplace_api import fetch_raw_marketplace_data, validate_marketplace_api_key
 from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 SUPPORTED_MARKETPLACES = {"trendyol", "hepsiburada", "amazon_tr", "n11"}

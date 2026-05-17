@@ -4,14 +4,14 @@ asyncio.create_task ile arka planda 1 saatte bir tum ajan pipeline'ini calistiri
 .env'de AGENT_INTERVAL_SECONDS ile override edilebilir; 0 ise scheduler kapali.
 """
 
-import os
 import asyncio
 import logging
 from app.agents.orchestrator import run_all_agents_for_all_users
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_INTERVAL_SEC = int(os.getenv("AGENT_INTERVAL_SECONDS", "3600"))  # 1 saat
+DEFAULT_INTERVAL_SEC = settings.AGENT_INTERVAL_SECONDS  # .env'den pydantic ile gelir
 _scheduler_task = None
 
 
