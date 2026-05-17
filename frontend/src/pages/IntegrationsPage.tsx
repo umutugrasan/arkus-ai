@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   AlertCircle,
   CheckCircle2,
@@ -47,6 +47,9 @@ export default function IntegrationsPage() {
   const [newApiKey, setNewApiKey] = useState('');
   const [connecting, setConnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  // 2-tikli inline disconnect onayi: ilk tik state'i set eder, ikinci tik gercek aksiyonu calistirir
+  const [confirmingDisconnect, setConfirmingDisconnect] = useState<string | null>(null);
+  const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setToast({ type, message });
@@ -87,7 +90,16 @@ export default function IntegrationsPage() {
   };
 
   const handleDisconnect = async (mp: string) => {
-    if (!confirm(t('integrations.disconnect_confirm').replace('{mp}', mp))) return;
+    // Ilk tik: onay bekleme moduna gec, 4 sn icinde tekrar tiklanmazsa otomatik iptal
+    if (confirmingDisconnect !== mp) {
+      setConfirmingDisconnect(mp);
+      if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current);
+      confirmTimerRef.current = setTimeout(() => setConfirmingDisconnect(null), 4000);
+      return;
+    }
+    // Ikinci tik: gercek aksiyon
+    if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current);
+    setConfirmingDisconnect(null);
     try {
       await storeService.disconnect(mp);
       setConnections((prev) => prev ? {
@@ -227,10 +239,16 @@ export default function IntegrationsPage() {
                   <span className="text-[var(--text-muted)] text-xs">{t('integrations.removes_data')}</span>
                   <button
                     onClick={() => handleDisconnect(connection.marketplace)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors"
+                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg transition-colors ${
+                      confirmingDisconnect === connection.marketplace
+                        ? 'bg-rose-500 text-white hover:bg-rose-600'
+                        : 'text-rose-500 hover:bg-rose-500/10'
+                    }`}
                   >
                     <Trash2 size={12} />
-                    {t('integrations.remove')}
+                    {confirmingDisconnect === connection.marketplace
+                      ? t('integrations.confirm_remove') || 'Onayla'
+                      : t('integrations.remove')}
                   </button>
                 </div>
               </div>

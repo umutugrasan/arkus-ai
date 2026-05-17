@@ -169,7 +169,7 @@ export default function ImageAnalyzerPage() {
               <h3 className="text-[var(--text-primary)] font-semibold mb-3 flex items-center gap-2"><AlertCircle size={14} className="text-rose-500" /> {t('image.issues')}</h3>
               <div className="space-y-2">
                 {analysis.detected_issues.map((issue, i) => (
-                  <div key={i} className="flex items-start gap-2 text-sm text-rose-600 dark:text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3">
+                  <div key={`issue-${i}-${issue.slice(0, 24)}`} className="flex items-start gap-2 text-sm text-rose-600 dark:text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3">
                     <XCircle size={14} className="flex-shrink-0 mt-0.5 text-rose-500" /> {issue}
                   </div>
                 ))}
@@ -181,7 +181,7 @@ export default function ImageAnalyzerPage() {
               <h3 className="text-[var(--text-primary)] font-semibold mb-3 flex items-center gap-2"><CheckCircle2 size={14} className="text-emerald-500" /> {t('image.positives')}</h3>
               <div className="space-y-1">
                 {analysis.positive_aspects.map((p, i) => (
-                  <div key={i} className="flex items-start gap-2 text-sm text-emerald-600 dark:text-emerald-300">
+                  <div key={`pos-${i}-${p.slice(0, 24)}`} className="flex items-start gap-2 text-sm text-emerald-600 dark:text-emerald-300">
                     <CheckCircle2 size={14} className="flex-shrink-0 mt-0.5" /> {p}
                   </div>
                 ))}
@@ -195,7 +195,7 @@ export default function ImageAnalyzerPage() {
       {tab === 'suggestions' && suggestions && (
         <div className="space-y-3">
           {suggestions.priority_actions.map((a, i) => (
-            <GlassCard key={i}>
+            <GlassCard key={`act-${i}-${(a.action ?? '').slice(0, 24)}`}>
               <div className="flex items-start gap-3">
                 <div className={`flex-shrink-0 p-1.5 rounded-lg text-xs font-bold ${
                   a.difficulty === 'kolay' ? 'bg-emerald-500/20 text-emerald-500' :
@@ -222,7 +222,7 @@ export default function ImageAnalyzerPage() {
               <h3 className="text-[var(--text-primary)] font-semibold mb-2">🛠️ {t('image.tools')}</h3>
               <ul className="space-y-1">
                 {suggestions.tools_to_use.map((tool, i) => (
-                  <li key={i} className="text-[var(--text-secondary)] text-sm flex items-center gap-2">
+                  <li key={`tool-${i}-${tool.slice(0, 24)}`} className="text-[var(--text-secondary)] text-sm flex items-center gap-2">
                     <span className="text-indigo-600 dark:text-indigo-300">•</span> {tool}
                   </li>
                 ))}
@@ -237,8 +237,8 @@ export default function ImageAnalyzerPage() {
         historyData && historyData.analyses.length > 0
           ? (
             <div className="space-y-3">
-              {historyData.analyses.map((a, i) => (
-                <GlassCard key={i}>
+              {historyData.analyses.map((a) => (
+                <GlassCard key={a.id}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[var(--text-muted)] text-xs">{formatDate(a.created_at)}</p>

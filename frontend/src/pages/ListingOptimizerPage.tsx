@@ -156,7 +156,7 @@ export default function ListingOptimizerPage() {
                   <h3 className="text-[var(--text-primary)] font-semibold mb-3 flex items-center gap-2"><AlertCircle size={16} className="text-amber-500" /> {t('listing.warnings')}</h3>
                   <div className="space-y-2">
                     {analysis.warnings.map((w: string, i: number) => (
-                      <div key={i} className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+                      <div key={`warn-${i}-${w.slice(0, 24)}`} className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
                         <AlertCircle size={14} className="flex-shrink-0 mt-0.5" /> {w}
                       </div>
                     ))}
@@ -217,7 +217,7 @@ export default function ListingOptimizerPage() {
                     <h3 className="text-[var(--text-primary)] font-semibold mb-3">🔑 {t('listing.keywords')}</h3>
                     <div className="flex flex-wrap gap-2">
                       {optimizeResult.keywords.map((kw: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-indigo-50 border border-indigo-500/30 rounded-full text-indigo-600 dark:text-indigo-300 text-sm">{kw}</span>
+                        <span key={`kw-${i}-${kw}`} className="px-3 py-1 bg-indigo-50 border border-indigo-500/30 rounded-full text-indigo-600 dark:text-indigo-300 text-sm">{kw}</span>
                       ))}
                     </div>
                   </GlassCard>
@@ -237,7 +237,7 @@ export default function ListingOptimizerPage() {
                     <h3 className="text-[var(--text-primary)] font-semibold mb-3">💡 {t('listing.improvements')}</h3>
                     <div className="space-y-2">
                       {(optimizeResult.improvements as string[]).map((imp: string, i: number) => (
-                        <div key={i} className="flex items-start gap-2 text-sm text-emerald-600 dark:text-emerald-300">
+                        <div key={`imp-${i}-${imp.slice(0, 24)}`} className="flex items-start gap-2 text-sm text-emerald-600 dark:text-emerald-300">
                           <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0 mt-0.5" /> {imp}
                         </div>
                       ))}
@@ -261,8 +261,8 @@ export default function ListingOptimizerPage() {
                   <GlassCard key={group}>
                     <h3 className="text-[var(--text-primary)] font-semibold mb-3 capitalize">{group.replace('_', ' ')}</h3>
                     <div className="flex flex-wrap gap-2">
-                      {(kws as string[]).map((kw: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-full text-[var(--text-secondary)] text-sm hover:border-indigo-500/50 transition-colors">{kw}</span>
+                      {(kws as string[]).map((kw: string) => (
+                        <span key={`${group}-${kw}`} className="px-3 py-1 bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-full text-[var(--text-secondary)] text-sm hover:border-indigo-500/50 transition-colors">{kw}</span>
                       ))}
                     </div>
                   </GlassCard>
@@ -286,8 +286,8 @@ export default function ListingOptimizerPage() {
             ? <EmptyState title={t('image.no_history')} description={t('listing.no_history_desc')} />
             : (
               <div className="space-y-3">
-                {history.optimizations.map((opt, i) => (
-                  <GlassCard key={i}>
+                {history.optimizations.map((opt) => (
+                  <GlassCard key={opt.id}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <p className="text-[var(--text-muted)] text-xs">{formatDate(opt.created_at)}</p>

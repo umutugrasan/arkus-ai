@@ -392,7 +392,7 @@ export default function ReviewsPage() {
           <ul className="space-y-2 max-h-[480px] overflow-y-auto">
             {reviewsResp.reviews.map((r, i) => (
               <li
-                key={i}
+                key={`${r.marketplace}-${r.date}-${i}`}
                 className={`p-3 rounded-xl border ${
                   r.rating >= 4
                     ? 'bg-emerald-500/5 border-emerald-500/20'

@@ -207,8 +207,9 @@ export default function ProductDetailPage() {
                     alt={`${product.name} - ${g.marketplace}`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src =
-                        `https://placehold.co/600x600?text=${encodeURIComponent(product.id)}`;
+                      const img = e.currentTarget as HTMLImageElement;
+                      img.src = `https://placehold.co/600x600?text=${encodeURIComponent(product.id)}`;
+                      img.alt = `${product.name} - görsel yüklenemedi`;
                     }}
                   />
                 </div>

@@ -487,6 +487,8 @@ export const translations = {
   // ─── Sourcing ──────────────────────────────────────────────
   'sourcing.loading': { tr: 'Tedarikçi verileri yükleniyor…', en: 'Loading supplier data…' },
   'sourcing.search_error': { tr: 'Arama sırasında bir hata oluştu.', en: 'An error occurred during the search.' },
+  'sourcing.partial_best_price_failed': { tr: 'DB tedarikçi karşılaştırması alınamadı, sadece web sonuçları gösteriliyor.', en: 'Could not load supplier comparison from DB — showing web results only.' },
+  'sourcing.partial_web_search_failed': { tr: 'Web araması başarısız oldu, sadece DB sonuçları gösteriliyor.', en: 'Web search failed — showing DB results only.' },
   'sourcing.tab_suppliers': { tr: 'Tedarikçiler', en: 'Suppliers' },
   'sourcing.tab_search': { tr: 'En İyi Fiyat', en: 'Best Price' },
   'sourcing.tab_alerts': { tr: 'Alarmlar', en: 'Alerts' },
@@ -576,6 +578,7 @@ export const translations = {
   'integrations.active': { tr: 'Aktif', en: 'Active' },
   'integrations.removes_data': { tr: 'Kaldırınca verileri de silinir', en: 'Removing also deletes the data' },
   'integrations.remove': { tr: 'Kaldır', en: 'Remove' },
+  'integrations.confirm_remove': { tr: '⚠️ Onayla', en: '⚠️ Confirm' },
 
   // ─── Product Detail ────────────────────────────────────────
   'productdetail.load_failed': { tr: 'Ürün yüklenemedi', en: 'Failed to load product' },

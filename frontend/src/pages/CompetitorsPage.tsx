@@ -187,8 +187,8 @@ export default function CompetitorsPage() {
         <div className="space-y-3">
           {comps.length === 0
             ? <EmptyState title={t('competitors.not_found')} description={t('competitors.not_found_desc')} />
-            : comps.map((c, i) => (
-              <GlassCard key={i}>
+            : comps.map((c) => (
+              <GlassCard key={`${c.marketplace}-${c.competitor_name}`}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -272,8 +272,8 @@ export default function CompetitorsPage() {
                 </LineChart>
               </ResponsiveContainer>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
-                {trackHistories.map((h, i) => (
-                  <div key={i} className="p-3 bg-[var(--bg-elevated)] rounded-xl">
+                {trackHistories.map((h) => (
+                  <div key={h.competitor} className="p-3 bg-[var(--bg-elevated)] rounded-xl">
                     <p className="text-[var(--text-muted)] text-xs">{h.competitor}</p>
                     <p className="text-[var(--text-primary)] font-semibold">{formatCurrency(h.current_price)}</p>
                     <p className={`text-xs font-medium mt-1 ${h.trend === 'dusus' ? 'text-emerald-500' : h.trend === 'yukselis' ? 'text-rose-500' : 'text-[var(--text-muted)]'}`}>

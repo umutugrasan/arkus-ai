@@ -73,10 +73,10 @@ export default function ArbitragePage() {
         ? <EmptyState title={t('arbitrage.no_opp')} description={t('arbitrage.no_opp_desc')} />
         : (
           <div className="space-y-3">
-            {opportunities.map((opp, i) => {
+            {opportunities.map((opp) => {
               const isOpen = selected === opp.product_id;
               return (
-                <GlassCard key={i} className={`cursor-pointer transition-all ${isOpen ? 'border border-indigo-500/40' : 'hover:border-[var(--border-strong)]'}`}
+                <GlassCard key={opp.product_id} className={`cursor-pointer transition-all ${isOpen ? 'border border-indigo-500/40' : 'hover:border-[var(--border-strong)]'}`}
                   onClick={() => handleSelect(opp.product_id)}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

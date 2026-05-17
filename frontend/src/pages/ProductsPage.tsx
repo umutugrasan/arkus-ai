@@ -130,9 +130,9 @@ export default function ProductsPage() {
             <EmptyState title={t('products.low_stock_empty')} />
           ) : (
             <ul className="space-y-2 max-h-60 overflow-y-auto">
-              {lowStock.map((a, i) => (
+              {lowStock.map((a) => (
                 <li
-                  key={i}
+                  key={`${a.product_id}-${a.marketplace}`}
                   className={`p-2.5 rounded-lg border ${
                     a.urgency === 'kritik'
                       ? 'bg-rose-500/10 border-rose-500/30'

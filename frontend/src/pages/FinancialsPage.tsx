@@ -173,8 +173,8 @@ export default function FinancialsPage() {
                 </tr>
               </thead>
               <tbody>
-                {byMP.map((mp, i) => (
-                  <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--bg-elevated)] transition-colors">
+                {byMP.map((mp) => (
+                  <tr key={mp.marketplace} className="border-b border-[var(--border-color)] hover:bg-[var(--bg-elevated)] transition-colors">
                     <td className="py-3 pr-4 text-[var(--text-primary)] font-medium capitalize">{mp.marketplace}</td>
                     <td className="py-3 pr-4 text-[var(--text-primary)]">{formatCurrency(mp.revenue)}</td>
                     <td className={`py-3 pr-4 font-semibold ${mp.net_after_ads >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>{formatCurrency(mp.net_after_ads)}</td>
@@ -191,7 +191,7 @@ export default function FinancialsPage() {
         {tab === 'product' && (
           <div className="space-y-2">
             {byProduct.slice(0, 10).map((p, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-muted)] transition-colors">
+              <div key={p.id ?? `${p.name}-${i}`} className="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-muted)] transition-colors">
                 <div className="flex items-center gap-3">
                   <span className="text-[var(--text-muted)] text-xs w-5">{i + 1}</span>
                   <div>

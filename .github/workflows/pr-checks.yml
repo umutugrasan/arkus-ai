@@ -1,0 +1,73 @@
+name: PR Checks
+
+# main'e push olmadan once build + test dogrulamasi.
+# deploy.yml sadece basarili push'larda calisir; bu workflow merge oncesi gatekeeper.
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  backend-check:
+    name: Backend (compile + pytest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Compile check (yntax)
+        run: |
+          python -m py_compile $(find app -name '*.py' | tr '\n' ' ')
+          python -m py_compile $(find mock_api -name '*.py' | tr '\n' ' ')
+
+      - name: Pytest smoke suite
+        env:
+          # Test ortami: SQLite memory + dummy secrets
+          DATABASE_URL: sqlite:///./test.db
+          JWT_SECRET: ci-test-secret-32-chars-min-length-ok
+          GEMINI_API_KEY: ''
+          APP_ENV: development
+          AGENT_INTERVAL_SECONDS: '0'
+          CORS_ORIGINS: '*'
+        run: pytest -q
+
+  frontend-check:
+    name: Frontend (typecheck + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: TypeScript compile
+        run: npx tsc -b --pretty false
+
+      - name: Vite production build
+        run: npx vite build

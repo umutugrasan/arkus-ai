@@ -77,8 +77,18 @@ export default function SourcingPage() {
       ]);
       if (bestPriceResult.status === 'fulfilled') setBestPrice(bestPriceResult.value);
       if (realSearchResult.status === 'fulfilled') setRealSearch(realSearchResult.value);
-      if (bestPriceResult.status === 'rejected' && realSearchResult.status === 'rejected') {
+
+      const bestFailed = bestPriceResult.status === 'rejected';
+      const webFailed = realSearchResult.status === 'rejected';
+      if (bestFailed && webFailed) {
+        // Her ikisi de başarısız: tam hata
         setSearchError(getApiErrorMessage(bestPriceResult.reason, t('sourcing.search_error')));
+      } else if (bestFailed) {
+        // Sadece DB tarafı patladı: kullanıcı web sonuçlarını yine görür, uyarı ver
+        setSearchError(t('sourcing.partial_best_price_failed'));
+      } else if (webFailed) {
+        // Sadece web araması patladı: DB sonuçları yine var, uyarı ver
+        setSearchError(t('sourcing.partial_web_search_failed'));
       }
     } catch (err: unknown) {
       setSearchError(getApiErrorMessage(err, t('sourcing.search_error')));
@@ -142,8 +152,8 @@ export default function SourcingPage() {
           ? <EmptyState title={t('sourcing.no_suppliers')} description={t('sourcing.no_suppliers_desc')} />
           : (
             <div className="grid md:grid-cols-2 gap-4">
-              {supplierList.map((s, i) => (
-                <GlassCard key={i} className={s.discount_pct > 0 ? 'border border-emerald-500/30' : ''}>
+              {supplierList.map((s) => (
+                <GlassCard key={s.id ?? `${s.name}-${s.product}`} className={s.discount_pct > 0 ? 'border border-emerald-500/30' : ''}>
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
@@ -218,7 +228,7 @@ export default function SourcingPage() {
 
           {bestPrice && (
             <div className="space-y-3">
-              {([...bestPrice.all_suppliers || []].sort((a, b) => a.discounted_price - b.discounted_price)).map((s: Supplier, i: number) => {
+              {([...bestPrice.all_suppliers || []].sort((a, b) => a.discounted_price - b.discounted_price)).map((s: Supplier) => {
                 // Saticinin adina gore yonlendirilecek temsili URL (Alibaba/AliExpress aramasi)
                 const isValidUrl = s.url && (s.url.startsWith('http://') || s.url.startsWith('https://'));
                 const searchDomain = s.name.toLowerCase().includes('alibaba') ? 'alibaba.com/trade/search?SearchText=' :
@@ -227,7 +237,7 @@ export default function SourcingPage() {
                 const href = isValidUrl ? s.url! : `https://www.${searchDomain}${encodeURIComponent(s.product + ' ' + s.name)}`;
 
                 return (
-                  <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:scale-[1.01]">
+                  <a key={s.id ?? `${s.name}-${s.discounted_price}`} href={href} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:scale-[1.01]">
                     <GlassCard className="hover:border-indigo-500/50 transition-colors cursor-pointer">
                       <div className="flex justify-between items-center">
                         <div>

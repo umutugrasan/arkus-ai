@@ -120,7 +120,7 @@ export default function FinanceGuidePage() {
           <h3 className="text-[var(--text-primary)] font-semibold mb-3">{t('finance.options_title')}</h3>
           <div className="grid md:grid-cols-2 gap-4">
             {allOptions.map((opt, i) => (
-              <GlassCard key={i} className={`relative transition-all ${opt.is_recommended ? 'border-2 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : (opt.eligible ? 'border border-emerald-500/30' : 'opacity-70')}`}>
+              <GlassCard key={`${opt.name}-${opt.provider}-${i}`} className={`relative transition-all ${opt.is_recommended ? 'border-2 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : (opt.eligible ? 'border border-emerald-500/30' : 'opacity-70')}`}>
                 {opt.is_recommended && (
                   <div className="absolute -top-3 -right-3 bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
                     <Lightbulb size={12} /> {t('finance.recommended')}

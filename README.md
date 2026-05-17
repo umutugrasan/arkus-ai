@@ -2,9 +2,42 @@
 
 **BTK Hackathon 26 | E-Ticaret Odakli AI Destekli Uygulama**
 
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
+[![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Gemini](https://img.shields.io/badge/Gemini-2.5--flash-4285F4?logo=google&logoColor=white)](https://ai.google.dev)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 Arkus AI, birden fazla pazaryerinde (Trendyol, Hepsiburada, Amazon TR, N11) satis yapan e-ticaret saticilari icin yapay zeka destekli analiz ve danismanlik platformudur. Otonom ajanlar verileri toplar, analiz eder ve saticiya proaktif strateji onerir.
 
 > **"Veriyi gosteren degil, strateji ureten bir sistem."**
+
+---
+
+## ⚡ Juri Quickstart (30 saniye)
+
+```bash
+# 1. Repoyu klonla + GEMINI_API_KEY'i .env'e ekle
+git clone https://github.com/yunus-ozdemirr/arkus-aii.git arkus-ai && cd arkus-ai
+cp .env.example .env   # sonra .env dosyasini ac, GEMINI_API_KEY satirini doldur
+
+# 2. Tum servisleri ayaga kaldir
+docker compose up -d --build
+
+# 3. Tarayicida ac
+#    Frontend:  http://localhost:3000  (login: demo@arkus.ai / demo123)
+#    Swagger:   http://localhost:8000/docs
+
+# 4. Demo akisini gor
+#    - Dashboard -> AI Ozeti (Gemini stream)
+#    - Yorum Analizi -> P001 sec -> otomatik AI analiz
+#    - AI Chat -> "Bu ay neden karim dustu?"  (function-calling agent)
+```
+
+> 📐 **Mimari + BTK Kriterleri Eslemesi:** [**ARCHITECTURE.md**](./ARCHITECTURE.md)
+>
+> 🎥 **1 Dakikalik Tanitim:** *YouTube linki teslimde eklenecek*
 
 ## Problem
 
@@ -208,6 +241,21 @@ arkus-ai/
 6. `GET /api/sourcing/real-search/Bluetooth Kulaklik?token=...` → Google Search ile gercek tedarikci fiyatlari
 7. `POST /api/agents/run-all?token=...` → 3 ajan sirayla calisir, event flow ile rapora doner
 
+## 📊 BTK Hackathon 26 — Degerlendirme Kriterleri Eslemesi
+
+| Kriter | Puan | Arkus AI'da nerede karsiliyor | Detay |
+|---|---|---|---|
+| Kullanici Degeri | 20 | 17 modul x 80+ endpoint, gercek satici problemine birebir cozum | [`ARCHITECTURE.md#10`](./ARCHITECTURE.md#10-btk-kriterleri-eşlemesi) |
+| Teknik Puan | 20 | 4-layer mimari, async FastAPI, Pydantic v2, React 19 + Vite 8 | [`ARCHITECTURE.md#2`](./ARCHITECTURE.md#2-katmanlı-mimari-4-layer) |
+| Performans / Dogruluk | 10 | Gemini cascade fallback, AI usage logging, "no fake response" politika | [`ARCHITECTURE.md#9`](./ARCHITECTURE.md#9-performans-önbellek-streaming) |
+| Agentic Yapilar | 10 | 3 otonom ajan + function-calling chat, event bus | [`ARCHITECTURE.md#5`](./ARCHITECTURE.md#5-agentic-orkestrasyon) |
+| Yenilikcilik | 10 | Conversational commerce + arbitraj + Gemini Vision + Google Search grounding | [`ARCHITECTURE.md#10`](./ARCHITECTURE.md#10-btk-kriterleri-eşlemesi) |
+| Kullanici Dostu | 10 | SSE streaming UX, i18n TR/EN, dark mode, lazy load (initial 121KB gzip) | [`ARCHITECTURE.md#9`](./ARCHITECTURE.md#9-performans-önbellek-streaming) |
+| Takim Calismasi | 10 | Net FE/BE ayrim, `types/api.ts` kontrati, git workflow | git log |
+| Sunum ve Iletisim | 10 | README + ARCHITECTURE + OpenAPI auto-docs + 1dk video + public repo | bu dosya |
+
+**Toplam mimari kanit dokumani:** [ARCHITECTURE.md](./ARCHITECTURE.md) — mermaid diagram + sequence + ERD + modul haritasi + her kritere kod referansi.
+
 ## Lisans
 
-MIT
+MIT — bkz. [LICENSE](./LICENSE)
