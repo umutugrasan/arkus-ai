@@ -82,7 +82,7 @@ export default function SettingsPage() {
         </div>
       )}
 
-      <div className="flex gap-1 bg-gray-50 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-[var(--bg-muted)] p-1 rounded-xl w-fit">
         {([
           { id: 'profile' as Tab, label: t('settings.tab_profile') },
           { id: 'security' as Tab, label: t('settings.tab_security') },
@@ -91,7 +91,7 @@ export default function SettingsPage() {
             key={item.id}
             onClick={() => setTab(item.id)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              tab === item.id ? 'bg-[#4a3f44] text-white' : 'text-gray-500 hover:text-slate-800'
+              tab === item.id ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
             }`}
           >
             {item.label}
@@ -101,13 +101,13 @@ export default function SettingsPage() {
 
       {/* Language section */}
       <GlassCard>
-        <h3 className="text-slate-800 font-semibold mb-4">{t('settings.language')}</h3>
+        <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('settings.language')}</h3>
         <LanguageSwitcher />
       </GlassCard>
 
       {tab === 'profile' && (
         <GlassCard>
-          <h3 className="text-slate-800 font-semibold mb-4">{t('settings.profile_info')}</h3>
+          <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('settings.profile_info')}</h3>
           <div className="space-y-4">
             {[
               { key: 'name', label: t('settings.name'), value: name, setter: setName, placeholder: t('settings.name_placeholder'), type: 'text' },
@@ -115,20 +115,20 @@ export default function SettingsPage() {
               { key: 'store', label: t('settings.store_name'), value: storeName, setter: setStoreName, placeholder: t('settings.store_placeholder'), type: 'text' },
             ].map((field) => (
               <div key={field.key}>
-                <label className="text-gray-500 text-xs block mb-1.5">{field.label}</label>
+                <label className="text-[var(--text-muted)] text-xs block mb-1.5">{field.label}</label>
                 <input
                   value={field.value}
                   onChange={(event) => field.setter(event.target.value)}
                   placeholder={field.placeholder}
                   type={field.type}
-                  className="w-full bg-gray-50 border border-gray-200 focus:border-[#4a3f44] text-slate-800 rounded-xl px-4 py-3 text-sm outline-none transition-colors"
+                  className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] focus:border-[var(--accent)] text-[var(--text-primary)] rounded-xl px-4 py-3 text-sm outline-none transition-colors"
                 />
               </div>
             ))}
             <button
               onClick={handleProfileSave}
               disabled={profileSaving}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50"
             >
               {profileSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
               {t('settings.save')}
@@ -139,8 +139,8 @@ export default function SettingsPage() {
 
       {tab === 'security' && (
         <GlassCard>
-          <h3 className="text-slate-800 font-semibold mb-4 flex items-center gap-2">
-            <Lock size={16} className="text-[#4a3f44]" /> {t('settings.change_password')}
+          <h3 className="text-[var(--text-primary)] font-semibold mb-4 flex items-center gap-2">
+            <Lock size={16} className="text-[var(--accent)]" /> {t('settings.change_password')}
           </h3>
           <div className="space-y-4">
             {[
@@ -149,17 +149,17 @@ export default function SettingsPage() {
               { key: 'confirm', label: t('settings.confirm_password'), value: confirmPw, setter: setConfirmPw },
             ].map((field) => (
               <div key={field.key}>
-                <label className="text-gray-500 text-xs block mb-1.5">{field.label}</label>
+                <label className="text-[var(--text-muted)] text-xs block mb-1.5">{field.label}</label>
                 <div className="relative">
                   <input
                     value={field.value}
                     onChange={(event) => field.setter(event.target.value)}
                     type={showPw ? 'text' : 'password'}
-                    className="w-full bg-gray-50 border border-gray-200 focus:border-[#4a3f44] text-slate-800 rounded-xl px-4 py-3 pr-10 text-sm outline-none transition-colors"
+                    className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] focus:border-[var(--accent)] text-[var(--text-primary)] rounded-xl px-4 py-3 pr-10 text-sm outline-none transition-colors"
                   />
                   <button
                     onClick={() => setShowPw(!showPw)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-800"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                   >
                     {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -167,14 +167,14 @@ export default function SettingsPage() {
               </div>
             ))}
             {newPw && confirmPw && newPw !== confirmPw && (
-              <p className="text-rose-400 text-xs flex items-center gap-1">
+              <p className="text-rose-500 text-xs flex items-center gap-1">
                 <AlertCircle size={12} /> {t('settings.passwords_mismatch')}
               </p>
             )}
             <button
               onClick={handlePasswordChange}
               disabled={pwSaving || !currentPw || !newPw || !confirmPw}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50"
             >
               {pwSaving ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
               {t('settings.update_password')}

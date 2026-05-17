@@ -5,6 +5,7 @@ import LoadingSpinner from '../components/shared/LoadingSpinner';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { chatService } from '../services';
+import { useI18n } from '../context/I18nContext';
 import type { ChatHistoryResponse } from '../types/api';
 
 interface Message {
@@ -15,6 +16,7 @@ interface Message {
 }
 
 export default function ChatPage() {
+  const { t } = useI18n();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [historyLoaded, setHistoryLoaded] = useState(false);
@@ -105,7 +107,7 @@ export default function ChatPage() {
         const res = await chatService.ask(text);
         setMessages(prev => [...prev, { role: 'ai', text: res.answer, created_at: res.created_at }]);
       } catch {
-        setMessages(prev => [...prev, { role: 'ai', text: '⚠️ Yanıt alınamadı. Lütfen tekrar deneyin.' }]);
+        setMessages(prev => [...prev, { role: 'ai', text: t('chat.error_response') }]);
       }
     } finally {
       setSending(false);
@@ -117,7 +119,7 @@ export default function ChatPage() {
   };
 
   const handleClearHistory = async () => {
-    if (!confirm('Sohbet geçmişini silmek istediğinizden emin misiniz?')) return;
+    if (!confirm(t('chat.clear_confirm'))) return;
     await chatService.clearHistory();
     setMessages([]);
   };
@@ -129,13 +131,13 @@ export default function ChatPage() {
     }
   };
 
-  if (loading) return <LoadingSpinner message="Sohbet geçmişi yükleniyor…" size="lg" />;
+  if (loading) return <LoadingSpinner message={t('chat.loading')} size="lg" />;
 
   const suggestions = [
-    'En çok satan ürünüm hangisi?',
-    'Kar marjımı nasıl artırabilirim?',
-    'Hangi pazaryerinde daha kârlıyım?',
-    'Stok uyarıları var mı?',
+    t('chat.suggestion_1'),
+    t('chat.suggestion_2'),
+    t('chat.suggestion_3'),
+    t('chat.suggestion_4'),
   ];
 
   return (
@@ -144,19 +146,19 @@ export default function ChatPage() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-indigo-50 rounded-xl">
-            <Bot size={20} className="text-indigo-600" />
+            <Bot size={20} className="text-indigo-600 dark:text-indigo-300" />
           </div>
           <div>
-            <h2 className="text-slate-800 font-semibold">Arkus AI Danışman</h2>
-            <p className="text-gray-500 text-xs">Mağazanızı analiz eden kişisel asistanınız</p>
+            <h2 className="text-[var(--text-primary)] font-semibold">{t('chat.title')}</h2>
+            <p className="text-[var(--text-muted)] text-xs">{t('chat.subtitle')}</p>
           </div>
         </div>
         {messages.length > 0 && (
           <button
             onClick={handleClearHistory}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-gray-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl text-sm transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[var(--text-muted)] hover:text-rose-500 hover:bg-rose-500/10 rounded-xl text-sm transition-all"
           >
-            <Trash2 size={14} /> Temizle
+            <Trash2 size={14} /> {t('chat.clear')}
           </button>
         )}
       </div>
@@ -166,18 +168,18 @@ export default function ChatPage() {
         {messages.length === 0 && !streaming ? (
           <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
             <div className="p-4 bg-indigo-50 rounded-2xl">
-              <MessageSquare size={40} className="text-indigo-600" />
+              <MessageSquare size={40} className="text-indigo-600 dark:text-indigo-300" />
             </div>
             <div>
-              <h3 className="text-slate-800 font-semibold mb-1">Nasıl yardımcı olabilirim?</h3>
-              <p className="text-gray-500 text-sm">Mağazanız, ürünleriniz ve stratejiniz hakkında soru sorabilirsiniz.</p>
+              <h3 className="text-[var(--text-primary)] font-semibold mb-1">{t('chat.empty_title')}</h3>
+              <p className="text-[var(--text-muted)] text-sm">{t('chat.empty_desc')}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 w-full max-w-md">
               {suggestions.map(s => (
                 <button
                   key={s}
                   onClick={() => { setInput(s); inputRef.current?.focus(); }}
-                  className="text-left text-xs px-3 py-2 bg-gray-50 hover:bg-indigo-50 hover:border-indigo-500/40 border border-gray-200 rounded-xl text-gray-600 transition-all"
+                  className="text-left text-xs px-3 py-2 bg-[var(--bg-elevated)] hover:bg-indigo-50 hover:border-indigo-500/40 border border-[var(--border-strong)] rounded-xl text-[var(--text-secondary)] transition-all"
                 >
                   {s}
                 </button>
@@ -191,12 +193,12 @@ export default function ChatPage() {
                 <div className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center ${
                   m.role === 'user' ? 'bg-indigo-50' : 'bg-violet-500/20'
                 }`}>
-                  {m.role === 'user' ? <User size={14} className="text-indigo-600" /> : <Bot size={14} className="text-violet-400" />}
+                  {m.role === 'user' ? <User size={14} className="text-indigo-600 dark:text-indigo-300" /> : <Bot size={14} className="text-violet-500" />}
                 </div>
                 <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm ${
                   m.role === 'user'
-                    ? 'bg-[#4a3f44] text-white rounded-tr-sm'
-                    : 'bg-white/80 text-slate-200 rounded-tl-sm ai-response'
+                    ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)] rounded-tr-sm'
+                    : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-tl-sm ai-response'
                 }`}>
                   {m.role === 'ai' ? (
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text}</ReactMarkdown>
@@ -209,12 +211,12 @@ export default function ChatPage() {
             {streaming && (
               <div className="flex gap-3 flex-row">
                 <div className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center bg-violet-500/20">
-                  <Bot size={14} className="text-violet-400" />
+                  <Bot size={14} className="text-violet-500" />
                 </div>
-                <div className="max-w-[80%] px-4 py-3 rounded-2xl rounded-tl-sm text-sm bg-white/80 text-slate-200 ai-response">
+                <div className="max-w-[80%] px-4 py-3 rounded-2xl rounded-tl-sm text-sm bg-[var(--bg-elevated)] text-[var(--text-primary)] ai-response">
                   {streamText
                     ? <><ReactMarkdown remarkPlugins={[remarkGfm]}>{streamText}</ReactMarkdown><span className="inline-block w-2 h-4 bg-indigo-400 ml-0.5 animate-pulse" /></>
-                    : <div className="flex gap-1 items-center text-gray-500"><Loader2 size={14} className="animate-spin" /> yazıyor…</div>
+                    : <div className="flex gap-1 items-center text-[var(--text-muted)]"><Loader2 size={14} className="animate-spin" /> {t('ai.writing')}</div>
                   }
                 </div>
               </div>
@@ -232,22 +234,22 @@ export default function ChatPage() {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Sorunuzu yazın… (Enter gönder, Shift+Enter yeni satır)"
+            placeholder={t('chat.placeholder')}
             rows={1}
             disabled={sending || streaming}
-            className="w-full bg-gray-50 border border-gray-200 focus:border-[#4a3f44] text-slate-800 rounded-2xl px-4 py-3 text-sm resize-none outline-none transition-all disabled:opacity-50 placeholder:text-gray-500"
+            className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] focus:border-[var(--accent)] text-[var(--text-primary)] rounded-2xl px-4 py-3 text-sm resize-none outline-none transition-all disabled:opacity-50 placeholder:text-[var(--text-muted)]"
             style={{ minHeight: 48, maxHeight: 160 }}
             onInput={e => {
-              const t = e.target as HTMLTextAreaElement;
-              t.style.height = 'auto';
-              t.style.height = Math.min(t.scrollHeight, 160) + 'px';
+              const ta = e.target as HTMLTextAreaElement;
+              ta.style.height = 'auto';
+              ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
             }}
           />
         </div>
         <button
           onClick={handleSend}
           disabled={!input.trim() || sending || streaming}
-          className="flex-shrink-0 w-12 h-12 bg-[#4a3f44] hover:bg-[#6b6266] disabled:opacity-40 text-white rounded-2xl flex items-center justify-center transition-all shadow-lg shadow-[#4a3f44]/20"
+          className="flex-shrink-0 w-12 h-12 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] disabled:opacity-40 text-[var(--accent-fg)] rounded-2xl flex items-center justify-center transition-all shadow-lg shadow-black/10"
         >
           {sending || streaming ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
         </button>

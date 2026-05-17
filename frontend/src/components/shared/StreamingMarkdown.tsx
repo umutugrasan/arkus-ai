@@ -2,6 +2,7 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { BrainCircuit, Clock } from 'lucide-react';
+import { useI18n } from '../../context/I18nContext';
 
 interface Props {
   content: string;
@@ -13,48 +14,51 @@ interface Props {
 
 export default function StreamingMarkdown({
   content,
-  title = 'AI Analizi',
+  title,
   streaming = false,
   className = '',
   webSources,
 }: Props) {
+  const { t } = useI18n();
+  const heading = title ?? t('ai.analysis');
+
   return (
-    <section className={`bg-[#fcfaf9] border border-gray-100 rounded-xl p-6 relative overflow-hidden flex items-center justify-between shadow-sm animate-fade-in ${className}`}>
+    <section className={`bg-[var(--bg-elevated)] border border-[var(--border-color)] rounded-xl p-6 relative overflow-hidden flex items-center justify-between shadow-sm animate-fade-in ${className}`}>
       <div className="flex-1 relative z-10">
         <div className="flex items-center gap-2 mb-4">
-          <div className="bg-[#4a3f44] text-white text-[10px] px-2 py-1 rounded flex items-center gap-1 font-semibold shadow-sm">
+          <div className="bg-[var(--accent-solid)] text-[var(--accent-fg)] text-[10px] px-2 py-1 rounded flex items-center gap-1 font-semibold shadow-sm">
             <Clock size={12} />
-            {title}
+            {heading}
           </div>
           {streaming && (
-            <div className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--text-faint)] font-medium">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-gray-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--text-faint)] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--text-muted)]"></span>
               </span>
-              <span>yazıyor…</span>
+              <span>{t('ai.writing')}</span>
             </div>
           )}
         </div>
-        
-        <div className="border-t border-gray-200 pt-4">
+
+        <div className="border-t border-[var(--border-color)] pt-4">
           <div className="text-sm ai-response">
             {content ? (
-              <div className="text-gray-800">
+              <div className="text-[var(--text-primary)]">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-                {streaming && <span className="inline-block w-2 h-4 bg-gray-400 ml-0.5 animate-pulse" />}
+                {streaming && <span className="inline-block w-2 h-4 bg-[var(--text-faint)] ml-0.5 animate-pulse" />}
               </div>
             ) : streaming ? (
-              <p className="text-gray-400 italic">yanıt bekleniyor...</p>
+              <p className="text-[var(--text-muted)] italic">{t('ai.waiting')}</p>
             ) : (
-              <p className="text-gray-400 italic">Henüz analiz yok.</p>
+              <p className="text-[var(--text-muted)] italic">{t('ai.no_analysis')}</p>
             )}
           </div>
 
           {webSources && webSources.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <p className="text-[10px] text-gray-400 mb-2 uppercase tracking-wider font-bold">
-                Web Kaynakları
+            <div className="mt-4 pt-4 border-t border-[var(--border-color)]">
+              <p className="text-[10px] text-[var(--text-faint)] mb-2 uppercase tracking-wider font-bold">
+                {t('ai.web_sources')}
               </p>
               <div className="flex flex-wrap gap-2">
                 {webSources.map((s, i) => (
@@ -63,7 +67,7 @@ export default function StreamingMarkdown({
                     href={s.uri}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs px-2 py-1 rounded bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                    className="text-xs px-2 py-1 rounded bg-[var(--bg-muted)] border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-[var(--text-primary)] transition-colors"
                   >
                     {s.title}
                   </a>
@@ -73,9 +77,9 @@ export default function StreamingMarkdown({
           )}
         </div>
       </div>
-      
+
       <div className="ml-8 opacity-[0.15] hidden sm:block pointer-events-none absolute right-4 bottom-4">
-        <BrainCircuit size={80} className="text-[#4a3f44]" />
+        <BrainCircuit size={80} className="text-[var(--accent)]" />
       </div>
     </section>
   );

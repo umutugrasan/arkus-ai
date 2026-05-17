@@ -58,7 +58,7 @@ export default function Layout() {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-screen bg-[#f9f8f4] overflow-hidden text-slate-800">
+    <div className="flex h-screen bg-[var(--bg-primary)] overflow-hidden text-[var(--text-primary)]">
       <Sidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -76,7 +76,7 @@ export default function Layout() {
           <div className="max-w-7xl mx-auto">
             <Suspense fallback={
               <div className="flex items-center justify-center py-20">
-                <LoadingSpinner message="Yükleniyor..." size="lg" />
+                <LoadingSpinner message={t('common.loading')} size="lg" />
               </div>
             }>
               <Outlet />

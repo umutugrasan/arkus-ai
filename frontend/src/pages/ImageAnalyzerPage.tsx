@@ -6,20 +6,14 @@ import MarketplaceBadge from '../components/shared/MarketplaceBadge';
 import EmptyState from '../components/shared/EmptyState';
 import { imageAnalyzerService, productService } from '../services';
 import { formatDate } from '../utils/formatters';
+import { useI18n } from '../context/I18nContext';
+import type { TranslationKey } from '../i18n';
 import type { ImageAnalyzeResponse, ImageSuggestionsResponse, ImageHistoryResponse, ProductListItem } from '../types/api';
 
 type Tab = 'analyze' | 'suggestions' | 'history';
 
-const SCORE_LABELS: Record<string, string> = {
-  arka_plan: 'Arka Plan',
-  aydinlatma: 'Aydınlatma',
-  cerceveleme: 'Çerçeveleme',
-  cozunurluk_algisi: 'Çözünürlük',
-  kalite: 'Kalite',
-  pazaryeri_uyumu: 'Pazaryeri Uyumu',
-};
-
 export default function ImageAnalyzerPage() {
+  const { t } = useI18n();
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [selectedProductId, setSelectedProductId] = useState('');
   const [customImageUrl, setCustomImageUrl] = useState('');
@@ -30,6 +24,11 @@ export default function ImageAnalyzerPage() {
   const [suggestions, setSuggestions] = useState<ImageSuggestionsResponse | null>(null);
   const [historyData, setHistoryData] = useState<ImageHistoryResponse | null>(null);
   const didInit = useRef(false);
+
+  const scoreLabel = (key: string) => {
+    const translated = t(`image.score.${key}` as TranslationKey);
+    return translated === `image.score.${key}` ? key : translated;
+  };
 
   useEffect(() => {
     productService.list().then(res => {
@@ -73,13 +72,18 @@ export default function ImageAnalyzerPage() {
     } finally { setAnalyzing(false); }
   };
 
-  if (loading) return <LoadingSpinner message="Ürünler yükleniyor…" size="lg" />;
-  if (products.length === 0) return <EmptyState title="Ürün Bulunamadı" description="Görsel analizi için önce bir pazaryeri bağlayın." />;
+  if (loading) return <LoadingSpinner message={t('common.loading_products')} size="lg" />;
+  if (products.length === 0) return <EmptyState title={t('competitors.no_product')} description={t('image.no_product_desc')} />;
 
   const breakdown = analysis?.scores_breakdown as Record<string, number> | null;
   const overallScore = analysis?.overall_score ?? 0;
-  const scoreColor = overallScore >= 80 ? 'text-emerald-400' : overallScore >= 50 ? 'text-amber-400' : 'text-rose-400';
+  const scoreColor = overallScore >= 80 ? 'text-emerald-500' : overallScore >= 50 ? 'text-amber-500' : 'text-rose-500';
   const scoreBg = overallScore >= 80 ? 'from-emerald-500/20' : overallScore >= 50 ? 'from-amber-500/20' : 'from-rose-500/20';
+
+  const tabLabel = (id: Tab) =>
+    id === 'analyze' ? `📊 ${t('image.tab_analyze')}`
+      : id === 'suggestions' ? `💡 ${t('image.tab_suggestions')}`
+        : `📜 ${t('image.tab_history')}`;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -87,28 +91,28 @@ export default function ImageAnalyzerPage() {
       <GlassCard>
         <div className="flex flex-wrap gap-3 items-end">
           <div>
-            <label className="text-gray-500 text-xs block mb-1">Ürün</label>
+            <label className="text-[var(--text-muted)] text-xs block mb-1">{t('products.col_product')}</label>
             <select value={selectedProductId} onChange={e => setSelectedProductId(e.target.value)}
-              className="bg-white border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+              className="bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
               {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div className="flex-1 min-w-48">
-            <label className="text-gray-500 text-xs block mb-1">Özel Görsel URL (opsiyonel)</label>
+            <label className="text-[var(--text-muted)] text-xs block mb-1">{t('image.custom_url')}</label>
             <input value={customImageUrl} onChange={e => setCustomImageUrl(e.target.value)}
               placeholder="https://…"
-              className="w-full bg-white border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#4a3f44]" />
+              className="w-full bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent)]" />
           </div>
           <div className="flex gap-2">
             <button onClick={handleAnalyze} disabled={analyzing}
-              className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
               {analyzing ? <Loader2 size={14} className="animate-spin" /> : <BarChart2 size={14} />}
-              Analiz Et
+              {t('common.analyze')}
             </button>
             <button onClick={handleSuggestions} disabled={analyzing}
-              className="flex items-center gap-2 px-4 py-2 bg-[#6b6266] hover:bg-[#4a3f44] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid-hover)] hover:bg-[var(--accent-solid)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
               {analyzing ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
-              İyileştirme Öner
+              {t('image.suggest')}
             </button>
           </div>
         </div>
@@ -116,12 +120,12 @@ export default function ImageAnalyzerPage() {
 
       {/* Tabs */}
       <div className="flex gap-2">
-        {(['analyze', 'suggestions', 'history'] as Tab[]).map(t => (
-          <button key={t} onClick={() => setTab(t)}
+        {(['analyze', 'suggestions', 'history'] as Tab[]).map(tb => (
+          <button key={tb} onClick={() => setTab(tb)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              tab === t ? 'bg-[#4a3f44] text-white' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
+              tab === tb ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)]' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
             }`}>
-            {t === 'analyze' ? '📊 Analiz' : t === 'suggestions' ? '💡 Öneriler' : '📜 Geçmiş'}
+            {tabLabel(tb)}
           </button>
         ))}
       </div>
@@ -133,24 +137,24 @@ export default function ImageAnalyzerPage() {
             <GlassCard className={`bg-gradient-to-br ${scoreBg} to-transparent`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-500 text-xs">Genel Skor</p>
+                  <p className="text-[var(--text-muted)] text-xs">{t('image.overall_score')}</p>
                   <p className={`text-5xl font-extrabold mt-1 ${scoreColor}`}>{Math.round(overallScore)}</p>
-                  <p className="text-gray-500 text-sm">/100</p>
+                  <p className="text-[var(--text-muted)] text-sm">/100</p>
                 </div>
                 <MarketplaceBadge marketplace={analysis.marketplace} />
               </div>
             </GlassCard>
             {breakdown && (
               <GlassCard>
-                <h3 className="text-slate-800 font-semibold mb-3 text-sm">Kategori Skorları</h3>
+                <h3 className="text-[var(--text-primary)] font-semibold mb-3 text-sm">{t('image.category_scores')}</h3>
                 <div className="space-y-2">
                   {Object.entries(breakdown).map(([key, val]) => (
                     <div key={key}>
                       <div className="flex justify-between text-xs mb-0.5">
-                        <span className="text-gray-500">{SCORE_LABELS[key] || key}</span>
-                        <span className="text-slate-800">{val}/10</span>
+                        <span className="text-[var(--text-muted)]">{scoreLabel(key)}</span>
+                        <span className="text-[var(--text-primary)]">{val}/10</span>
                       </div>
-                      <div className="h-1.5 bg-white rounded-full">
+                      <div className="h-1.5 bg-[var(--bg-muted)] rounded-full">
                         <div className={`h-full rounded-full ${val >= 8 ? 'bg-emerald-500' : val >= 5 ? 'bg-amber-500' : 'bg-rose-500'}`}
                           style={{ width: `${val * 10}%` }} />
                       </div>
@@ -162,11 +166,11 @@ export default function ImageAnalyzerPage() {
           </div>
           {(analysis.detected_issues || []).length > 0 && (
             <GlassCard>
-              <h3 className="text-slate-800 font-semibold mb-3 flex items-center gap-2"><AlertCircle size={14} className="text-rose-400" /> Tespit Edilen Sorunlar</h3>
+              <h3 className="text-[var(--text-primary)] font-semibold mb-3 flex items-center gap-2"><AlertCircle size={14} className="text-rose-500" /> {t('image.issues')}</h3>
               <div className="space-y-2">
                 {analysis.detected_issues.map((issue, i) => (
-                  <div key={i} className="flex items-start gap-2 text-sm text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3">
-                    <XCircle size={14} className="flex-shrink-0 mt-0.5 text-rose-400" /> {issue}
+                  <div key={i} className="flex items-start gap-2 text-sm text-rose-600 dark:text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3">
+                    <XCircle size={14} className="flex-shrink-0 mt-0.5 text-rose-500" /> {issue}
                   </div>
                 ))}
               </div>
@@ -174,10 +178,10 @@ export default function ImageAnalyzerPage() {
           )}
           {(analysis.positive_aspects || []).length > 0 && (
             <GlassCard>
-              <h3 className="text-slate-800 font-semibold mb-3 flex items-center gap-2"><CheckCircle2 size={14} className="text-emerald-400" /> Olumlu Yönler</h3>
+              <h3 className="text-[var(--text-primary)] font-semibold mb-3 flex items-center gap-2"><CheckCircle2 size={14} className="text-emerald-500" /> {t('image.positives')}</h3>
               <div className="space-y-1">
                 {analysis.positive_aspects.map((p, i) => (
-                  <div key={i} className="flex items-start gap-2 text-sm text-emerald-300">
+                  <div key={i} className="flex items-start gap-2 text-sm text-emerald-600 dark:text-emerald-300">
                     <CheckCircle2 size={14} className="flex-shrink-0 mt-0.5" /> {p}
                   </div>
                 ))}
@@ -194,19 +198,19 @@ export default function ImageAnalyzerPage() {
             <GlassCard key={i}>
               <div className="flex items-start gap-3">
                 <div className={`flex-shrink-0 p-1.5 rounded-lg text-xs font-bold ${
-                  a.difficulty === 'kolay' ? 'bg-emerald-500/20 text-emerald-400' :
-                  a.difficulty === 'orta' ? 'bg-amber-500/20 text-amber-400' :
-                  'bg-rose-500/20 text-rose-400'
+                  a.difficulty === 'kolay' ? 'bg-emerald-500/20 text-emerald-500' :
+                  a.difficulty === 'orta' ? 'bg-amber-500/20 text-amber-500' :
+                  'bg-rose-500/20 text-rose-500'
                 }`}>{i + 1}</div>
                 <div>
-                  <p className="text-slate-800 font-semibold">{a.action}</p>
-                  <p className="text-gray-500 text-sm mt-0.5">{a.reason}</p>
+                  <p className="text-[var(--text-primary)] font-semibold">{a.action}</p>
+                  <p className="text-[var(--text-muted)] text-sm mt-0.5">{a.reason}</p>
                   <div className="flex gap-2 mt-2">
-                    <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">📈 {a.expected_impact}</span>
+                    <span className="text-xs text-indigo-600 dark:text-indigo-300 bg-indigo-50 px-2 py-0.5 rounded-full">📈 {a.expected_impact}</span>
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      a.difficulty === 'kolay' ? 'bg-emerald-500/10 text-emerald-400' :
-                      a.difficulty === 'orta' ? 'bg-amber-500/10 text-amber-400' :
-                      'bg-rose-500/10 text-rose-400'
+                      a.difficulty === 'kolay' ? 'bg-emerald-500/10 text-emerald-500' :
+                      a.difficulty === 'orta' ? 'bg-amber-500/10 text-amber-500' :
+                      'bg-rose-500/10 text-rose-500'
                     }`}>{a.difficulty}</span>
                   </div>
                 </div>
@@ -215,11 +219,11 @@ export default function ImageAnalyzerPage() {
           ))}
           {suggestions.tools_to_use.length > 0 && (
             <GlassCard>
-              <h3 className="text-slate-800 font-semibold mb-2">🛠️ Önerilen Araçlar</h3>
+              <h3 className="text-[var(--text-primary)] font-semibold mb-2">🛠️ {t('image.tools')}</h3>
               <ul className="space-y-1">
-                {suggestions.tools_to_use.map((t, i) => (
-                  <li key={i} className="text-gray-600 text-sm flex items-center gap-2">
-                    <span className="text-indigo-600">•</span> {t}
+                {suggestions.tools_to_use.map((tool, i) => (
+                  <li key={i} className="text-[var(--text-secondary)] text-sm flex items-center gap-2">
+                    <span className="text-indigo-600 dark:text-indigo-300">•</span> {tool}
                   </li>
                 ))}
               </ul>
@@ -237,10 +241,10 @@ export default function ImageAnalyzerPage() {
                 <GlassCard key={i}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 text-xs">{formatDate(a.created_at)}</p>
-                      <p className="text-gray-600 text-sm mt-1 line-clamp-2">{a.suggestions}</p>
+                      <p className="text-[var(--text-muted)] text-xs">{formatDate(a.created_at)}</p>
+                      <p className="text-[var(--text-secondary)] text-sm mt-1 line-clamp-2">{a.suggestions}</p>
                     </div>
-                    <div className={`text-2xl font-bold ml-4 ${(a.score ?? 0) >= 80 ? 'text-emerald-400' : (a.score ?? 0) >= 50 ? 'text-amber-400' : 'text-rose-400'}`}>
+                    <div className={`text-2xl font-bold ml-4 ${(a.score ?? 0) >= 80 ? 'text-emerald-500' : (a.score ?? 0) >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
                       {Math.round(a.score ?? 0)}
                     </div>
                   </div>
@@ -248,10 +252,10 @@ export default function ImageAnalyzerPage() {
               ))}
             </div>
           )
-          : <EmptyState title="Geçmiş Yok" description="Henüz bu ürün için görsel analizi yapılmamış." />
+          : <EmptyState title={t('image.no_history')} description={t('image.no_history_desc')} />
       )}
 
-      {analyzing && <LoadingSpinner message="Gemini Vision ile görsel analiz ediliyor…" size="sm" />}
+      {analyzing && <LoadingSpinner message={t('image.analyzing')} size="sm" />}
     </div>
   );
 }

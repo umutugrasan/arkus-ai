@@ -85,8 +85,8 @@ export default function ProductsPage() {
       <div className="grid lg:grid-cols-2 gap-4">
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-3">
-            <Trophy size={16} className="text-amber-400" />
-            <h3 className="text-slate-800 font-semibold">{t('products.top_sellers')}</h3>
+            <Trophy size={16} className="text-amber-500" />
+            <h3 className="text-[var(--text-primary)] font-semibold">{t('products.top_sellers')}</h3>
           </div>
           {topSellers.length === 0 ? (
             <EmptyState title={t('products.no_data')} />
@@ -96,22 +96,22 @@ export default function ProductsPage() {
                 <li key={p.id}>
                   <Link
                     to={`/products/${encodeURIComponent(p.id)}`}
-                    className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-white/40 hover:bg-white/80 transition-colors group"
+                    className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-[var(--bg-elevated)] hover:bg-[var(--bg-muted)] transition-colors group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-7 h-7 rounded-md bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">
+                      <div className="w-7 h-7 rounded-md bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-xs">
                         {i + 1}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-slate-800 text-sm truncate">{p.name}</p>
-                        <p className="text-gray-500 text-[11px]">{formatNumber(p.total_sales)} {t('products.units')}</p>
+                        <p className="text-[var(--text-primary)] text-sm truncate">{p.name}</p>
+                        <p className="text-[var(--text-muted)] text-[11px]">{formatNumber(p.total_sales)} {t('products.units')}</p>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-emerald-400 text-sm font-semibold">
+                      <p className="text-emerald-500 text-sm font-semibold">
                         {formatCurrency(p.total_net_profit)}
                       </p>
-                      <p className="text-gray-500 text-[10px]">{t('products.net_profit_lbl')}</p>
+                      <p className="text-[var(--text-muted)] text-[10px]">{t('products.net_profit_lbl')}</p>
                     </div>
                   </Link>
                 </li>
@@ -122,9 +122,9 @@ export default function ProductsPage() {
 
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle size={16} className="text-rose-400" />
-            <h3 className="text-slate-800 font-semibold">{t('products.low_stock_title')}</h3>
-            <span className="ml-auto text-xs text-gray-500">{lowStock.length} {t('products.low_stock_warnings')}</span>
+            <AlertTriangle size={16} className="text-rose-500" />
+            <h3 className="text-[var(--text-primary)] font-semibold">{t('products.low_stock_title')}</h3>
+            <span className="ml-auto text-xs text-[var(--text-muted)]">{lowStock.length} {t('products.low_stock_warnings')}</span>
           </div>
           {lowStock.length === 0 ? (
             <EmptyState title={t('products.low_stock_empty')} />
@@ -142,19 +142,19 @@ export default function ProductsPage() {
                   <div className="flex items-center justify-between gap-2">
                     <Link
                       to={`/products/${encodeURIComponent(a.product_id)}`}
-                      className="text-slate-800 text-sm truncate hover:underline"
+                      className="text-[var(--text-primary)] text-sm truncate hover:underline"
                     >
                       {a.product_name}
                     </Link>
-                    <span className={`text-[10px] uppercase font-bold ${a.urgency === 'kritik' ? 'text-rose-400' : 'text-amber-400'}`}>
+                    <span className={`text-[10px] uppercase font-bold ${a.urgency === 'kritik' ? 'text-rose-500' : 'text-amber-500'}`}>
                       {a.urgency}
                     </span>
                   </div>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="text-gray-500 text-xs">
+                    <span className="text-[var(--text-muted)] text-xs">
                       {a.marketplace} · {a.stock} {t('products.units_short')}
                     </span>
-                    <span className="text-gray-600 text-xs font-medium">
+                    <span className="text-[var(--text-secondary)] text-xs font-medium">
                       {a.days_until_stockout} {t('products.days_until_stockout')}
                     </span>
                   </div>
@@ -168,7 +168,7 @@ export default function ProductsPage() {
       {/* Tüm ürünler */}
       <GlassCard className="p-5">
         <div className="flex flex-wrap items-center gap-3 mb-4">
-          <h3 className="text-slate-800 font-semibold flex-1">{t('products.all_products')}</h3>
+          <h3 className="text-[var(--text-primary)] font-semibold flex-1">{t('products.all_products')}</h3>
           <Input
             placeholder={t('products.search_placeholder')}
             value={search}
@@ -178,11 +178,11 @@ export default function ProductsPage() {
             className="w-64"
           />
           <div className="relative">
-            <Filter size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500" />
+            <Filter size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="bg-gray-50 border border-gray-200/60 rounded-xl pl-8 pr-3 py-2.5 text-sm text-slate-800 outline-none"
+              className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl pl-8 pr-3 py-2.5 text-sm text-[var(--text-primary)] outline-none"
             >
               <option value="">{t('products.all_categories')}</option>
               {categories.map((c) => (
@@ -191,11 +191,11 @@ export default function ProductsPage() {
             </select>
           </div>
           <div className="relative">
-            <ArrowUpDown size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500" />
+            <ArrowUpDown size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="bg-gray-50 border border-gray-200/60 rounded-xl pl-8 pr-3 py-2.5 text-sm text-slate-800 outline-none"
+              className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-xl pl-8 pr-3 py-2.5 text-sm text-[var(--text-primary)] outline-none"
             >
               <option value="total_sales">{t('products.sort_sales')}</option>
               <option value="total_revenue">{t('products.sort_revenue')}</option>
@@ -212,7 +212,7 @@ export default function ProductsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-[10px] uppercase tracking-wider text-gray-500 border-b border-gray-100">
+                <tr className="text-left text-[10px] uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border-color)]">
                   <th className="py-2 pl-2">{t('products.col_product')}</th>
                   <th className="py-2">{t('products.col_category')}</th>
                   <th className="py-2 text-center">{t('products.col_rating')}</th>
@@ -229,38 +229,38 @@ export default function ProductsPage() {
                 {filtered.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-b border-gray-200/60 hover:bg-white/30 transition-colors"
+                    className="border-b border-[var(--border-color)] hover:bg-[var(--bg-elevated)] transition-colors"
                   >
                     <td className="py-2.5 pl-2">
                       <Link
                         to={`/products/${encodeURIComponent(p.id)}`}
-                        className="text-slate-800 font-medium hover:text-indigo-600 max-w-[260px] truncate block"
+                        className="text-[var(--text-primary)] font-medium hover:text-indigo-600 dark:hover:text-indigo-300 max-w-[260px] truncate block"
                       >
                         {p.name}
                       </Link>
-                      <p className="text-gray-500 text-[10px]">{p.id}</p>
+                      <p className="text-[var(--text-muted)] text-[10px]">{p.id}</p>
                     </td>
-                    <td className="py-2.5 text-gray-500 text-xs">{p.category}</td>
-                    <td className="py-2.5 text-center text-amber-400 text-xs">
+                    <td className="py-2.5 text-[var(--text-muted)] text-xs">{p.category}</td>
+                    <td className="py-2.5 text-center text-amber-500 text-xs">
                       ⭐ {p.rating?.toFixed(1) || '—'}
-                      <p className="text-gray-500 text-[10px]">{formatNumber(p.review_count)}</p>
+                      <p className="text-[var(--text-muted)] text-[10px]">{formatNumber(p.review_count)}</p>
                     </td>
-                    <td className="py-2.5 text-right text-slate-200">{formatNumber(p.total_sales)}</td>
-                    <td className="py-2.5 text-right text-slate-200">{formatCurrency(p.total_revenue)}</td>
-                    <td className="py-2.5 text-right text-emerald-400 font-semibold">
+                    <td className="py-2.5 text-right text-[var(--text-primary)]">{formatNumber(p.total_sales)}</td>
+                    <td className="py-2.5 text-right text-[var(--text-primary)]">{formatCurrency(p.total_revenue)}</td>
+                    <td className="py-2.5 text-right text-emerald-500 font-semibold">
                       {formatCurrency(p.total_net_profit)}
                     </td>
-                    <td className="py-2.5 text-right text-gray-600">{formatCurrency(p.avg_profit_per_item)}</td>
-                    <td className="py-2.5 text-right text-gray-600">{formatNumber(p.total_stock)}</td>
+                    <td className="py-2.5 text-right text-[var(--text-secondary)]">{formatCurrency(p.avg_profit_per_item)}</td>
+                    <td className="py-2.5 text-right text-[var(--text-secondary)]">{formatNumber(p.total_stock)}</td>
                     <td className="py-2.5 text-center">
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 dark:text-indigo-300">
                         {p.marketplace_count}
                       </span>
                     </td>
                     <td className="py-2.5 pr-2 text-right">
                       <Link
                         to={`/products/${encodeURIComponent(p.id)}`}
-                        className="inline-flex p-1 rounded text-gray-500 hover:text-indigo-600 hover:bg-indigo-50"
+                        className="inline-flex p-1 rounded text-[var(--text-muted)] hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50"
                       >
                         <ChevronRight size={14} />
                       </Link>

@@ -67,10 +67,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f9f8f4] relative overflow-hidden flex items-center justify-center py-8">
+    <div className="min-h-screen bg-[var(--bg-primary)] relative overflow-hidden flex items-center justify-center py-8">
       <div className="absolute inset-0 -z-0">
-        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-pink-50 blur-3xl" />
-        <div className="absolute bottom-[-15%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-50 blur-3xl" />
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-pink-50 dark:bg-pink-500/10 blur-3xl" />
+        <div className="absolute bottom-[-15%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-50 dark:bg-blue-500/10 blur-3xl" />
       </div>
 
       <div className="absolute top-4 right-4 z-20">
@@ -80,13 +80,13 @@ export default function RegisterPage() {
       <div className="relative z-10 w-full max-w-md p-4">
         <div className="flex flex-col items-center mb-8">
           <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-24 h-24 object-contain mb-4 drop-shadow-md" />
-          <h1 className="text-5xl font-black text-slate-800 tracking-tighter">Arkus</h1>
-          <p className="text-gray-500 text-sm mt-1 font-medium">{t('auth.free_trial')}</p>
+          <h1 className="text-5xl font-black text-[var(--text-primary)] tracking-tighter">Arkus</h1>
+          <p className="text-[var(--text-muted)] text-sm mt-1 font-medium">{t('auth.free_trial')}</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 animate-fade-in">
-          <h2 className="text-xl font-bold text-slate-800 mb-1">{t('auth.create_account')}</h2>
-          <p className="text-gray-500 text-sm mb-6">
+        <div className="bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border-color)] p-8 animate-fade-in">
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-1">{t('auth.create_account')}</h2>
+          <p className="text-[var(--text-muted)] text-sm mb-6">
             {t('auth.register_subtitle')}
           </p>
 
@@ -140,7 +140,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="p-1.5 text-gray-400 hover:text-gray-600"
+                  className="p-1.5 text-[var(--text-faint)] hover:text-[var(--text-secondary)]"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -177,25 +177,25 @@ export default function RegisterPage() {
               fullWidth
               leftIcon={<UserPlus size={16} />}
               disabled={!!passwordError || !!confirmError}
-              className="bg-[#4a3f44] hover:bg-[#6b6266] border-none shadow-md"
+              className="border-none shadow-md"
             >
               {t('auth.register')}
             </Button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6 font-medium">
+          <p className="text-center text-sm text-[var(--text-muted)] mt-6 font-medium">
             {t('auth.has_account')}{' '}
-            <Link to="/login" className="text-[#4a3f44] hover:text-slate-800 font-bold transition-colors">
+            <Link to="/login" className="text-[var(--accent)] hover:text-[var(--text-primary)] font-bold transition-colors">
               {t('auth.sign_in')}
             </Link>
           </p>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6 font-medium">
+        <p className="text-center text-xs text-[var(--text-faint)] mt-6 font-medium">
           {t('auth.terms_prefix')}{' '}
-          <a href="#" className="text-gray-500 hover:text-gray-700">{t('auth.terms_link')}</a>
+          <a href="#" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">{t('auth.terms_link')}</a>
           {t('auth.terms_and')}{' '}
-          <a href="#" className="text-gray-500 hover:text-gray-700">{t('auth.privacy_link')}</a>
+          <a href="#" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">{t('auth.privacy_link')}</a>
           {t('auth.terms_suffix')}
         </p>
       </div>

@@ -90,7 +90,7 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
       <aside
         className={`
           fixed top-0 left-0 h-full z-40 w-64 flex flex-col
-          bg-[#f9f8f4] border-r border-gray-200
+          bg-[var(--bg-primary)] border-r border-[var(--border-strong)]
           transition-transform duration-300 ease-in-out
           ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
@@ -103,11 +103,11 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
               className="w-12 h-12 object-contain group-hover:scale-105 transition-transform duration-300"
             />
             <div className="flex flex-col justify-center">
-              <h1 className="font-black text-2xl leading-none text-slate-800 tracking-tighter">Arkus</h1>
-              <p className="text-[8px] text-[#4a3f44]/70 font-black uppercase tracking-[0.25em] mt-1">AI SOLUTIONS</p>
+              <h1 className="font-black text-2xl leading-none text-[var(--text-primary)] tracking-tighter">Arkus</h1>
+              <p className="text-[8px] text-[var(--accent)]/70 font-black uppercase tracking-[0.25em] mt-1">AI SOLUTIONS</p>
             </div>
           </NavLink>
-          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-slate-800 p-1">
+          <button onClick={onClose} className="lg:hidden text-[var(--text-faint)] hover:text-[var(--text-primary)] p-1">
             <X size={18} />
           </button>
         </div>
@@ -116,7 +116,7 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
         <nav className="flex-1 overflow-y-auto py-2 px-6">
           {NAV_GROUPS.map((group) => (
             <div key={group.titleKey} className="mb-6">
-              <p className="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">
+              <p className="text-[10px] font-bold text-[var(--text-faint)] mb-2 uppercase tracking-wider">
                 {t(group.titleKey)}
               </p>
               <div className="space-y-1">
@@ -128,8 +128,8 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
                     className={({ isActive }) =>
                       `flex items-center gap-3 px-3 py-2 rounded-lg text-sm relative ${
                         isActive
-                          ? 'text-white font-medium'
-                          : 'text-gray-600 hover:bg-gray-100 transition-colors'
+                          ? 'text-[var(--accent-fg)] font-medium'
+                          : 'text-[var(--text-secondary)] hover:bg-[var(--bg-muted)] transition-colors'
                       }`
                     }
                   >
@@ -138,7 +138,7 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
                         {isActive && (
                           <motion.span
                             layoutId="sidebar-active-pill"
-                            className="absolute inset-0 bg-[#4a3f44] rounded-lg shadow-sm"
+                            className="absolute inset-0 bg-[var(--accent-solid)] rounded-lg shadow-sm"
                             transition={{ type: 'spring', stiffness: 380, damping: 32 }}
                           />
                         )}
@@ -146,7 +146,7 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
                           size={16}
                           strokeWidth={isActive ? 2 : 1.5}
                           className={`relative z-10 ${
-                            isActive ? 'text-white' : 'text-gray-400 opacity-80'
+                            isActive ? 'text-[var(--accent-fg)]' : 'text-[var(--text-faint)] opacity-80'
                           }`}
                         />
                         <span className="relative z-10 flex-1 truncate font-medium">{t(labelKey)}</span>
@@ -167,9 +167,9 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
         {/* Footer with language switcher */}
         <div className="mt-auto p-4 space-y-3">
           <LanguageSwitcher className="w-full justify-center" />
-          <div className="bg-[#f0ece7] rounded-xl p-4">
-            <p className="text-[10px] font-bold text-gray-600">v1.0.0</p>
-            <p className="text-[10px] text-gray-400 mt-0.5">Arkus AI Solutions</p>
+          <div className="bg-[var(--bg-muted)] rounded-xl p-4">
+            <p className="text-[10px] font-bold text-[var(--text-secondary)]">v1.0.0</p>
+            <p className="text-[10px] text-[var(--text-faint)] mt-0.5">Arkus AI Solutions</p>
           </div>
         </div>
       </aside>

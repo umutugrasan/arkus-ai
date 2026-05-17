@@ -14,15 +14,15 @@ export default function LanguageSwitcher({ className = '' }: LanguageSwitcherPro
   ];
 
   return (
-    <div className={`flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5 ${className}`}>
+    <div className={`flex items-center gap-0.5 bg-[var(--bg-muted)] rounded-lg p-0.5 ${className}`}>
       {options.map((opt) => (
         <button
           key={opt.value}
           onClick={() => setLocale(opt.value)}
           className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-semibold transition-all ${
             locale === opt.value
-              ? 'bg-white text-slate-800 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm'
+              : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
           }`}
         >
           <span>{opt.flag}</span>

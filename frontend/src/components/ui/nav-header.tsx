@@ -36,8 +36,8 @@ export default function NavHeader({ items = DEFAULT_ITEMS, className = "" }: Nav
   return (
     <ul
       className={
-        "relative mx-auto flex w-fit rounded-full border border-[#4a3f44]/15 " +
-        "bg-[#f9f8f4] p-1 shadow-sm shadow-[#4a3f44]/5 " +
+        "relative mx-auto flex w-fit rounded-full border border-[var(--accent)]/15 " +
+        "bg-[var(--bg-card)] p-1 shadow-sm shadow-black/5 " +
         className
       }
       onMouseLeave={() => {
@@ -95,7 +95,7 @@ function Tab({ children, href, index, isHovered, setPosition, setHovered }: TabP
         className={
           "block cursor-pointer px-3 py-1.5 text-xs font-semibold uppercase tracking-wide " +
           "md:px-5 md:py-2.5 md:text-sm transition-colors duration-200 " +
-          (isHovered ? "text-white" : "text-[#4a3f44]")
+          (isHovered ? "text-[var(--accent-fg)]" : "text-[var(--accent)]")
         }
       >
         {children}
@@ -109,7 +109,7 @@ function Cursor({ position }: { position: CursorPosition }) {
     <motion.li
       animate={{ left: position.left, width: position.width, opacity: position.opacity }}
       transition={{ type: "spring", stiffness: 320, damping: 30 }}
-      className="absolute z-0 h-7 rounded-full bg-[#4a3f44] md:h-10"
+      className="absolute z-0 h-7 rounded-full bg-[var(--accent-solid)] md:h-10"
     />
   );
 }

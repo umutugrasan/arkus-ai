@@ -68,10 +68,10 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f9f8f4] relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--bg-primary)] relative overflow-hidden">
       <div className="absolute inset-0 -z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-amber-100 blur-3xl" />
-        <div className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[#4a3f44]/10 blur-3xl" />
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-amber-100 dark:bg-amber-500/10 blur-3xl" />
+        <div className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[var(--accent)]/10 blur-3xl" />
       </div>
 
       <div className="absolute top-4 right-4 z-20">
@@ -81,21 +81,21 @@ export default function ForgotPasswordPage() {
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-[#4a3f44] flex items-center justify-center shadow-2xl shadow-[#4a3f44]/30 mb-4">
-              <Zap size={26} className="text-white" />
+            <div className="w-14 h-14 rounded-2xl bg-[var(--accent-solid)] flex items-center justify-center shadow-2xl shadow-black/20 mb-4">
+              <Zap size={26} className="text-[var(--accent-fg)]" />
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-800 tracking-tighter">Arkus AI</h1>
+            <h1 className="text-3xl font-extrabold text-[var(--text-primary)] tracking-tighter">Arkus AI</h1>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 animate-fade-in">
-            <Link to="/login" className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#4a3f44] mb-4">
+          <div className="bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border-color)] p-8 animate-fade-in">
+            <Link to="/login" className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--accent)] mb-4">
               <ArrowLeft size={12} /> {t('auth.forgot_back')}
             </Link>
 
             {step === 'request' && (
               <>
-                <h2 className="text-xl font-bold text-slate-800 mb-1">{t('auth.forgot_title')}</h2>
-                <p className="text-gray-500 text-sm mb-6">
+                <h2 className="text-xl font-bold text-[var(--text-primary)] mb-1">{t('auth.forgot_title')}</h2>
+                <p className="text-[var(--text-muted)] text-sm mb-6">
                   {t('auth.forgot_subtitle')}
                 </p>
                 <form onSubmit={handleRequest} className="space-y-4">
@@ -124,8 +124,8 @@ export default function ForgotPasswordPage() {
 
             {step === 'reset' && (
               <>
-                <h2 className="text-xl font-bold text-slate-800 mb-1">{t('auth.reset_title')}</h2>
-                <p className="text-gray-500 text-sm mb-4">
+                <h2 className="text-xl font-bold text-[var(--text-primary)] mb-1">{t('auth.reset_title')}</h2>
+                <p className="text-[var(--text-muted)] text-sm mb-4">
                   {t('auth.reset_subtitle')}
                 </p>
 
@@ -150,7 +150,7 @@ export default function ForgotPasswordPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword((v) => !v)}
-                        className="p-1.5 text-gray-500 hover:text-slate-200"
+                        className="p-1.5 text-[var(--text-faint)] hover:text-[var(--text-secondary)]"
                         tabIndex={-1}
                       >
                         {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -188,10 +188,10 @@ export default function ForgotPasswordPage() {
             {step === 'done' && (
               <div className="text-center py-6">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto mb-4">
-                  <KeyRound size={26} className="text-emerald-400" />
+                  <KeyRound size={26} className="text-emerald-500" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-800 mb-2">{t('auth.reset_done')}</h2>
-                <p className="text-gray-500 text-sm">{t('auth.reset_done_desc')}</p>
+                <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">{t('auth.reset_done')}</h2>
+                <p className="text-[var(--text-muted)] text-sm">{t('auth.reset_done_desc')}</p>
               </div>
             )}
           </div>

@@ -6,20 +6,16 @@ import LoadingSpinner from '../components/shared/LoadingSpinner';
 import StreamingMarkdown from '../components/shared/StreamingMarkdown';
 import { healthScoreService } from '../services';
 import { formatCurrency, formatPercent } from '../utils/formatters';
+import { useI18n } from '../context/I18nContext';
+import { useTheme } from '../hooks/useTheme';
+import { getChartTheme } from '../utils/chartTheme';
+import type { TranslationKey } from '../i18n';
 import type { HealthScoreResponse, HealthBreakdownResponse, HealthHistoryResponse, HealthAnalyzeResponse } from '../types/api';
 
-const CATEGORY_LABELS: Record<string, string> = {
-  satis_trendi: 'Satış Trendi',
-  kar_marji: 'Kâr Marjı',
-  iade_orani: 'İade Oranı',
-  yorum_puani: 'Yorum Puanı',
-  nakit_akisi: 'Nakit Akışı',
-  pazaryeri_cesitliligi: 'Pazaryeri Çeşitliliği',
-  urun_cesitliligi: 'Ürün Çeşitliliği',
-  stok_sagligi: 'Stok Sağlığı',
-};
-
 export default function HealthScorePage() {
+  const { t } = useI18n();
+  const { isDark } = useTheme();
+  const chart = getChartTheme(isDark);
   const [score, setScore] = useState<HealthScoreResponse | null>(null);
   const [breakdown, setBreakdown] = useState<HealthBreakdownResponse | null>(null);
   const [history, setHistory] = useState<HealthHistoryResponse | null>(null);
@@ -27,6 +23,11 @@ export default function HealthScorePage() {
   const [aiSources, setAiSources] = useState<Array<{ title: string; uri: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
+
+  const categoryLabel = (cat: string) => {
+    const translated = t(`health.cat.${cat}` as TranslationKey);
+    return translated === `health.cat.${cat}` ? cat : translated;
+  };
 
   useEffect(() => {
     Promise.all([
@@ -49,7 +50,7 @@ export default function HealthScorePage() {
     } finally { setAiLoading(false); }
   };
 
-  if (loading) return <LoadingSpinner message="Sağlık skoru hesaplanıyor…" size="lg" />;
+  if (loading) return <LoadingSpinner message={t('health.loading')} size="lg" />;
 
   const totalScore = score?.total_score ?? 0;
   const grade = score?.grade ?? 'C';
@@ -58,10 +59,10 @@ export default function HealthScorePage() {
   const metrics = score?.metrics;
 
   const gradeConfig: Record<string, { text: string; bg: string; ring: string }> = {
-    A: { text: 'text-emerald-400', bg: 'from-emerald-500/30 to-emerald-600/10', ring: '#10b981' },
-    B: { text: 'text-indigo-600', bg: 'from-indigo-500/30 to-indigo-600/10', ring: '#6366f1' },
-    C: { text: 'text-amber-400', bg: 'from-amber-500/30 to-amber-600/10', ring: '#f59e0b' },
-    D: { text: 'text-rose-400', bg: 'from-rose-500/30 to-rose-600/10', ring: '#ef4444' },
+    A: { text: 'text-emerald-500', bg: 'from-emerald-500/30 to-emerald-600/10', ring: '#10b981' },
+    B: { text: 'text-indigo-600 dark:text-indigo-300', bg: 'from-indigo-500/30 to-indigo-600/10', ring: '#6366f1' },
+    C: { text: 'text-amber-500', bg: 'from-amber-500/30 to-amber-600/10', ring: '#f59e0b' },
+    D: { text: 'text-rose-500', bg: 'from-rose-500/30 to-rose-600/10', ring: '#ef4444' },
   };
   const cfg = gradeConfig[grade] || gradeConfig.C;
 
@@ -79,35 +80,35 @@ export default function HealthScorePage() {
                 <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="100%"
                   data={gaugeData} startAngle={180} endAngle={-180}>
                   <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
-                  <RadialBar background={{ fill: '#1e293b' }} dataKey="value" cornerRadius={10} />
+                  <RadialBar background={{ fill: isDark ? '#3a2f33' : '#e5e7eb' }} dataKey="value" cornerRadius={10} />
                 </RadialBarChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <p className={`text-5xl font-extrabold ${cfg.text}`}>{totalScore}</p>
-                <p className="text-gray-500 text-sm">/ 100</p>
+                <p className="text-[var(--text-muted)] text-sm">/ 100</p>
               </div>
             </div>
             <div className="mt-4 text-center">
               <span className={`text-4xl font-bold ${cfg.text}`}>{grade}</span>
-              <p className="text-slate-800 font-medium mt-1">{label}</p>
+              <p className="text-[var(--text-primary)] font-medium mt-1">{label}</p>
             </div>
           </div>
         </GlassCard>
 
         <GlassCard className="md:col-span-2">
-          <h3 className="text-slate-800 font-semibold mb-4">Metrikler</h3>
+          <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('health.metrics')}</h3>
           <div className="grid grid-cols-2 gap-3">
             {metrics && [
-              { label: 'Ort. Puan', value: metrics.avg_rating.toFixed(1) + ' ⭐' },
-              { label: 'İade Oranı', value: formatPercent(metrics.return_rate) },
-              { label: 'Net Marj', value: formatPercent(metrics.net_margin) },
-              { label: 'Pazaryeri Sayısı', value: String(metrics.marketplace_count) },
-              { label: 'Toplam Ürün', value: String(metrics.unique_products) },
-              { label: 'Aylık Net Kâr', value: formatCurrency(metrics.monthly_net_profit) },
+              { label: t('health.m_avg_rating'), value: metrics.avg_rating.toFixed(1) + ' ⭐' },
+              { label: t('health.m_return_rate'), value: formatPercent(metrics.return_rate) },
+              { label: t('health.m_net_margin'), value: formatPercent(metrics.net_margin) },
+              { label: t('health.m_mp_count'), value: String(metrics.marketplace_count) },
+              { label: t('health.m_total_products'), value: String(metrics.unique_products) },
+              { label: t('health.m_monthly_profit'), value: formatCurrency(metrics.monthly_net_profit) },
             ].map(m => (
-              <div key={m.label} className="p-3 bg-white/40 rounded-xl">
-                <p className="text-gray-500 text-xs">{m.label}</p>
-                <p className="text-slate-800 font-semibold mt-0.5">{m.value}</p>
+              <div key={m.label} className="p-3 bg-[var(--bg-elevated)] rounded-xl">
+                <p className="text-[var(--text-muted)] text-xs">{m.label}</p>
+                <p className="text-[var(--text-primary)] font-semibold mt-0.5">{m.value}</p>
               </div>
             ))}
           </div>
@@ -117,7 +118,7 @@ export default function HealthScorePage() {
       {/* Kategori Breakdown */}
       {breakdown && (
         <GlassCard>
-          <h3 className="text-slate-800 font-semibold mb-4">Kategori Bazlı Puan</h3>
+          <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('health.breakdown_title')}</h3>
           <div className="space-y-3">
             {(breakdown.breakdown || []).map((item) => {
               const pct = item.percentage;
@@ -125,10 +126,10 @@ export default function HealthScorePage() {
               return (
                 <div key={item.category}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-gray-600 text-sm">{CATEGORY_LABELS[item.category] || item.category}</span>
-                    <span className="text-slate-800 font-semibold text-sm">{item.score}/{item.max_score}</span>
+                    <span className="text-[var(--text-secondary)] text-sm">{categoryLabel(item.category)}</span>
+                    <span className="text-[var(--text-primary)] font-semibold text-sm">{item.score}/{item.max_score}</span>
                   </div>
-                  <div className="h-2 bg-white rounded-full overflow-hidden">
+                  <div className="h-2 bg-[var(--bg-muted)] rounded-full overflow-hidden">
                     <div className={`h-full rounded-full transition-all duration-700 ${barColor}`} style={{ width: `${pct}%` }} />
                   </div>
                 </div>
@@ -141,13 +142,14 @@ export default function HealthScorePage() {
       {/* Tarihçe Grafiği */}
       {historyData.length > 0 && (
         <GlassCard>
-          <h3 className="text-slate-800 font-semibold mb-4">Aylık Skor Tarihçesi</h3>
+          <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('health.history_title')}</h3>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={historyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis dataKey="month" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8 }}
+              <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+              <XAxis dataKey="month" tick={{ fill: chart.axis, fontSize: 11 }} />
+              <YAxis domain={[0, 100]} tick={{ fill: chart.axis, fontSize: 11 }} />
+              <Tooltip contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: 8 }}
+                labelStyle={{ color: chart.tooltipText }} itemStyle={{ color: chart.tooltipText }}
                 formatter={(value) => `${value}/100`} />
               <Line type="monotone" dataKey="score" stroke="#6366f1" strokeWidth={2} dot={{ fill: '#6366f1', r: 4 }} />
             </LineChart>
@@ -158,15 +160,15 @@ export default function HealthScorePage() {
       {/* AI Analiz */}
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-slate-800 font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600" /> AI Skor Analizi</h3>
+          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600 dark:text-indigo-300" /> {t('health.ai_title')}</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading}
-            className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
-            {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Analiz ediliyor…</> : <><Brain size={14} /> Analiz Et</>}
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+            {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> {t('common.analyzing')}</> : <><Brain size={14} /> {t('common.analyze')}</>}
           </button>
         </div>
         {aiAnalysis
-          ? <StreamingMarkdown content={aiAnalysis} webSources={aiSources} title="Sağlık Skoru AI Analizi" />
-          : <p className="text-gray-500 text-sm">Güçlü/zayıf yönler ve skor artırma yol haritası için Analiz Et'e tıklayın.</p>
+          ? <StreamingMarkdown content={aiAnalysis} webSources={aiSources} title={t('health.ai_analysis_title')} />
+          : <p className="text-[var(--text-muted)] text-sm">{t('health.ai_hint')}</p>
         }
       </GlassCard>
     </div>

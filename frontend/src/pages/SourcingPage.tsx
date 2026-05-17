@@ -6,6 +6,7 @@ import EmptyState from '../components/shared/EmptyState';
 import StreamingMarkdown from '../components/shared/StreamingMarkdown';
 import { sourcingService } from '../services';
 import { formatCurrency } from '../utils/formatters';
+import { useI18n } from '../context/I18nContext';
 import type {
   SuppliersResponse, BestPriceResponse, SourcingOpportunitiesResponse,
   PriceAlertsResponse, Supplier, PriceAlert, RealSearchResponse,
@@ -19,6 +20,7 @@ function getApiErrorMessage(error: unknown, fallback: string) {
 }
 
 export default function SourcingPage() {
+  const { t } = useI18n();
   const [tab, setTab] = useState<Tab>('suppliers');
   const [suppliers, setSuppliers] = useState<SuppliersResponse | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -76,12 +78,12 @@ export default function SourcingPage() {
       if (bestPriceResult.status === 'fulfilled') setBestPrice(bestPriceResult.value);
       if (realSearchResult.status === 'fulfilled') setRealSearch(realSearchResult.value);
       if (bestPriceResult.status === 'rejected' && realSearchResult.status === 'rejected') {
-        setSearchError(getApiErrorMessage(bestPriceResult.reason, 'Arama sirasinda bir hata olustu.'));
+        setSearchError(getApiErrorMessage(bestPriceResult.reason, t('sourcing.search_error')));
       }
     } catch (err: unknown) {
-      setSearchError(getApiErrorMessage(err, 'Arama sirasinda bir hata olustu.'));
-    } finally { 
-      setSearchLoading(false); 
+      setSearchError(getApiErrorMessage(err, t('sourcing.search_error')));
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -111,13 +113,13 @@ export default function SourcingPage() {
   };
 
   const tabs = [
-    { id: 'suppliers' as Tab, label: '🏭 Tedarikçiler' },
-    { id: 'search' as Tab, label: '🔍 En İyi Fiyat' },
-    { id: 'alerts' as Tab, label: `🔔 Alarmlar (${alerts?.alerts?.length ?? 0})` },
-    { id: 'opportunities' as Tab, label: '🤖 AI Fırsatlar' },
+    { id: 'suppliers' as Tab, label: `🏭 ${t('sourcing.tab_suppliers')}` },
+    { id: 'search' as Tab, label: `🔍 ${t('sourcing.tab_search')}` },
+    { id: 'alerts' as Tab, label: `🔔 ${t('sourcing.tab_alerts')} (${alerts?.alerts?.length ?? 0})` },
+    { id: 'opportunities' as Tab, label: `🤖 ${t('sourcing.tab_opportunities')}` },
   ];
 
-  if (loading) return <LoadingSpinner message="Tedarikçi verileri yükleniyor…" size="lg" />;
+  if (loading) return <LoadingSpinner message={t('sourcing.loading')} size="lg" />;
 
   const supplierList: Supplier[] = suppliers?.suppliers || [];
   const alertList: PriceAlert[] = alerts?.alerts || [];
@@ -126,18 +128,18 @@ export default function SourcingPage() {
     <div className="space-y-6 animate-fade-in">
       {/* Tabs */}
       <div className="flex flex-wrap gap-2">
-        {tabs.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)}
+        {tabs.map(tb => (
+          <button key={tb.id} onClick={() => setTab(tb.id)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              tab === t.id ? 'bg-[#4a3f44] text-white' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
-            }`}>{t.label}</button>
+              tab === tb.id ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)]' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+            }`}>{tb.label}</button>
         ))}
       </div>
 
       {/* Tedarikçiler */}
       {tab === 'suppliers' && (
         supplierList.length === 0
-          ? <EmptyState title="Tedarikçi Bulunamadı" description="Henüz tedarikçi verisi yok." />
+          ? <EmptyState title={t('sourcing.no_suppliers')} description={t('sourcing.no_suppliers_desc')} />
           : (
             <div className="grid md:grid-cols-2 gap-4">
               {supplierList.map((s, i) => (
@@ -145,26 +147,26 @@ export default function SourcingPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-slate-800 font-semibold">{s.name}</p>
+                        <p className="text-[var(--text-primary)] font-semibold">{s.name}</p>
                         {s.discount_pct > 0 && (
-                          <span className="text-xs px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded-full font-medium">
-                            %{s.discount_pct} İNDİRİM
+                          <span className="text-xs px-2 py-0.5 bg-emerald-500/20 text-emerald-500 rounded-full font-medium">
+                            {t('sourcing.discount_badge').replace('{pct}', String(s.discount_pct))}
                           </span>
                         )}
                       </div>
-                      <p className="text-gray-500 text-sm mt-0.5">{s.product}</p>
+                      <p className="text-[var(--text-muted)] text-sm mt-0.5">{s.product}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-slate-800 font-bold">{formatCurrency(s.current_price)}</p>
+                      <p className="text-[var(--text-primary)] font-bold">{formatCurrency(s.current_price)}</p>
                       {s.discount_pct > 0 && (
-                        <p className="text-emerald-400 text-sm">{formatCurrency(s.discounted_price)}</p>
+                        <p className="text-emerald-500 text-sm">{formatCurrency(s.discounted_price)}</p>
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-3 mt-3 text-xs text-gray-500">
-                    <span>Min. Sipariş: {s.min_order} adet</span>
+                  <div className="flex gap-3 mt-3 text-xs text-[var(--text-muted)]">
+                    <span>{t('sourcing.min_order').replace('{n}', String(s.min_order))}</span>
                     {/* Supplier type has shipping_days, not delivery_days */}
-                    <span>Teslimat: {s.shipping_days} gün</span>
+                    <span>{t('sourcing.delivery').replace('{n}', String(s.shipping_days))}</span>
                   </div>
                 </GlassCard>
               ))}
@@ -181,26 +183,26 @@ export default function SourcingPage() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                placeholder="Ürün adı girin… (örn: Bluetooth Kulaklık)"
-                className="flex-1 bg-gray-50 border border-gray-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#4a3f44] transition-colors"
+                placeholder={t('sourcing.search_placeholder')}
+                className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
               />
               <button onClick={handleSearch} disabled={searchLoading || !searchQuery.trim()}
-                className="flex items-center gap-2 px-5 py-3 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+                className="flex items-center gap-2 px-5 py-3 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
                 {searchLoading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-                Ara
+                {t('sourcing.search_btn')}
               </button>
             </div>
-            
+
             {/* Progress Bar */}
             {(searchLoading || (progress > 0 && progress < 100)) && (
               <div className="mt-4">
-                <div className="flex justify-between text-xs text-gray-500 mb-1 font-medium">
-                  <span>AI Analizi yapılıyor...</span>
+                <div className="flex justify-between text-xs text-[var(--text-muted)] mb-1 font-medium">
+                  <span>{t('sourcing.ai_progress')}</span>
                   <span>{progress}%</span>
                 </div>
-                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-[#4a3f44] transition-all duration-300 ease-out"
+                <div className="h-1.5 bg-[var(--bg-muted)] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[var(--accent-solid)] transition-all duration-300 ease-out"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -223,22 +225,22 @@ export default function SourcingPage() {
                                      s.name.toLowerCase().includes('aliexpress') ? 'aliexpress.com/w/wholesale-' :
                                      'google.com/search?q=buy+wholesale+';
                 const href = isValidUrl ? s.url! : `https://www.${searchDomain}${encodeURIComponent(s.product + ' ' + s.name)}`;
-                
+
                 return (
                   <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:scale-[1.01]">
                     <GlassCard className="hover:border-indigo-500/50 transition-colors cursor-pointer">
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="text-slate-800 font-medium text-lg">{s.name}</p>
-                          <div className="flex gap-3 mt-1 text-xs text-gray-500">
-                            <span>Min. {s.min_order} adet</span>
-                            <span>{s.shipping_days} günde teslimat</span>
+                          <p className="text-[var(--text-primary)] font-medium text-lg">{s.name}</p>
+                          <div className="flex gap-3 mt-1 text-xs text-[var(--text-muted)]">
+                            <span>{t('sourcing.min_short').replace('{n}', String(s.min_order))}</span>
+                            <span>{t('sourcing.delivery_short').replace('{n}', String(s.shipping_days))}</span>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-slate-800 font-bold text-xl">{formatCurrency(s.current_price)}</p>
+                          <p className="text-[var(--text-primary)] font-bold text-xl">{formatCurrency(s.current_price)}</p>
                           {s.discount_pct > 0 && (
-                            <p className="text-emerald-400 text-sm mt-0.5">Tasarruf: %{s.discount_pct}</p>
+                            <p className="text-emerald-500 text-sm mt-0.5">{t('sourcing.savings').replace('{pct}', String(s.discount_pct))}</p>
                           )}
                         </div>
                       </div>
@@ -253,7 +255,7 @@ export default function SourcingPage() {
             <StreamingMarkdown
               content={realSearch.ai_analysis || ''}
               webSources={realSearch.web_sources || []}
-              title="Guncel Web Tedarik Aramasi"
+              title={t('sourcing.web_search_title')}
             />
           )}
         </div>
@@ -263,39 +265,39 @@ export default function SourcingPage() {
       {tab === 'alerts' && (
         <div className="space-y-4">
           <GlassCard>
-            <h3 className="text-slate-800 font-semibold mb-3">Yeni Fiyat Alarmı</h3>
+            <h3 className="text-[var(--text-primary)] font-semibold mb-3">{t('sourcing.new_alert')}</h3>
             <div className="flex flex-wrap gap-3">
               <input value={alertProduct} onChange={e => setAlertProduct(e.target.value)}
-                placeholder="Ürün adı"
-                className="flex-1 min-w-40 bg-gray-50 border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#4a3f44]" />
+                placeholder={t('sourcing.product_name')}
+                className="flex-1 min-w-40 bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent)]" />
               <input value={alertPrice} onChange={e => setAlertPrice(e.target.value)} type="number"
-                placeholder="Hedef fiyat (₺)"
-                className="w-40 bg-gray-50 border border-gray-200 text-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#4a3f44]" />
+                placeholder={t('sourcing.target_price')}
+                className="w-40 bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent)]" />
               <button onClick={handleCreateAlert} disabled={alertCreating || !alertProduct || !alertPrice}
-                className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+                className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
                 {alertCreating ? <Loader2 size={14} className="animate-spin" /> : <Bell size={14} />}
-                Alarm Ekle
+                {t('sourcing.add_alert')}
               </button>
             </div>
           </GlassCard>
 
           {alertList.length === 0
-            ? <EmptyState title="Alarm Yok" description="Henüz fiyat alarmı oluşturmadınız." />
+            ? <EmptyState title={t('sourcing.no_alerts')} description={t('sourcing.no_alerts_desc')} />
             : alertList.map((a: PriceAlert) => (
               <GlassCard key={a.id}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-800 font-medium">{a.product_name}</p>
-                    <p className="text-gray-500 text-sm">Hedef: {formatCurrency(a.target_price)}</p>
+                    <p className="text-[var(--text-primary)] font-medium">{a.product_name}</p>
+                    <p className="text-[var(--text-muted)] text-sm">{t('sourcing.target')} {formatCurrency(a.target_price)}</p>
                     {/* PriceAlert.supplier (not supplier_name) */}
-                    {a.supplier && <p className="text-gray-500 text-xs">Tedarikçi: {a.supplier}</p>}
+                    {a.supplier && <p className="text-[var(--text-muted)] text-xs">{t('sourcing.supplier')} {a.supplier}</p>}
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      a.status === 'active' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-700 text-gray-500'
-                    }`}>{a.status === 'active' ? '🔔 Aktif' : '✓ Tetiklendi'}</span>
+                      a.status === 'active' ? 'bg-indigo-50 text-indigo-600 dark:text-indigo-300' : 'bg-[var(--bg-muted)] text-[var(--text-muted)]'
+                    }`}>{a.status === 'active' ? t('sourcing.active') : t('sourcing.triggered')}</span>
                     <button onClick={() => handleDeleteAlert(a.id)}
-                      className="p-1.5 hover:bg-rose-500/10 rounded-lg text-gray-500 hover:text-rose-400 transition-colors">
+                      className="p-1.5 hover:bg-rose-500/10 rounded-lg text-[var(--text-muted)] hover:text-rose-500 transition-colors">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -312,26 +314,26 @@ export default function SourcingPage() {
           <GlassCard>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-slate-800 font-semibold">AI Tedarik Fırsatları</h3>
-                <p className="text-gray-500 text-sm">Gemini web araması ile güncel tedarikçi fırsatları</p>
+                <h3 className="text-[var(--text-primary)] font-semibold">{t('sourcing.ai_opp_title')}</h3>
+                <p className="text-[var(--text-muted)] text-sm">{t('sourcing.ai_opp_desc')}</p>
               </div>
               <button onClick={handleOpportunities} disabled={oppLoading}
-                className="flex items-center gap-2 px-4 py-2 bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+                className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
                 {oppLoading ? <Loader2 size={14} className="animate-spin" /> : <Brain size={14} />}
-                Fırsatları Bul
+                {t('sourcing.find_opp')}
               </button>
             </div>
-            
+
             {/* Progress Bar */}
             {(oppLoading || (progress > 0 && progress < 100)) && (
               <div className="mt-4">
-                <div className="flex justify-between text-xs text-gray-500 mb-1 font-medium">
-                  <span>AI Fırsatları araştırılıyor...</span>
+                <div className="flex justify-between text-xs text-[var(--text-muted)] mb-1 font-medium">
+                  <span>{t('sourcing.ai_progress_opp')}</span>
                   <span>{progress}%</span>
                 </div>
-                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-[#4a3f44] transition-all duration-300 ease-out"
+                <div className="h-1.5 bg-[var(--bg-muted)] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[var(--accent-solid)] transition-all duration-300 ease-out"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -339,13 +341,13 @@ export default function SourcingPage() {
             )}
           </GlassCard>
 
-          {oppLoading && <LoadingSpinner message="Web'de tedarikçi fırsatları aranıyor…" size="sm" />}
+          {oppLoading && <LoadingSpinner message={t('sourcing.searching_web')} size="sm" />}
 
           {opportunities && (
             <StreamingMarkdown
               content={opportunities.ai_analysis || ''}
               webSources={opportunities.web_sources || []}
-              title="AI Tedarik Fırsatları"
+              title={t('sourcing.ai_opp_title')}
             />
           )}
         </div>

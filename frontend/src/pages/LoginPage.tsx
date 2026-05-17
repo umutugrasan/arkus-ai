@@ -51,10 +51,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f9f8f4] relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen bg-[var(--bg-primary)] relative overflow-hidden flex items-center justify-center">
       <div className="absolute inset-0 -z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-amber-100 blur-3xl" />
-        <div className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[#4a3f44]/10 blur-3xl" />
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-amber-100 dark:bg-amber-500/10 blur-3xl" />
+        <div className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[var(--accent)]/10 blur-3xl" />
       </div>
 
       <div className="absolute top-4 right-4 z-20">
@@ -64,13 +64,13 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-md p-4">
         <div className="flex flex-col items-center mb-10">
           <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-24 h-24 object-contain mb-4 drop-shadow-md" />
-          <h1 className="text-5xl font-black text-slate-800 tracking-tighter">Arkus</h1>
-          <p className="text-gray-500 text-sm mt-1 font-medium">{t('auth.tagline')}</p>
+          <h1 className="text-5xl font-black text-[var(--text-primary)] tracking-tighter">Arkus</h1>
+          <p className="text-[var(--text-muted)] text-sm mt-1 font-medium">{t('auth.tagline')}</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 animate-fade-in">
-          <h2 className="text-xl font-bold text-slate-800 mb-1">{t('auth.welcome')}</h2>
-          <p className="text-gray-500 text-sm mb-6">{t('auth.login_subtitle')}</p>
+        <div className="bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border-color)] p-8 animate-fade-in">
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-1">{t('auth.welcome')}</h2>
+          <p className="text-[var(--text-muted)] text-sm mb-6">{t('auth.login_subtitle')}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
@@ -98,7 +98,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="p-1.5 text-gray-400 hover:text-gray-600"
+                  className="p-1.5 text-[var(--text-faint)] hover:text-[var(--text-secondary)]"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -108,7 +108,7 @@ export default function LoginPage() {
             />
 
             <div className="flex items-center justify-end -mt-1">
-              <Link to="/forgot-password" className="text-xs text-[#4a3f44] font-medium hover:text-slate-800 transition-colors">
+              <Link to="/forgot-password" className="text-xs text-[var(--accent)] font-medium hover:text-[var(--text-primary)] transition-colors">
                 {t('auth.forgot_password')}
               </Link>
             </div>
@@ -120,22 +120,22 @@ export default function LoginPage() {
               loading={submitting}
               fullWidth
               leftIcon={<LogIn size={16} />}
-              className="bg-[#4a3f44] hover:bg-[#6b6266] border-none shadow-md"
+              className="border-none shadow-md"
             >
               {t('auth.login')}
             </Button>
 
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6 font-medium">
+          <p className="text-center text-sm text-[var(--text-muted)] mt-6 font-medium">
             {t('auth.no_account')}{' '}
-            <Link to="/register" className="text-[#4a3f44] hover:text-slate-800 font-bold transition-colors">
+            <Link to="/register" className="text-[var(--accent)] hover:text-[var(--text-primary)] font-bold transition-colors">
               {t('auth.register')}
             </Link>
           </p>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6 font-medium">
+        <p className="text-center text-xs text-[var(--text-faint)] mt-6 font-medium">
           {t('auth.copyright')}
         </p>
       </div>

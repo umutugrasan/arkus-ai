@@ -12,14 +12,14 @@ export default function LoadingSpinner({ message = 'Yükleniyor...', size = 'md'
     <div className="flex flex-col items-center justify-center gap-3 py-8">
       {ai ? (
         <div className="relative">
-          <Brain size={sizeMap[size]} className="text-[#4a3f44] animate-pulse" />
-          <div className="absolute -inset-2 rounded-full border-2 border-[#4a3f44]/20 border-t-[#4a3f44] animate-spin" />
+          <Brain size={sizeMap[size]} className="text-[var(--accent)] animate-pulse" />
+          <div className="absolute -inset-2 rounded-full border-2 border-[var(--accent)]/20 border-t-[var(--accent)] animate-spin" />
         </div>
       ) : (
-        <Loader2 size={sizeMap[size]} className="text-[#4a3f44] animate-spin" />
+        <Loader2 size={sizeMap[size]} className="text-[var(--accent)] animate-spin" />
       )}
       {message && (
-        <p className="text-gray-500 text-sm">
+        <p className="text-[var(--text-muted)] text-sm">
           {ai ? `🤖 ${message}` : message}
         </p>
       )}

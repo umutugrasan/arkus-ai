@@ -15,11 +15,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANT: Record<Variant, string> = {
   primary:
-    'bg-[#4a3f44] hover:bg-[#6b6266] text-white shadow-lg shadow-[#4a3f44]/20 disabled:opacity-50',
+    'bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] shadow-lg shadow-black/10 disabled:opacity-50',
   secondary:
-    'bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 disabled:opacity-50',
+    'bg-[var(--bg-elevated)] hover:bg-[var(--bg-muted)] border border-[var(--border-strong)] text-[var(--text-secondary)] disabled:opacity-50',
   ghost:
-    'bg-transparent hover:bg-gray-50 text-gray-600 disabled:opacity-50',
+    'bg-transparent hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)] disabled:opacity-50',
   danger:
     'bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-500/30 disabled:opacity-50',
   success:

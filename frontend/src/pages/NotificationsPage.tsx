@@ -12,9 +12,9 @@ type FilterType = 'all' | 'unread' | 'stok_uyarisi' | 'puan_dususu' | 'rakip_fiy
 export default function NotificationsPage() {
   const { t } = useI18n();
   const SEVERITY_CONFIG: Record<string, { icon: React.ReactNode; text: string; bg: string; label: string }> = useMemo(() => ({
-    critical: { icon: <XCircle size={14} />, text: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/30', label: t('notifications.severity_critical') },
-    warning:  { icon: <AlertTriangle size={14} />, text: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30', label: t('notifications.severity_warning') },
-    info:     { icon: <Info size={14} />, text: 'text-[#4a3f44]', bg: 'bg-[#4a3f44]/10 border-[#4a3f44]/30', label: t('notifications.severity_info') },
+    critical: { icon: <XCircle size={14} />, text: 'text-rose-500', bg: 'bg-rose-500/10 border-rose-500/30', label: t('notifications.severity_critical') },
+    warning:  { icon: <AlertTriangle size={14} />, text: 'text-amber-500', bg: 'bg-amber-500/10 border-amber-500/30', label: t('notifications.severity_warning') },
+    info:     { icon: <Info size={14} />, text: 'text-[var(--accent)]', bg: 'bg-[var(--accent)]/10 border-[var(--accent)]/30', label: t('notifications.severity_info') },
   }), [t]);
 
   const TYPE_LABELS: Record<string, string> = useMemo(() => ({
@@ -86,24 +86,24 @@ export default function NotificationsPage() {
       {/* Header Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-[#4a3f44]/10 rounded-xl">
-            <Bell size={18} className="text-[#4a3f44]" />
+          <div className="p-2 bg-[var(--accent)]/10 rounded-xl">
+            <Bell size={18} className="text-[var(--accent)]" />
           </div>
           <div>
-            <h2 className="text-slate-800 font-semibold">{t('notifications.title')}</h2>
-            {unreadCount > 0 && <p className="text-gray-500 text-xs">{unreadCount} {t('notifications.unread_count')}</p>}
+            <h2 className="text-[var(--text-primary)] font-semibold">{t('notifications.title')}</h2>
+            {unreadCount > 0 && <p className="text-[var(--text-muted)] text-xs">{unreadCount} {t('notifications.unread_count')}</p>}
           </div>
         </div>
         <div className="flex gap-2">
           {unreadCount > 0 && (
             <button onClick={handleMarkAll} disabled={markingAll}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm bg-white hover:bg-slate-100 text-gray-600 rounded-xl transition-all disabled:opacity-50">
+              className="flex items-center gap-1.5 px-3 py-2 text-sm bg-[var(--bg-card)] hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] border border-[var(--border-strong)] rounded-xl transition-all disabled:opacity-50">
               {markingAll ? <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" /> : <CheckCheck size={14} />}
               {t('notifications.mark_all')}
             </button>
           )}
           <button onClick={handleGenerate} disabled={generating}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-[#4a3f44] hover:bg-[#6b6266] text-white rounded-xl transition-all disabled:opacity-50">
+            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl transition-all disabled:opacity-50">
             {generating ? <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> : <RefreshCw size={14} />}
             {t('notifications.scan')}
           </button>
@@ -115,7 +115,7 @@ export default function NotificationsPage() {
         {filters.map(f => (
           <button key={f.id} onClick={() => setFilter(f.id)}
             className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
-              filter === f.id ? 'bg-[#4a3f44] text-white' : 'bg-gray-50 text-gray-500 hover:text-slate-800'
+              filter === f.id ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)]' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
             }`}>{f.label}</button>
         ))}
       </div>
@@ -130,26 +130,26 @@ export default function NotificationsPage() {
               return (
                 <div key={n.id} onClick={() => !n.read && handleMarkRead(n.id)}
                   className={`p-4 rounded-2xl border transition-all ${
-                    !n.read ? `${sev.bg} cursor-pointer hover:opacity-80` : 'bg-white/20 border-gray-200/50 opacity-70'
+                    !n.read ? `${sev.bg} cursor-pointer hover:opacity-80` : 'bg-[var(--bg-elevated)] border-[var(--border-color)] opacity-70'
                   }`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
-                      <div className={`flex-shrink-0 p-1.5 rounded-lg ${!n.read ? sev.bg : 'bg-white/40'}`}>
+                      <div className={`flex-shrink-0 p-1.5 rounded-lg ${!n.read ? sev.bg : 'bg-[var(--bg-muted)]'}`}>
                         <span className={sev.text}>{sev.icon}</span>
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-0.5">
-                          <p className={`text-sm font-semibold ${!n.read ? 'text-slate-800' : 'text-gray-500'}`}>{n.title}</p>
-                          {!n.read && <span className="w-2 h-2 bg-[#4a3f44] rounded-full flex-shrink-0" />}
+                          <p className={`text-sm font-semibold ${!n.read ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>{n.title}</p>
+                          {!n.read && <span className="w-2 h-2 bg-[var(--accent)] rounded-full flex-shrink-0" />}
                         </div>
-                        <p className="text-gray-500 text-xs leading-relaxed">{n.message}</p>
+                        <p className="text-[var(--text-muted)] text-xs leading-relaxed">{n.message}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className={`text-xs px-2 py-0.5 rounded-full ${sev.bg} ${sev.text}`}>{sev.label}</span>
-                          {TYPE_LABELS[n.type] && <span className="text-xs text-gray-500">{TYPE_LABELS[n.type]}</span>}
+                          {TYPE_LABELS[n.type] && <span className="text-xs text-[var(--text-muted)]">{TYPE_LABELS[n.type]}</span>}
                         </div>
                       </div>
                     </div>
-                    <p className="text-gray-500 text-xs flex-shrink-0">{formatDate(n.created_at)}</p>
+                    <p className="text-[var(--text-muted)] text-xs flex-shrink-0">{formatDate(n.created_at)}</p>
                   </div>
                 </div>
               );

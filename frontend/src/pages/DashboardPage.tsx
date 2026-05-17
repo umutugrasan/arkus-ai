@@ -21,6 +21,8 @@ import { getErrorMessage } from '../utils/errors';
 import { formatCurrency, formatNumber, formatPercent } from '../utils/formatters';
 import { MARKETPLACES, MP_CHART_COLORS } from '../utils/constants';
 import { useI18n } from '../context/I18nContext';
+import { useTheme } from '../hooks/useTheme';
+import { getChartTheme } from '../utils/chartTheme';
 import type {
   AiSummaryResponse, DashboardOverview, MarketplaceSummary, TrendsResponse,
 } from '../types/api';
@@ -29,7 +31,9 @@ type TrendPeriod = 7 | 30;
 
 export default function DashboardPage() {
   const toast = useToast();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const { isDark } = useTheme();
+  const chart = getChartTheme(isDark);
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [mpSummaries, setMpSummaries] = useState<MarketplaceSummary[]>([]);
   const [trends, setTrends] = useState<TrendsResponse | null>(null);
@@ -45,15 +49,21 @@ export default function DashboardPage() {
   const [aiSnapshot, setAiSnapshot] = useState<AiSummaryResponse['snapshot'] | null>(null);
   const aiAbortRef = useRef<AbortController | null>(null);
 
-  /** DB snapshot'tan basit Türkçe özet üretir (Gemini yokken fallback) */
+  /** DB snapshot'tan basit özet üretir (Gemini yokken fallback) */
   const buildFallbackSummary = (snap: AiSummaryResponse['snapshot']): string => {
+    const nf = (n: number) => n.toLocaleString(locale === 'tr' ? 'tr-TR' : 'en-US', { maximumFractionDigits: 0 });
     const parts: string[] = [
-      `📊 **Son 30 Günün Özeti**: ${snap.total_revenue_30d.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} TL ciro, ${snap.net_profit_30d.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} TL net kâr (%${snap.net_margin_pct} marj).`,
-      `📅 **Son 7 gün**: ${snap.sales_7d} satış, ${snap.revenue_7d.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} TL ciro.`,
+      t('dashboard.fb_summary_30d')
+        .replace('{revenue}', nf(snap.total_revenue_30d))
+        .replace('{profit}', nf(snap.net_profit_30d))
+        .replace('{margin}', String(snap.net_margin_pct)),
+      t('dashboard.fb_summary_7d')
+        .replace('{sales}', String(snap.sales_7d))
+        .replace('{revenue}', nf(snap.revenue_7d)),
     ];
-    if (snap.low_stock_count > 0) parts.push(`⚠️ **${snap.low_stock_count} ürün** kritik stok seviyesinde — acil sipariş gerekebilir.`);
-    if (snap.low_rated_count > 0) parts.push(`⭐ **${snap.low_rated_count} ürünün** puanı 4.0 altında — yorum analizine bakılması önerilir.`);
-    parts.push(`_AI analizi şu an kullanılamıyor — bu özet veritabanı verilerinden otomatik oluşturuldu._`);
+    if (snap.low_stock_count > 0) parts.push(t('dashboard.fb_low_stock').replace('{count}', String(snap.low_stock_count)));
+    if (snap.low_rated_count > 0) parts.push(t('dashboard.fb_low_rated').replace('{count}', String(snap.low_rated_count)));
+    parts.push(t('dashboard.fb_note'));
     return parts.join('\n\n');
   };
 
@@ -69,7 +79,7 @@ export default function DashboardPage() {
       setMpSummaries(ms.marketplaces);
       setTrends(tr);
     } catch (e) {
-      toast.error(getErrorMessage(e, 'Dashboard verisi yüklenemedi'));
+      toast.error(getErrorMessage(e, t('dashboard.load_failed')));
     } finally {
       setLoading(false);
     }
@@ -87,7 +97,7 @@ export default function DashboardPage() {
     dashboardService
       .trends(trendPeriod)
       .then(setTrends)
-      .catch((e) => toast.error(getErrorMessage(e, 'Trend yüklenemedi')))
+      .catch((e) => toast.error(getErrorMessage(e, t('dashboard.trend_load_failed'))))
       .finally(() => setLoadingTrend(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trendPeriod]);
@@ -238,8 +248,8 @@ export default function DashboardPage() {
       {/* AI hata göstergesi (fallback özet gösteriliyorsa bilgi notu) */}
       {aiError && !aiStreaming && (
         <div className="flex items-center justify-between px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-600">
-          <span>⚠️ AI analizi alınamadı — veritabanı özeti gösteriliyor. ({aiError})</span>
-          <button onClick={runAiSummary} className="ml-4 underline font-medium hover:text-amber-700">Tekrar Dene</button>
+          <span>{t('dashboard.ai_error')} ({aiError})</span>
+          <button onClick={runAiSummary} className="ml-4 underline font-medium hover:text-amber-700">{t('common.retry')}</button>
         </div>
       )}
 
@@ -266,18 +276,18 @@ export default function DashboardPage() {
           <GlassCard className="p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Calendar size={16} className="text-gray-400" />
-                <h3 className="text-slate-800 font-bold">{t('dashboard.trend')}</h3>
+                <Calendar size={16} className="text-[var(--text-faint)]" />
+                <h3 className="text-[var(--text-primary)] font-bold">{t('dashboard.trend')}</h3>
               </div>
-              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center gap-1 bg-[var(--bg-muted)] rounded-lg p-1">
                 {([7, 30] as const).map((p) => (
                   <button
                     key={p}
                     onClick={() => setTrendPeriod(p)}
                     className={`px-3 py-1 text-xs font-semibold rounded shadow-sm transition-colors ${
                       trendPeriod === p
-                        ? 'bg-white text-slate-800'
-                        : 'text-gray-500 hover:text-slate-700 hover:bg-gray-50'
+                        ? 'bg-[var(--bg-card)] text-[var(--text-primary)]'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]'
                     }`}
                   >
                     {p} {t('dashboard.days')}
@@ -296,16 +306,18 @@ export default function DashboardPage() {
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={trendData}>
-                  <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
-                  <XAxis dataKey="name" stroke="#9ca3af" fontSize={11} />
-                  <YAxis stroke="#9ca3af" fontSize={11} />
+                  <CartesianGrid stroke={chart.grid} strokeDasharray="3 3" />
+                  <XAxis dataKey="name" stroke={chart.axis} fontSize={11} />
+                  <YAxis stroke={chart.axis} fontSize={11} />
                   <Tooltip
                     contentStyle={{
-                      background: '#ffffff',
-                      border: '1px solid #e5e7eb',
+                      background: chart.tooltipBg,
+                      border: `1px solid ${chart.tooltipBorder}`,
                       borderRadius: 8,
                       fontSize: 12,
                     }}
+                    labelStyle={{ color: chart.tooltipText }}
+                    itemStyle={{ color: chart.tooltipText }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Line type="monotone" dataKey="Ciro" stroke="#6366f1" strokeWidth={2} dot={false} />
@@ -320,24 +332,26 @@ export default function DashboardPage() {
         <div>
           <GlassCard className="p-5 h-full">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles size={16} className="text-gray-400" />
-              <h3 className="text-slate-800 font-bold">{t('dashboard.mp_breakdown')}</h3>
+              <Sparkles size={16} className="text-[var(--text-faint)]" />
+              <h3 className="text-[var(--text-primary)] font-bold">{t('dashboard.mp_breakdown')}</h3>
             </div>
             {mpBarData.length === 0 ? (
               <EmptyState title={t('dashboard.no_mp')} />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={mpBarData} layout="vertical">
-                  <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
-                  <XAxis type="number" stroke="#64748b" fontSize={11} />
-                  <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={11} width={80} />
+                  <CartesianGrid stroke={chart.grid} strokeDasharray="3 3" />
+                  <XAxis type="number" stroke={chart.axis} fontSize={11} />
+                  <YAxis dataKey="name" type="category" stroke={chart.axis} fontSize={11} width={80} />
                   <Tooltip
                     contentStyle={{
-                      background: '#ffffff',
-                      border: '1px solid #e5e7eb',
+                      background: chart.tooltipBg,
+                      border: `1px solid ${chart.tooltipBorder}`,
                       borderRadius: 8,
                       fontSize: 12,
                     }}
+                    labelStyle={{ color: chart.tooltipText }}
+                    itemStyle={{ color: chart.tooltipText }}
                   />
                   <Bar dataKey="Ciro" radius={[0, 6, 6, 0]}>
                     {mpBarData.map((_, i) => (
@@ -353,7 +367,7 @@ export default function DashboardPage() {
 
       {/* Marketplace özet kartlar */}
       <div>
-        <h3 className="text-lg font-bold text-slate-800 mb-4 mt-8">{t('dashboard.mp_cards')}</h3>
+        <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4 mt-8">{t('dashboard.mp_cards')}</h3>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {mpSummaries.map((mp) => {
             const cfg = MARKETPLACES[mp.marketplace];
@@ -361,25 +375,25 @@ export default function DashboardPage() {
               <GlassCard key={mp.marketplace} className="p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-[11px] font-bold ${cfg?.textColor || 'text-gray-500'}`}>
+                    <p className={`text-[11px] font-bold ${cfg?.textColor || 'text-[var(--text-muted)]'}`}>
                       {cfg?.label || mp.marketplace}
                     </p>
-                    <p className="text-slate-800 font-bold mt-0.5 truncate" title={mp.store_name}>
+                    <p className="text-[var(--text-primary)] font-bold mt-0.5 truncate" title={mp.store_name}>
                       {mp.store_name}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="text-amber-400 font-bold text-sm">⭐ {mp.store_rating?.toFixed(1) ?? '—'}</p>
-                    <p className="text-slate-500 text-[10px]">{mp.product_count} ürün</p>
+                    <p className="text-[var(--text-muted)] text-[10px]">{mp.product_count} {t('common.products_count')}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <Row label="Ciro" value={formatCurrency(mp.total_revenue)} />
-                  <Row label="Net Kâr" value={formatCurrency(mp.total_net_profit)} positive={mp.total_net_profit >= 0} />
-                  <Row label="Marj" value={formatPercent(mp.net_margin_pct)} />
-                  <Row label="Satış" value={formatNumber(mp.total_sales)} />
-                  <Row label="ROAS" value={mp.roas ? `${mp.roas.toFixed(2)}x` : '—'} />
-                  <Row label="İade %" value={formatPercent(mp.return_rate)} />
+                  <Row label={t('common.revenue')} value={formatCurrency(mp.total_revenue)} />
+                  <Row label={t('common.net_profit')} value={formatCurrency(mp.total_net_profit)} positive={mp.total_net_profit >= 0} />
+                  <Row label={t('common.margin')} value={formatPercent(mp.net_margin_pct)} />
+                  <Row label={t('common.sales')} value={formatNumber(mp.total_sales)} />
+                  <Row label={t('common.roas')} value={mp.roas ? `${mp.roas.toFixed(2)}x` : '—'} />
+                  <Row label={t('common.return_pct')} value={formatPercent(mp.return_rate)} />
                 </div>
               </GlassCard>
             );
@@ -393,8 +407,8 @@ export default function DashboardPage() {
 function MiniMetric({ label, value, highlight = false }: { label: string; value: string | number; highlight?: boolean }) {
   return (
     <div className={`metric-card ${highlight ? 'border-amber-200 bg-amber-50' : ''}`}>
-      <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">{label}</p>
-      <p className={`text-xl font-bold mt-1 ${highlight ? 'text-amber-600' : 'text-slate-800'}`}>{value}</p>
+      <p className="text-[10px] uppercase tracking-wider text-[var(--text-faint)] font-bold">{label}</p>
+      <p className={`text-xl font-bold mt-1 ${highlight ? 'text-amber-600' : 'text-[var(--text-primary)]'}`}>{value}</p>
     </div>
   );
 }
@@ -402,10 +416,10 @@ function MiniMetric({ label, value, highlight = false }: { label: string; value:
 function Row({ label, value, positive }: { label: string; value: string; positive?: boolean }) {
   return (
     <div>
-      <p className="text-gray-500 uppercase tracking-wider text-[10px] font-semibold">{label}</p>
+      <p className="text-[var(--text-muted)] uppercase tracking-wider text-[10px] font-semibold">{label}</p>
       <p
         className={`font-semibold text-sm ${
-          positive === false ? 'text-rose-500' : positive ? 'text-emerald-500' : 'text-slate-800'
+          positive === false ? 'text-rose-500' : positive ? 'text-emerald-500' : 'text-[var(--text-primary)]'
         }`}
       >
         {value}

@@ -21,7 +21,7 @@ export default function GlassCard({
   noAnimate = false,
 }: GlassCardProps) {
   const base =
-    'bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] border border-gray-100 p-6 transition-shadow duration-200';
+    'bg-[var(--bg-card)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] border border-[var(--border-color)] p-6 transition-shadow duration-200';
   const hoverCls = hover ? 'hover:shadow-md cursor-pointer' : '';
 
   if (noAnimate) {

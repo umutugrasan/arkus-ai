@@ -24,23 +24,23 @@ export default function StatCard({ title, value, icon, trend, subtitle, index = 
         boxShadow: '0 12px 28px rgba(74, 63, 68, 0.08), 0 4px 10px rgba(74, 63, 68, 0.04)',
         transition: { duration: 0.18 },
       }}
-      className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] border border-gray-100 p-4 flex flex-col justify-between min-h-[120px] group"
+      className="bg-[var(--bg-card)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] border border-[var(--border-color)] p-4 flex flex-col justify-between min-h-[120px] group"
     >
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{title}</p>
-          <h3 className="text-2xl font-bold mt-1 text-slate-800">{value}</h3>
+          <p className="text-[10px] font-bold text-[var(--text-faint)] uppercase tracking-wide">{title}</p>
+          <h3 className="text-2xl font-bold mt-1 text-[var(--text-primary)]">{value}</h3>
         </div>
         <motion.div
           whileHover={{ rotate: 8, scale: 1.08 }}
           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-          className="p-2 bg-[#f9f8f4] rounded-full text-gray-400 group-hover:text-[#4a3f44] group-hover:bg-[#f3ede1] transition-colors"
+          className="p-2 bg-[var(--bg-primary)] rounded-full text-[var(--text-faint)] group-hover:text-[var(--accent)] group-hover:bg-[var(--bg-muted)] transition-colors"
         >
           {icon}
         </motion.div>
       </div>
 
-      {subtitle && <p className="text-[10px] text-gray-400 mt-2">{subtitle}</p>}
+      {subtitle && <p className="text-[10px] text-[var(--text-faint)] mt-2">{subtitle}</p>}
 
       {trend !== undefined && (
         <div className={`flex items-center gap-1 mt-2 text-[10px] font-bold ${trend >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
