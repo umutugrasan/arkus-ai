@@ -25,10 +25,29 @@
           "review_count": 1847,
           "return_rate": 5.2,
           "competitors": [
-            {"name": "SesDunyasi", "price": 849.99, "rating": 4.5, "review_count": 2340, "sales_30d": 410},
-            {"name": "AudioTR", "price": 929.99, "rating": 4.1, "review_count": 890, "sales_30d": 185},
-            {"name": "MelodiShop", "price": 879.99, "rating": 4.4, "review_count": 1560, "sales_30d": 295}
-          ]
+            {
+              "name": "SesDunyasi",
+              "price": 849.99,
+              "rating": 4.5,
+              "review_count": 2340,
+              "sales_30d": 410
+            },
+            {
+              "name": "AudioTR",
+              "price": 929.99,
+              "rating": 4.1,
+              "review_count": 890,
+              "sales_30d": 185
+            },
+            {
+              "name": "MelodiShop",
+              "price": 879.99,
+              "rating": 4.4,
+              "review_count": 1560,
+              "sales_30d": 295
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P002",
@@ -43,9 +62,22 @@
           "review_count": 923,
           "return_rate": 9.8,
           "competitors": [
-            {"name": "SaatDunyasi", "price": 1199.99, "rating": 4.2, "review_count": 1890, "sales_30d": 320},
-            {"name": "FitTech", "price": 1349.99, "rating": 4.0, "review_count": 670, "sales_30d": 145}
-          ]
+            {
+              "name": "SaatDunyasi",
+              "price": 1199.99,
+              "rating": 4.2,
+              "review_count": 1890,
+              "sales_30d": 320
+            },
+            {
+              "name": "FitTech",
+              "price": 1349.99,
+              "rating": 4.0,
+              "review_count": 670,
+              "sales_30d": 145
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P003",
@@ -60,9 +92,22 @@
           "review_count": 3420,
           "return_rate": 2.1,
           "competitors": [
-            {"name": "KabloMarket", "price": 129.99, "rating": 4.5, "review_count": 5670, "sales_30d": 890},
-            {"name": "TeknoKablo", "price": 159.99, "rating": 4.3, "review_count": 2100, "sales_30d": 340}
-          ]
+            {
+              "name": "KabloMarket",
+              "price": 129.99,
+              "rating": 4.5,
+              "review_count": 5670,
+              "sales_30d": 890
+            },
+            {
+              "name": "TeknoKablo",
+              "price": 159.99,
+              "rating": 4.3,
+              "review_count": 2100,
+              "sales_30d": 340
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1601524909162-ae8725290836?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P004",
@@ -77,8 +122,15 @@
           "review_count": 456,
           "return_rate": 4.5,
           "competitors": [
-            {"name": "SesShop", "price": 599.99, "rating": 4.4, "review_count": 1230, "sales_30d": 210}
-          ]
+            {
+              "name": "SesShop",
+              "price": 599.99,
+              "rating": 4.4,
+              "review_count": 1230,
+              "sales_30d": 210
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1589003077984-894e133dabab?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P005",
@@ -93,8 +145,15 @@
           "review_count": 2890,
           "return_rate": 1.8,
           "competitors": [
-            {"name": "MasaUstu", "price": 479.99, "rating": 4.3, "review_count": 980, "sales_30d": 76}
-          ]
+            {
+              "name": "MasaUstu",
+              "price": 479.99,
+              "rating": 4.3,
+              "review_count": 980,
+              "sales_30d": 76
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=600&fit=crop&q=80"
         }
       ]
     },
@@ -117,8 +176,15 @@
           "review_count": 920,
           "return_rate": 6.8,
           "competitors": [
-            {"name": "SesEvim", "price": 919.99, "rating": 4.3, "review_count": 1450, "sales_30d": 260}
-          ]
+            {
+              "name": "SesEvim",
+              "price": 919.99,
+              "rating": 4.3,
+              "review_count": 1450,
+              "sales_30d": 260
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P002",
@@ -133,8 +199,15 @@
           "review_count": 410,
           "return_rate": 11.2,
           "competitors": [
-            {"name": "SaatMerkezi", "price": 1249.99, "rating": 4.1, "review_count": 890, "sales_30d": 180}
-          ]
+            {
+              "name": "SaatMerkezi",
+              "price": 1249.99,
+              "rating": 4.1,
+              "review_count": 890,
+              "sales_30d": 180
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P003",
@@ -149,8 +222,15 @@
           "review_count": 1870,
           "return_rate": 3.2,
           "competitors": [
-            {"name": "HBKablo", "price": 139.99, "rating": 4.6, "review_count": 3200, "sales_30d": 720}
-          ]
+            {
+              "name": "HBKablo",
+              "price": 139.99,
+              "rating": 4.6,
+              "review_count": 3200,
+              "sales_30d": 720
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1601524909162-ae8725290836?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P004",
@@ -165,8 +245,15 @@
           "review_count": 340,
           "return_rate": 5.1,
           "competitors": [
-            {"name": "SesEviHB", "price": 659.99, "rating": 4.3, "review_count": 870, "sales_30d": 165}
-          ]
+            {
+              "name": "SesEviHB",
+              "price": 659.99,
+              "rating": 4.3,
+              "review_count": 870,
+              "sales_30d": 165
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1589003077984-894e133dabab?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P005",
@@ -180,7 +267,8 @@
           "rating": 4.5,
           "review_count": 1340,
           "return_rate": 2.4,
-          "competitors": []
+          "competitors": [],
+          "image_url": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=600&fit=crop&q=80"
         }
       ]
     },
@@ -203,8 +291,15 @@
           "review_count": 670,
           "return_rate": 4.1,
           "competitors": [
-            {"name": "AudioPro", "price": 859.99, "rating": 4.6, "review_count": 1200, "sales_30d": 380}
-          ]
+            {
+              "name": "AudioPro",
+              "price": 859.99,
+              "rating": 4.6,
+              "review_count": 1200,
+              "sales_30d": 380
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P002",
@@ -219,8 +314,15 @@
           "review_count": 285,
           "return_rate": 8.5,
           "competitors": [
-            {"name": "SmartWatchAmz", "price": 1299.99, "rating": 4.3, "review_count": 540, "sales_30d": 210}
-          ]
+            {
+              "name": "SmartWatchAmz",
+              "price": 1299.99,
+              "rating": 4.3,
+              "review_count": 540,
+              "sales_30d": 210
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P003",
@@ -234,7 +336,8 @@
           "rating": 4.7,
           "review_count": 890,
           "return_rate": 1.5,
-          "competitors": []
+          "competitors": [],
+          "image_url": "https://images.unsplash.com/photo-1601524909162-ae8725290836?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P004",
@@ -249,8 +352,15 @@
           "review_count": 280,
           "return_rate": 3.7,
           "competitors": [
-            {"name": "BoomBoxAmz", "price": 619.99, "rating": 4.5, "review_count": 920, "sales_30d": 175}
-          ]
+            {
+              "name": "BoomBoxAmz",
+              "price": 619.99,
+              "rating": 4.5,
+              "review_count": 920,
+              "sales_30d": 175
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1589003077984-894e133dabab?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P005",
@@ -264,7 +374,8 @@
           "rating": 4.6,
           "review_count": 1120,
           "return_rate": 1.9,
-          "competitors": []
+          "competitors": [],
+          "image_url": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=600&fit=crop&q=80"
         }
       ]
     },
@@ -287,9 +398,22 @@
           "review_count": 512,
           "return_rate": 4.8,
           "competitors": [
-            {"name": "n11 Ses Merkezi", "price": 854.99, "rating": 4.3, "review_count": 740, "sales_30d": 190},
-            {"name": "TeknoSes n11", "price": 899.99, "rating": 4.0, "review_count": 320, "sales_30d": 88}
-          ]
+            {
+              "name": "n11 Ses Merkezi",
+              "price": 854.99,
+              "rating": 4.3,
+              "review_count": 740,
+              "sales_30d": 190
+            },
+            {
+              "name": "TeknoSes n11",
+              "price": 899.99,
+              "rating": 4.0,
+              "review_count": 320,
+              "sales_30d": 88
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P002",
@@ -304,8 +428,15 @@
           "review_count": 305,
           "return_rate": 10.4,
           "competitors": [
-            {"name": "n11 SaatPark", "price": 1259.99, "rating": 4.0, "review_count": 480, "sales_30d": 132}
-          ]
+            {
+              "name": "n11 SaatPark",
+              "price": 1259.99,
+              "rating": 4.0,
+              "review_count": 480,
+              "sales_30d": 132
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P003",
@@ -320,8 +451,15 @@
           "review_count": 1240,
           "return_rate": 2.5,
           "competitors": [
-            {"name": "n11 KabloShop", "price": 134.99, "rating": 4.4, "review_count": 1980, "sales_30d": 510}
-          ]
+            {
+              "name": "n11 KabloShop",
+              "price": 134.99,
+              "rating": 4.4,
+              "review_count": 1980,
+              "sales_30d": 510
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1601524909162-ae8725290836?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P004",
@@ -336,8 +474,15 @@
           "review_count": 198,
           "return_rate": 4.2,
           "competitors": [
-            {"name": "n11 HoparlorEvi", "price": 599.99, "rating": 4.3, "review_count": 410, "sales_30d": 96}
-          ]
+            {
+              "name": "n11 HoparlorEvi",
+              "price": 599.99,
+              "rating": 4.3,
+              "review_count": 410,
+              "sales_30d": 96
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1589003077984-894e133dabab?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P005",
@@ -352,8 +497,15 @@
           "review_count": 480,
           "return_rate": 2.7,
           "competitors": [
-            {"name": "n11 MasaPlus", "price": 459.99, "rating": 4.2, "review_count": 320, "sales_30d": 58}
-          ]
+            {
+              "name": "n11 MasaPlus",
+              "price": 459.99,
+              "rating": 4.2,
+              "review_count": 320,
+              "sales_30d": 58
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=600&fit=crop&q=80"
         },
         {
           "id": "P006",
@@ -368,400 +520,2303 @@
           "review_count": 980,
           "return_rate": 2.9,
           "competitors": [
-            {"name": "MousePark", "price": 309.99, "rating": 4.2, "review_count": 510, "sales_30d": 155}
-          ]
+            {
+              "name": "MousePark",
+              "price": 309.99,
+              "rating": 4.2,
+              "review_count": 510,
+              "sales_30d": 155
+            }
+          ],
+          "image_url": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&h=600&fit=crop&q=80"
         }
       ]
     }
   },
   "reviews": {
     "P001": [
-      {"marketplace": "trendyol", "rating": 5, "text": "Ses kalitesi harika, bas sesleri cok iyi. ANC ozelligi tam istedigim gibi.", "date": "2026-05-14"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Noise cancelling super. En iyi kulaklik. Ucakta bile dis sesi duymadim.", "date": "2026-05-13"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Fiyat performans urunu. Sarji uzun gidiyor, 22 saat sorun yok.", "date": "2026-05-12"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Guzel urun, kulak ustu rahat oturuyor. Sadece basta biraz sikiyor.", "date": "2026-05-11"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Bluetooth 5.3 cok stabil, hic bagli kopmadi simdiye kadar.", "date": "2026-05-10"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Idare eder, plastik kalitesi dusuk ama bu fiyata cok aramamak lazim.", "date": "2026-05-09"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Bluetooth baglantisi surekli kopuyor. Telefon yaninda olunca bile.", "date": "2026-05-08"},
-      {"marketplace": "trendyol", "rating": 1, "text": "Kargo 5 gun surdu, kutu ezilmis geldi. Iade ettim.", "date": "2026-05-07"},
-      {"marketplace": "trendyol", "rating": 1, "text": "Kargo cok gec geldi. Yanlis renk gondermisler, beyaz istedim siyah geldi.", "date": "2026-05-06"},
-      {"marketplace": "trendyol", "rating": 1, "text": "1 haftada bozuldu. Sag taraf ses vermiyor. Garanti kapsaminda iade ettim.", "date": "2026-05-05"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Mukemmel ses kalitesi, mikrofonu da net. Toplantilarda kullaniyorum.", "date": "2026-05-04"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Bas sesleri cok guzel ama tiz biraz baskin geliyor.", "date": "2026-05-03"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Sarj kablosu cok kisa. Pratikte kullanmasi zor.", "date": "2026-05-02"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Bu fiyata bu kalite bulunmaz, AirPods'a alternatif.", "date": "2026-05-01"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Kutu icinde ek lastik basliklar da var, guzel detay.", "date": "2026-04-30"},
-      {"marketplace": "trendyol", "rating": 1, "text": "10 gunde sol kulak sustu. Boyle bir urune bu para fazla.", "date": "2026-04-29"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Kargo gecikmesi yasadim, 7 is gunu surdu. Urun normal.", "date": "2026-04-28"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Ozellikle muzik dinlerken cok memnunum, ANC olayi cok iyi.", "date": "2026-04-27"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Ortalama bir urun. Ozel bir sey beklemiyorsaniz alabilirsiniz.", "date": "2026-04-26"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Guzel urun, kulak ustu rahat oturuyor. Sarj suresi cok iyi.", "date": "2026-04-25"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Muthis ses kalitesi. Sarj 20 saat gidiyor. Memnun kaldim.", "date": "2026-05-14"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Iyi urun, sadece kutu icinde tasima cantasi olsa daha iyi olurmus.", "date": "2026-05-13"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Bu kategori icin gercekten iyi bir alternatif, kalite tatmin edici.", "date": "2026-05-12"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Ozellikle ofiste cok kullaniyorum, ANC sayesinde odaklanabiliyorum.", "date": "2026-05-11"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Fiyati Trendyolda daha ucuzmus, fazla odemisim. Urun iyi ama fiyat takip edin.", "date": "2026-05-10"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Kargo kutusu acilmis geldi. Guven vermiyor, urunun da ses kalitesi vasat.", "date": "2026-05-09"},
-      {"marketplace": "hepsiburada", "rating": 1, "text": "Sahte urun geldi, orjinal degil. Iade ettim, satici ile sorun yasadim.", "date": "2026-05-08"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Sol kulaklik daha sessiz cikiyor, kalibrasyon sorunu var sanirim.", "date": "2026-05-07"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Guzel urun ama sarj kablosu eksik geldi. Saticiya yazdim, gonderdiler.", "date": "2026-05-06"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Asla beklemiyordum bu kaliteyi, super bir urun. Tavsiye ederim.", "date": "2026-05-05"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Ortalama urun, ses kalitesi yeterli ama mikrofon cok iyi degil.", "date": "2026-05-04"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Memnun kaldim, sadece fiyat biraz yuksek geldi diger pazaryerlerine gore.", "date": "2026-05-03"},
-      {"marketplace": "hepsiburada", "rating": 1, "text": "2 haftada sol kulaklik bozuldu, garantiyle iade ettim. Hayal kirikligi.", "date": "2026-05-02"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Ses kalitesi cok iyi, hizli kargo, paketleme guzel. Tesekkurler.", "date": "2026-05-01"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Bluetooth 5.3 olmasi guzel, baglantida sorun yasamadim.", "date": "2026-04-30"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Kutuda kullanim kilavuzu Ingilizce, Turkce yok. Sirket bu detaya bakmali.", "date": "2026-04-29"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Bes yildiz az bile, harika ses ve uzun batarya.", "date": "2026-04-28"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Idare eder. Ofiste kullaniyorum, ofis disinda alternatif duzgun lazim.", "date": "2026-04-27"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "En ucuz buradaydi. Prime ile ertesi gun geldi, paketleme tam profesyonel.", "date": "2026-05-14"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Noise cancelling bu fiyata inanilmaz. AirPods Pro kullaniyordum, fark cok yok.", "date": "2026-05-13"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Guzel ama biraz agir, uzun sure yoruyor kulagi.", "date": "2026-05-12"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Amazonda yorumlar dogru cikti, harika urun. Memnunum.", "date": "2026-05-11"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Hizli kargo, kaliteli urun. Bu kategori icin Amazon en guvenli yer.", "date": "2026-05-10"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "ANC ozelligi metroda cok ise yariyor, ses kalitesi de iyi.", "date": "2026-05-09"},
-      {"marketplace": "amazon_tr", "rating": 3, "text": "Idare eder, ucu acik kategoride urun. Premium beklemeyin.", "date": "2026-05-08"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Tum aile kullaniyoruz, hicbir sorun yasamadik. Mukemmel.", "date": "2026-05-07"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Bluetooth menzili guzel, ev icinde her odaya kadar gidiyor.", "date": "2026-05-06"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Sarji cok uzun gidiyor, asla yarida kalmiyor gun icinde.", "date": "2026-05-05"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Mikrofon konusmalarda net, online toplantilarda kullaniyorum.", "date": "2026-05-04"},
-      {"marketplace": "amazon_tr", "rating": 2, "text": "Kargo kutusu yirtikti, urun saglam ama ilk izlenim kotuydu.", "date": "2026-05-03"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "AirPods'a kiyasla cok daha uygun fiyatli ve kalitesinden taviz yok.", "date": "2026-05-02"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Tasarim biraz uzunca ama ergonomik. Bas yapisina gore degisebilir.", "date": "2026-05-01"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Prime avantaji + bu fiyat = unbeatable. Kesinlikle tavsiye ederim.", "date": "2026-04-30"},
-      {"marketplace": "n11", "rating": 5, "text": "n11'de en ucuzu buydu, super urun cikti. Memnun kaldim.", "date": "2026-05-14"},
-      {"marketplace": "n11", "rating": 4, "text": "Kargo 3 gunde geldi, paketleme iyi. Ses kalitesinden memnunum.", "date": "2026-05-13"},
-      {"marketplace": "n11", "rating": 4, "text": "Ofiste kullaniyorum, ANC sayesinde toplanti odasi gibi sessiz.", "date": "2026-05-12"},
-      {"marketplace": "n11", "rating": 3, "text": "Ortalama bir urun. Ses kalitesi yeterli ama bas biraz zayif.", "date": "2026-05-11"},
-      {"marketplace": "n11", "rating": 5, "text": "Bu fiyata harika, n11 indirimleri ile cok ucuza aldim.", "date": "2026-05-10"},
-      {"marketplace": "n11", "rating": 2, "text": "Bluetooth baglantisi surekli kopuyor. Belki cihazim eski.", "date": "2026-05-09"},
-      {"marketplace": "n11", "rating": 4, "text": "Memnun kaldim, sadece tasima cantasi yok kutuda.", "date": "2026-05-08"},
-      {"marketplace": "n11", "rating": 1, "text": "Yanlis renk geldi, iade surecini baslattim. Satici ilgisiz.", "date": "2026-05-07"},
-      {"marketplace": "n11", "rating": 5, "text": "Hizli kargo, mukemmel ses. Tavsiye ederim arkadaslarima.", "date": "2026-05-06"},
-      {"marketplace": "n11", "rating": 3, "text": "Bas sesleri biraz daha guclu olabilirdi. Genel olarak idare eder.", "date": "2026-05-05"},
-      {"marketplace": "n11", "rating": 5, "text": "Mikrofon ozelligi de iyi, Zoom toplantilarinda kullaniyorum.", "date": "2026-05-04"},
-      {"marketplace": "n11", "rating": 4, "text": "Tasarimi spor, hafif. Kosu yaparken bile takiyorum.", "date": "2026-05-03"},
-      {"marketplace": "n11", "rating": 2, "text": "2 haftada sag tarafta cizirti baslandi. Belki sansim kotu cikti.", "date": "2026-05-02"},
-      {"marketplace": "n11", "rating": 5, "text": "Sarji bir hafta dayaniyor sadece muzik dinleyince. Cok memnunum.", "date": "2026-05-01"},
-      {"marketplace": "n11", "rating": 4, "text": "Beklediginden iyi cikti, n11'den almak akilliydi.", "date": "2026-04-30"},
-      {"marketplace": "n11", "rating": 3, "text": "Idare eder. Premium degil ama bu fiyata standart kullanim icin yeterli.", "date": "2026-04-29"},
-      {"marketplace": "n11", "rating": 5, "text": "Tum ozellikler aciklamada anlatildigi gibi, satici durust.", "date": "2026-04-28"},
-      {"marketplace": "n11", "rating": 1, "text": "Kutu acilmis geldi, sahte olabileceginden suphelendim, iade ettim.", "date": "2026-04-27"}
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Ses kalitesi harika, bas sesleri cok iyi. ANC ozelligi tam istedigim gibi.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Noise cancelling super. En iyi kulaklik. Ucakta bile dis sesi duymadim.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Fiyat performans urunu. Sarji uzun gidiyor, 22 saat sorun yok.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Guzel urun, kulak ustu rahat oturuyor. Sadece basta biraz sikiyor.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Bluetooth 5.3 cok stabil, hic bagli kopmadi simdiye kadar.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Idare eder, plastik kalitesi dusuk ama bu fiyata cok aramamak lazim.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Bluetooth baglantisi surekli kopuyor. Telefon yaninda olunca bile.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 1,
+        "text": "Kargo 5 gun surdu, kutu ezilmis geldi. Iade ettim.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 1,
+        "text": "Kargo cok gec geldi. Yanlis renk gondermisler, beyaz istedim siyah geldi.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 1,
+        "text": "1 haftada bozuldu. Sag taraf ses vermiyor. Garanti kapsaminda iade ettim.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Mukemmel ses kalitesi, mikrofonu da net. Toplantilarda kullaniyorum.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Bas sesleri cok guzel ama tiz biraz baskin geliyor.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Sarj kablosu cok kisa. Pratikte kullanmasi zor.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Bu fiyata bu kalite bulunmaz, AirPods'a alternatif.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Kutu icinde ek lastik basliklar da var, guzel detay.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 1,
+        "text": "10 gunde sol kulak sustu. Boyle bir urune bu para fazla.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Kargo gecikmesi yasadim, 7 is gunu surdu. Urun normal.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Ozellikle muzik dinlerken cok memnunum, ANC olayi cok iyi.",
+        "date": "2026-04-27"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Ortalama bir urun. Ozel bir sey beklemiyorsaniz alabilirsiniz.",
+        "date": "2026-04-26"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Guzel urun, kulak ustu rahat oturuyor. Sarj suresi cok iyi.",
+        "date": "2026-04-25"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Muthis ses kalitesi. Sarj 20 saat gidiyor. Memnun kaldim.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Iyi urun, sadece kutu icinde tasima cantasi olsa daha iyi olurmus.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Bu kategori icin gercekten iyi bir alternatif, kalite tatmin edici.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Ozellikle ofiste cok kullaniyorum, ANC sayesinde odaklanabiliyorum.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Fiyati Trendyolda daha ucuzmus, fazla odemisim. Urun iyi ama fiyat takip edin.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Kargo kutusu acilmis geldi. Guven vermiyor, urunun da ses kalitesi vasat.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 1,
+        "text": "Sahte urun geldi, orjinal degil. Iade ettim, satici ile sorun yasadim.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Sol kulaklik daha sessiz cikiyor, kalibrasyon sorunu var sanirim.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Guzel urun ama sarj kablosu eksik geldi. Saticiya yazdim, gonderdiler.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Asla beklemiyordum bu kaliteyi, super bir urun. Tavsiye ederim.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Ortalama urun, ses kalitesi yeterli ama mikrofon cok iyi degil.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Memnun kaldim, sadece fiyat biraz yuksek geldi diger pazaryerlerine gore.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 1,
+        "text": "2 haftada sol kulaklik bozuldu, garantiyle iade ettim. Hayal kirikligi.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Ses kalitesi cok iyi, hizli kargo, paketleme guzel. Tesekkurler.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Bluetooth 5.3 olmasi guzel, baglantida sorun yasamadim.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Kutuda kullanim kilavuzu Ingilizce, Turkce yok. Sirket bu detaya bakmali.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Bes yildiz az bile, harika ses ve uzun batarya.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Idare eder. Ofiste kullaniyorum, ofis disinda alternatif duzgun lazim.",
+        "date": "2026-04-27"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "En ucuz buradaydi. Prime ile ertesi gun geldi, paketleme tam profesyonel.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Noise cancelling bu fiyata inanilmaz. AirPods Pro kullaniyordum, fark cok yok.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Guzel ama biraz agir, uzun sure yoruyor kulagi.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Amazonda yorumlar dogru cikti, harika urun. Memnunum.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Hizli kargo, kaliteli urun. Bu kategori icin Amazon en guvenli yer.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "ANC ozelligi metroda cok ise yariyor, ses kalitesi de iyi.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 3,
+        "text": "Idare eder, ucu acik kategoride urun. Premium beklemeyin.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Tum aile kullaniyoruz, hicbir sorun yasamadik. Mukemmel.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Bluetooth menzili guzel, ev icinde her odaya kadar gidiyor.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Sarji cok uzun gidiyor, asla yarida kalmiyor gun icinde.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Mikrofon konusmalarda net, online toplantilarda kullaniyorum.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 2,
+        "text": "Kargo kutusu yirtikti, urun saglam ama ilk izlenim kotuydu.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "AirPods'a kiyasla cok daha uygun fiyatli ve kalitesinden taviz yok.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Tasarim biraz uzunca ama ergonomik. Bas yapisina gore degisebilir.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Prime avantaji + bu fiyat = unbeatable. Kesinlikle tavsiye ederim.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "n11'de en ucuzu buydu, super urun cikti. Memnun kaldim.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Kargo 3 gunde geldi, paketleme iyi. Ses kalitesinden memnunum.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Ofiste kullaniyorum, ANC sayesinde toplanti odasi gibi sessiz.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Ortalama bir urun. Ses kalitesi yeterli ama bas biraz zayif.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Bu fiyata harika, n11 indirimleri ile cok ucuza aldim.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 2,
+        "text": "Bluetooth baglantisi surekli kopuyor. Belki cihazim eski.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Memnun kaldim, sadece tasima cantasi yok kutuda.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 1,
+        "text": "Yanlis renk geldi, iade surecini baslattim. Satici ilgisiz.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Hizli kargo, mukemmel ses. Tavsiye ederim arkadaslarima.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Bas sesleri biraz daha guclu olabilirdi. Genel olarak idare eder.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Mikrofon ozelligi de iyi, Zoom toplantilarinda kullaniyorum.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Tasarimi spor, hafif. Kosu yaparken bile takiyorum.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 2,
+        "text": "2 haftada sag tarafta cizirti baslandi. Belki sansim kotu cikti.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Sarji bir hafta dayaniyor sadece muzik dinleyince. Cok memnunum.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Beklediginden iyi cikti, n11'den almak akilliydi.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Idare eder. Premium degil ama bu fiyata standart kullanim icin yeterli.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Tum ozellikler aciklamada anlatildigi gibi, satici durust.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 1,
+        "text": "Kutu acilmis geldi, sahte olabileceginden suphelendim, iade ettim.",
+        "date": "2026-04-27"
+      }
     ],
     "P002": [
-      {"marketplace": "trendyol", "rating": 2, "text": "Saat surekli donuyor, yazilimi cok kotu. Update bekliyorum.", "date": "2026-05-14"},
-      {"marketplace": "trendyol", "rating": 1, "text": "Nabiz olcer yanlis degerler gosteriyor. Apple Watch ile karsilastirdim, 20 atim fark var.", "date": "2026-05-13"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Tasarimi guzel ama batarya 1 gun gitmiyor. Reklamda 7 gun yaziyordu.", "date": "2026-05-12"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Ekran guneste hic okunmuyor. Disarida saat olarak kullanamadim.", "date": "2026-05-11"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Adim sayar ve uyku takibi guzel calisiyor. Diger ozellikler vasat.", "date": "2026-05-10"},
-      {"marketplace": "trendyol", "rating": 1, "text": "Kargo gecikti, kutu hasarliydi, iade ettim. Satici cevap vermedi.", "date": "2026-05-09"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Uygulama baglantisi cok sorunlu, telefon ile bagi koparir surekli.", "date": "2026-05-08"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Fiyatina gore idare eder ama uzun vadede dayanikli olacagindan emin degilim.", "date": "2026-05-07"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Kayis cok sert, bilek aci yapiyor. Yumusak kayis tercih edilebilir.", "date": "2026-05-06"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Cok memnunum, butun ozellikler sorunsuz calisiyor benim icin.", "date": "2026-05-05"},
-      {"marketplace": "trendyol", "rating": 1, "text": "10 gun once aldim, simdi acilmiyor. Garanti islemleri uzun siruyor.", "date": "2026-05-04"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Spor takip iyi, fitness rutinim icin yeterli. Premium degil tabii.", "date": "2026-05-03"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Iyi-kotu karisik. Ekran kalitesi iyi ama yazilim aksiyor zaman zaman.", "date": "2026-05-02"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Bildirimler gec geliyor telefondan, 5-10 saniye gecikme oluyor.", "date": "2026-05-01"},
-      {"marketplace": "trendyol", "rating": 1, "text": "Su gecirmiyor diye aldim ama dus alirken icine su girdi. Calismiyor.", "date": "2026-04-30"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Reklamlardaki gibi degil. Reklamlardaki kadar premium olmadigini bilin.", "date": "2026-04-29"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Bu fiyata bu ozellikler iyi. Apple Watch alternatifi olarak yeterli.", "date": "2026-04-28"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Sarji 1.5 gun gidiyor, reklamdaki 7 gun yalan.", "date": "2026-04-27"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Sevdim, gunluk hayatta tum ihtiyaclarimi karsiliyor.", "date": "2026-04-26"},
-      {"marketplace": "trendyol", "rating": 1, "text": "Yazilimi resmen kullanilmaz, bug dolu, askilik etmeyin.", "date": "2026-04-25"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Uygulama Turkce degil, Ingilizce kullaniyorum. Yerelleştirme yok.", "date": "2026-05-14"},
-      {"marketplace": "hepsiburada", "rating": 1, "text": "2 haftada kayis koptu. Kalite cok dusuk, iadeye verdim.", "date": "2026-05-13"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Idare eder, bu fiyata cok sey beklememek lazim.", "date": "2026-05-12"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Pil omru cok kisa, gunde 2 kez sarj etmem gerekiyor.", "date": "2026-05-11"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Adim sayar oldukca dogru, ben memnunum.", "date": "2026-05-10"},
-      {"marketplace": "hepsiburada", "rating": 1, "text": "Telefon ile baglanmiyor, hicbir telefon ile uyumlu olamadi.", "date": "2026-05-09"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Ortalama bir urun, fitness ihtiyaclari icin yeterli.", "date": "2026-05-08"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Nabiz olcumleri tutarsiz, bazen 60 bazen 120 gosteriyor ayni anda.", "date": "2026-05-07"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Spor yapan icin yeterli. Tum aktivite modlari mevcut.", "date": "2026-05-06"},
-      {"marketplace": "hepsiburada", "rating": 1, "text": "Kargo gecikti, urun acilmamis dahi olsa ekrani cizik geldi.", "date": "2026-05-05"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Beklediginden az, fiyat-performans olarak orta seviye.", "date": "2026-05-04"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Yazilim resmen yarim, surekli yeniden baslatmam gerekiyor.", "date": "2026-05-03"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Spor takip ozellikleri tatmin edici, ekran da yeterince parlak.", "date": "2026-05-02"},
-      {"marketplace": "hepsiburada", "rating": 1, "text": "Acilmiyor 1 ayda. Saticiya yazdim cevap yok.", "date": "2026-05-01"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Tasarim sevdim ama yazilim gelistirilmeli, AC modlari calismiyor.", "date": "2026-04-30"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Tum ozellikler tam calisiyor benim cihazda, sansliyim sanirim.", "date": "2026-04-29"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Pil sarji cabuk bitiyor, gunde 1 defa sarj sart.", "date": "2026-04-28"},
-      {"marketplace": "amazon_tr", "rating": 3, "text": "Beklentilerimi karsilamadi, Apple Watch alternatifi olmuyor.", "date": "2026-05-14"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Spor takip iyi ama bildirim sistemi yavas.", "date": "2026-05-13"},
-      {"marketplace": "amazon_tr", "rating": 2, "text": "Nabiz olcer cok yanlis, fitness icin guvenilmiyor.", "date": "2026-05-12"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Adim sayar guzel, uyku takibi de tatmin edici.", "date": "2026-05-11"},
-      {"marketplace": "amazon_tr", "rating": 1, "text": "Su gecirmez yazardi, dus alirken bozuldu. Iade ettim.", "date": "2026-05-10"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Memnunum, butun ozellikler iyi calisiyor. Prime ile hizli geldi.", "date": "2026-05-09"},
-      {"marketplace": "amazon_tr", "rating": 3, "text": "Idare eder, premium beklemiyorsaniz aliniz.", "date": "2026-05-08"},
-      {"marketplace": "amazon_tr", "rating": 2, "text": "Yazilim guncellenmiyor, son sürum 3 aydir gelmiyor.", "date": "2026-05-07"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Bu fiyata yeterli, daha pahalisini almak gerekmez gunluk kullanim icin.", "date": "2026-05-06"},
-      {"marketplace": "amazon_tr", "rating": 3, "text": "Tasarim guzel, yazilim biraz daha cilali olabilir.", "date": "2026-05-05"},
-      {"marketplace": "amazon_tr", "rating": 1, "text": "Telefonla baglanti sorunu var, surekli kopuyor.", "date": "2026-05-04"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Hizli kargo, hizli ucret iade ettim, urun saglam.", "date": "2026-05-03"},
-      {"marketplace": "amazon_tr", "rating": 2, "text": "Kayis bicak gibi keser bilegi, yedek almak lazim hemen.", "date": "2026-05-02"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Spor takip yeterli, GPS olsaydi cok daha iyi olurdu.", "date": "2026-05-01"},
-      {"marketplace": "amazon_tr", "rating": 3, "text": "Beklenildigi gibi ortalama bir urun, sansli olabilirsiniz.", "date": "2026-04-30"},
-      {"marketplace": "n11", "rating": 3, "text": "Idare eder, n11'de daha iyileri de var ama bu da fena degil.", "date": "2026-05-14"},
-      {"marketplace": "n11", "rating": 2, "text": "Yazilimi cok bugli, surekli reset atmam gerekiyor.", "date": "2026-05-13"},
-      {"marketplace": "n11", "rating": 4, "text": "Spor takip iyi, fiyatina gore tatmin edici.", "date": "2026-05-12"},
-      {"marketplace": "n11", "rating": 1, "text": "Kayis 5 gunde koptu, kalite cok dusuk.", "date": "2026-05-11"},
-      {"marketplace": "n11", "rating": 5, "text": "Sevdim, butun ozellikler benim cihazda calisiyor.", "date": "2026-05-10"},
-      {"marketplace": "n11", "rating": 2, "text": "Ekran guneste okunmuyor, parlaklik yetersiz.", "date": "2026-05-09"},
-      {"marketplace": "n11", "rating": 3, "text": "Adim sayar dogru, ama nabiz olcer kararsiz.", "date": "2026-05-08"},
-      {"marketplace": "n11", "rating": 4, "text": "Pil 2 gun gidiyor, bence yeterli gunluk kullanim icin.", "date": "2026-05-07"},
-      {"marketplace": "n11", "rating": 1, "text": "Iade ettim, dus altinda calismadi su gecirmez yazmasina ragmen.", "date": "2026-05-06"},
-      {"marketplace": "n11", "rating": 5, "text": "Bu fiyata cok iyi, premium beklemeyenler icin ideal.", "date": "2026-05-05"},
-      {"marketplace": "n11", "rating": 2, "text": "Bildirimler gec geliyor, telefon ile uyum sorunu var.", "date": "2026-05-04"},
-      {"marketplace": "n11", "rating": 3, "text": "Idare eder ama daha iyileri var n11'de.", "date": "2026-05-03"},
-      {"marketplace": "n11", "rating": 4, "text": "Spor moduyla cok memnunum, kosu sirasinda kullaniyorum.", "date": "2026-05-02"},
-      {"marketplace": "n11", "rating": 2, "text": "Yazilim Turkce desteklemiyor, Ingilizce ile kullanmak zorundayim.", "date": "2026-05-01"},
-      {"marketplace": "n11", "rating": 5, "text": "Hizli kargo, urun saglam geldi, memnunum.", "date": "2026-04-30"},
-      {"marketplace": "n11", "rating": 1, "text": "1 haftada batarya yarim oldu, dayaniksiz urun.", "date": "2026-04-29"},
-      {"marketplace": "n11", "rating": 3, "text": "Ortalama, premium degil ama bu fiyata yeterli gunluk kullanim icin.", "date": "2026-04-28"},
-      {"marketplace": "n11", "rating": 4, "text": "Uyku takibi guzel calisiyor, sabah istatistik veriyor.", "date": "2026-04-27"}
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Saat surekli donuyor, yazilimi cok kotu. Update bekliyorum.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 1,
+        "text": "Nabiz olcer yanlis degerler gosteriyor. Apple Watch ile karsilastirdim, 20 atim fark var.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Tasarimi guzel ama batarya 1 gun gitmiyor. Reklamda 7 gun yaziyordu.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Ekran guneste hic okunmuyor. Disarida saat olarak kullanamadim.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Adim sayar ve uyku takibi guzel calisiyor. Diger ozellikler vasat.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 1,
+        "text": "Kargo gecikti, kutu hasarliydi, iade ettim. Satici cevap vermedi.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Uygulama baglantisi cok sorunlu, telefon ile bagi koparir surekli.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Fiyatina gore idare eder ama uzun vadede dayanikli olacagindan emin degilim.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Kayis cok sert, bilek aci yapiyor. Yumusak kayis tercih edilebilir.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Cok memnunum, butun ozellikler sorunsuz calisiyor benim icin.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 1,
+        "text": "10 gun once aldim, simdi acilmiyor. Garanti islemleri uzun siruyor.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Spor takip iyi, fitness rutinim icin yeterli. Premium degil tabii.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Iyi-kotu karisik. Ekran kalitesi iyi ama yazilim aksiyor zaman zaman.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Bildirimler gec geliyor telefondan, 5-10 saniye gecikme oluyor.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 1,
+        "text": "Su gecirmiyor diye aldim ama dus alirken icine su girdi. Calismiyor.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Reklamlardaki gibi degil. Reklamlardaki kadar premium olmadigini bilin.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Bu fiyata bu ozellikler iyi. Apple Watch alternatifi olarak yeterli.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Sarji 1.5 gun gidiyor, reklamdaki 7 gun yalan.",
+        "date": "2026-04-27"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Sevdim, gunluk hayatta tum ihtiyaclarimi karsiliyor.",
+        "date": "2026-04-26"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 1,
+        "text": "Yazilimi resmen kullanilmaz, bug dolu, askilik etmeyin.",
+        "date": "2026-04-25"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Uygulama Turkce degil, Ingilizce kullaniyorum. Yerelleştirme yok.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 1,
+        "text": "2 haftada kayis koptu. Kalite cok dusuk, iadeye verdim.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Idare eder, bu fiyata cok sey beklememek lazim.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Pil omru cok kisa, gunde 2 kez sarj etmem gerekiyor.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Adim sayar oldukca dogru, ben memnunum.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 1,
+        "text": "Telefon ile baglanmiyor, hicbir telefon ile uyumlu olamadi.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Ortalama bir urun, fitness ihtiyaclari icin yeterli.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Nabiz olcumleri tutarsiz, bazen 60 bazen 120 gosteriyor ayni anda.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Spor yapan icin yeterli. Tum aktivite modlari mevcut.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 1,
+        "text": "Kargo gecikti, urun acilmamis dahi olsa ekrani cizik geldi.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Beklediginden az, fiyat-performans olarak orta seviye.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Yazilim resmen yarim, surekli yeniden baslatmam gerekiyor.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Spor takip ozellikleri tatmin edici, ekran da yeterince parlak.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 1,
+        "text": "Acilmiyor 1 ayda. Saticiya yazdim cevap yok.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Tasarim sevdim ama yazilim gelistirilmeli, AC modlari calismiyor.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Tum ozellikler tam calisiyor benim cihazda, sansliyim sanirim.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Pil sarji cabuk bitiyor, gunde 1 defa sarj sart.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 3,
+        "text": "Beklentilerimi karsilamadi, Apple Watch alternatifi olmuyor.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Spor takip iyi ama bildirim sistemi yavas.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 2,
+        "text": "Nabiz olcer cok yanlis, fitness icin guvenilmiyor.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Adim sayar guzel, uyku takibi de tatmin edici.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 1,
+        "text": "Su gecirmez yazardi, dus alirken bozuldu. Iade ettim.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Memnunum, butun ozellikler iyi calisiyor. Prime ile hizli geldi.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 3,
+        "text": "Idare eder, premium beklemiyorsaniz aliniz.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 2,
+        "text": "Yazilim guncellenmiyor, son sürum 3 aydir gelmiyor.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Bu fiyata yeterli, daha pahalisini almak gerekmez gunluk kullanim icin.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 3,
+        "text": "Tasarim guzel, yazilim biraz daha cilali olabilir.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 1,
+        "text": "Telefonla baglanti sorunu var, surekli kopuyor.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Hizli kargo, hizli ucret iade ettim, urun saglam.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 2,
+        "text": "Kayis bicak gibi keser bilegi, yedek almak lazim hemen.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Spor takip yeterli, GPS olsaydi cok daha iyi olurdu.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 3,
+        "text": "Beklenildigi gibi ortalama bir urun, sansli olabilirsiniz.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Idare eder, n11'de daha iyileri de var ama bu da fena degil.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 2,
+        "text": "Yazilimi cok bugli, surekli reset atmam gerekiyor.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Spor takip iyi, fiyatina gore tatmin edici.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 1,
+        "text": "Kayis 5 gunde koptu, kalite cok dusuk.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Sevdim, butun ozellikler benim cihazda calisiyor.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 2,
+        "text": "Ekran guneste okunmuyor, parlaklik yetersiz.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Adim sayar dogru, ama nabiz olcer kararsiz.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Pil 2 gun gidiyor, bence yeterli gunluk kullanim icin.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 1,
+        "text": "Iade ettim, dus altinda calismadi su gecirmez yazmasina ragmen.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Bu fiyata cok iyi, premium beklemeyenler icin ideal.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 2,
+        "text": "Bildirimler gec geliyor, telefon ile uyum sorunu var.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Idare eder ama daha iyileri var n11'de.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Spor moduyla cok memnunum, kosu sirasinda kullaniyorum.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 2,
+        "text": "Yazilim Turkce desteklemiyor, Ingilizce ile kullanmak zorundayim.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Hizli kargo, urun saglam geldi, memnunum.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 1,
+        "text": "1 haftada batarya yarim oldu, dayaniksiz urun.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Ortalama, premium degil ama bu fiyata yeterli gunluk kullanim icin.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Uyku takibi guzel calisiyor, sabah istatistik veriyor.",
+        "date": "2026-04-27"
+      }
     ],
     "P003": [
-      {"marketplace": "trendyol", "rating": 5, "text": "Kablo cok saglam, hizli sarj destekliyor. 100W'a kadar sorun yok.", "date": "2026-05-14"},
-      {"marketplace": "trendyol", "rating": 5, "text": "2 metre olmasi inanilmaz pratik, kanepeden sarj edebiliyorum.", "date": "2026-05-13"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Iyi kalite, sadece konektor biraz gevşek olabilir.", "date": "2026-05-12"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Bu fiyata kaliteli kablo bulmak zor, super.", "date": "2026-05-11"},
-      {"marketplace": "trendyol", "rating": 4, "text": "USB-C den USB-C, hizli ve sorunsuz, memnunum.", "date": "2026-05-10"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Idare eder, orjinal kablolar kadar kaliteli degil ama isini goruyor.", "date": "2026-05-09"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Orgu kaplama saglam, kolay kolay kopmaz.", "date": "2026-05-08"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Hizli sarj reklamlandi ama benim telefonda yavas sarj ediyor.", "date": "2026-05-07"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Macbook'umla sorunsuz calisiyor, gunluk kullanima uygun.", "date": "2026-05-06"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Pratik, dayanikli. Tek eksisi konektor metal degil plastik.", "date": "2026-05-05"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Cok memnunum, 4 ay olmasina ragmen sapasaglam.", "date": "2026-05-04"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Vasat, ozel bir sey degil ama is gorur.", "date": "2026-05-03"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Bu kategori icin ideal urun, alabilirsiniz cekinmeden.", "date": "2026-05-02"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Hizli kargo, kaliteli paketleme, iyi urun.", "date": "2026-05-01"},
-      {"marketplace": "trendyol", "rating": 2, "text": "1 ay sonra ic kablo gozukmeye basladi, dayaniksiz cikti.", "date": "2026-04-30"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Sorunsuz, en yuksek hizla sarj ediyor.", "date": "2026-04-29"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Iyi kalite, sadece konektor biraz sert oturuyor.", "date": "2026-04-28"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Bu fiyata bu kalite kac yere bulunur? Tavsiye ediyorum.", "date": "2026-04-27"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Ortalama bir urun, daha iyileri de var pazarda.", "date": "2026-04-26"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Memnunum, 100 Watt PD destekliyor, super.", "date": "2026-04-25"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "2 metre olmasi buyuk avantaj, evde kullanim icin ideal.", "date": "2026-05-14"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Kalite tam aciklamada belirtildigi gibi, hizli sarj destegi var.", "date": "2026-05-13"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Saglam kablo, orgu kaplama uzun omurlu olacak gibi.", "date": "2026-05-12"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Idare eder, orjinal degil ama is gorur.", "date": "2026-05-11"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Cok memnunum, fiyat-performans urunu.", "date": "2026-05-10"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Telefon, laptop ve tablette sorunsuz calisiyor.", "date": "2026-05-09"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Hizli sarj demis ama bende standart hizda sarj ediyor.", "date": "2026-05-08"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Saglam ve uzun, tam istedigim gibi bir urun.", "date": "2026-05-07"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Kalite iyi, sadece konektor biraz kalin baska kablolarla cakisabilir.", "date": "2026-05-06"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Bu fiyata mukemmel, en iyi alternatiflerden biri.", "date": "2026-05-05"},
-      {"marketplace": "hepsiburada", "rating": 1, "text": "2 hafta dayandi, ucu kopuyor zaten. Iadeyle gonderdim.", "date": "2026-05-04"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Pratik ve fonksiyonel, eve aldim ofiste de kullanacagim.", "date": "2026-05-03"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Macbook sarji icin aldim, 90W gucle sorunsuz calisiyor.", "date": "2026-05-02"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Vasat bir urun, daha iyileri de buluyor insan.", "date": "2026-05-01"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Memnun kaldim, hizli kargo, kaliteli urun.", "date": "2026-04-30"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Iyi urun, sadece kutuda kullanim kilavuzu yok.", "date": "2026-04-29"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Tam istedigim gibi, dayanikli ve hizli.", "date": "2026-04-28"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Kalitesinden gercekten memnunum, hizli sarj sorunsuz.", "date": "2026-05-14"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Prime ile ertesi gun geldi, paketleme ozenli.", "date": "2026-05-13"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Iyi kablo, 100W sarj destegi var, Macbook icin ideal.", "date": "2026-05-12"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Saglam, orgu kaplama, uzun omurlu olacagi belli.", "date": "2026-05-11"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Bu fiyata cok iyi, alternatif kablolardan daha kaliteli.", "date": "2026-05-10"},
-      {"marketplace": "amazon_tr", "rating": 3, "text": "Ortalama, orjinal kablo kadar iyi degil ama is gorur.", "date": "2026-05-09"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Telefon, laptop, tablet hepsinde sorunsuz, ideal urun.", "date": "2026-05-08"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Hizli sarj destegi var, gunluk hizli sarj ihtiyacimi cozdu.", "date": "2026-05-07"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Memnunum, 6 ay olmasina ragmen sapasaglam.", "date": "2026-05-06"},
-      {"marketplace": "amazon_tr", "rating": 2, "text": "Konektor gevsek, baglandiginda surekli oynak. Iadeye gonderdim.", "date": "2026-05-05"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Bu fiyata orgu kapli kablo, mukemmel kalite.", "date": "2026-05-04"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Pratik, gunluk kullanima uygun, dayanikli gozukuyor.", "date": "2026-05-03"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Amazon Choice etiketi haketmis, gercekten kaliteli urun.", "date": "2026-05-02"},
-      {"marketplace": "amazon_tr", "rating": 3, "text": "Idare eder, ozel bir sey degil ama isi goruyor.", "date": "2026-05-01"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Hizli kargo, kaliteli paketleme, urun gercekten iyi.", "date": "2026-04-30"},
-      {"marketplace": "n11", "rating": 4, "text": "Saglam, orgu kaplama, n11 indiriminde ucuza aldim.", "date": "2026-05-14"},
-      {"marketplace": "n11", "rating": 5, "text": "Hizli sarj destegi var, 2 metre olmasi cok pratik.", "date": "2026-05-13"},
-      {"marketplace": "n11", "rating": 3, "text": "Ortalama bir urun, daha iyileri de var ama bu da fena degil.", "date": "2026-05-12"},
-      {"marketplace": "n11", "rating": 5, "text": "Memnun kaldim, dayanikli ve kaliteli.", "date": "2026-05-11"},
-      {"marketplace": "n11", "rating": 4, "text": "Iyi kablo, sadece konektor biraz sert oturuyor.", "date": "2026-05-10"},
-      {"marketplace": "n11", "rating": 2, "text": "Hizli sarj yapmiyor benim telefonda, normal hizda sarj ediyor.", "date": "2026-05-09"},
-      {"marketplace": "n11", "rating": 5, "text": "Mukemmel, n11'de en iyi alternatif.", "date": "2026-05-08"},
-      {"marketplace": "n11", "rating": 4, "text": "Pratik, kullanisli, fiyat-performans urunu.", "date": "2026-05-07"},
-      {"marketplace": "n11", "rating": 5, "text": "Cok memnunum, 3 ay olmasina ragmen sapasaglam.", "date": "2026-05-06"},
-      {"marketplace": "n11", "rating": 3, "text": "Idare eder, orjinal kablo kadar iyi degil tabii.", "date": "2026-05-05"},
-      {"marketplace": "n11", "rating": 5, "text": "Saglam, hizli sarj destekli, ideal.", "date": "2026-05-04"},
-      {"marketplace": "n11", "rating": 4, "text": "Iyi kalite, sadece kutuda extra konektor olsaydi daha iyiydi.", "date": "2026-05-03"},
-      {"marketplace": "n11", "rating": 5, "text": "Bu fiyata mukemmel, kesinlikle tavsiye ederim.", "date": "2026-05-02"},
-      {"marketplace": "n11", "rating": 1, "text": "10 gunde ic kablo gozuktu, dayaniksiz cikti. Iade ettim.", "date": "2026-05-01"},
-      {"marketplace": "n11", "rating": 4, "text": "Memnunum, gunluk kullanim icin yeterli ve dayanikli.", "date": "2026-04-30"}
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Kablo cok saglam, hizli sarj destekliyor. 100W'a kadar sorun yok.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "2 metre olmasi inanilmaz pratik, kanepeden sarj edebiliyorum.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Iyi kalite, sadece konektor biraz gevşek olabilir.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Bu fiyata kaliteli kablo bulmak zor, super.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "USB-C den USB-C, hizli ve sorunsuz, memnunum.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Idare eder, orjinal kablolar kadar kaliteli degil ama isini goruyor.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Orgu kaplama saglam, kolay kolay kopmaz.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Hizli sarj reklamlandi ama benim telefonda yavas sarj ediyor.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Macbook'umla sorunsuz calisiyor, gunluk kullanima uygun.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Pratik, dayanikli. Tek eksisi konektor metal degil plastik.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Cok memnunum, 4 ay olmasina ragmen sapasaglam.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Vasat, ozel bir sey degil ama is gorur.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Bu kategori icin ideal urun, alabilirsiniz cekinmeden.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Hizli kargo, kaliteli paketleme, iyi urun.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "1 ay sonra ic kablo gozukmeye basladi, dayaniksiz cikti.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Sorunsuz, en yuksek hizla sarj ediyor.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Iyi kalite, sadece konektor biraz sert oturuyor.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Bu fiyata bu kalite kac yere bulunur? Tavsiye ediyorum.",
+        "date": "2026-04-27"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Ortalama bir urun, daha iyileri de var pazarda.",
+        "date": "2026-04-26"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Memnunum, 100 Watt PD destekliyor, super.",
+        "date": "2026-04-25"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "2 metre olmasi buyuk avantaj, evde kullanim icin ideal.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Kalite tam aciklamada belirtildigi gibi, hizli sarj destegi var.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Saglam kablo, orgu kaplama uzun omurlu olacak gibi.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Idare eder, orjinal degil ama is gorur.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Cok memnunum, fiyat-performans urunu.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Telefon, laptop ve tablette sorunsuz calisiyor.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Hizli sarj demis ama bende standart hizda sarj ediyor.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Saglam ve uzun, tam istedigim gibi bir urun.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Kalite iyi, sadece konektor biraz kalin baska kablolarla cakisabilir.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Bu fiyata mukemmel, en iyi alternatiflerden biri.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 1,
+        "text": "2 hafta dayandi, ucu kopuyor zaten. Iadeyle gonderdim.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Pratik ve fonksiyonel, eve aldim ofiste de kullanacagim.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Macbook sarji icin aldim, 90W gucle sorunsuz calisiyor.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Vasat bir urun, daha iyileri de buluyor insan.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Memnun kaldim, hizli kargo, kaliteli urun.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Iyi urun, sadece kutuda kullanim kilavuzu yok.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Tam istedigim gibi, dayanikli ve hizli.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Kalitesinden gercekten memnunum, hizli sarj sorunsuz.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Prime ile ertesi gun geldi, paketleme ozenli.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Iyi kablo, 100W sarj destegi var, Macbook icin ideal.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Saglam, orgu kaplama, uzun omurlu olacagi belli.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Bu fiyata cok iyi, alternatif kablolardan daha kaliteli.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 3,
+        "text": "Ortalama, orjinal kablo kadar iyi degil ama is gorur.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Telefon, laptop, tablet hepsinde sorunsuz, ideal urun.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Hizli sarj destegi var, gunluk hizli sarj ihtiyacimi cozdu.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Memnunum, 6 ay olmasina ragmen sapasaglam.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 2,
+        "text": "Konektor gevsek, baglandiginda surekli oynak. Iadeye gonderdim.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Bu fiyata orgu kapli kablo, mukemmel kalite.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Pratik, gunluk kullanima uygun, dayanikli gozukuyor.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Amazon Choice etiketi haketmis, gercekten kaliteli urun.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 3,
+        "text": "Idare eder, ozel bir sey degil ama isi goruyor.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Hizli kargo, kaliteli paketleme, urun gercekten iyi.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Saglam, orgu kaplama, n11 indiriminde ucuza aldim.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Hizli sarj destegi var, 2 metre olmasi cok pratik.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Ortalama bir urun, daha iyileri de var ama bu da fena degil.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Memnun kaldim, dayanikli ve kaliteli.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Iyi kablo, sadece konektor biraz sert oturuyor.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 2,
+        "text": "Hizli sarj yapmiyor benim telefonda, normal hizda sarj ediyor.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Mukemmel, n11'de en iyi alternatif.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Pratik, kullanisli, fiyat-performans urunu.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Cok memnunum, 3 ay olmasina ragmen sapasaglam.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Idare eder, orjinal kablo kadar iyi degil tabii.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Saglam, hizli sarj destekli, ideal.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Iyi kalite, sadece kutuda extra konektor olsaydi daha iyiydi.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Bu fiyata mukemmel, kesinlikle tavsiye ederim.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 1,
+        "text": "10 gunde ic kablo gozuktu, dayaniksiz cikti. Iade ettim.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Memnunum, gunluk kullanim icin yeterli ve dayanikli.",
+        "date": "2026-04-30"
+      }
     ],
     "P004": [
-      {"marketplace": "trendyol", "rating": 5, "text": "Ses cikisi inanilmaz, kucuk ama etkili. Bahcede partilerde kullanivorum.", "date": "2026-05-14"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Baglantisi cok hizli kuruluyor, NFC olsaydi daha iyi olurdu.", "date": "2026-05-13"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Bas sesleri muthis, kucuk hoparlor olmasina ragmen guclu.", "date": "2026-05-12"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Su gecirmiyor, havuz kenarinda guvenle kullanabiliyorum.", "date": "2026-05-11"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Idare eder, JBL Charge alternatifi degil ama bu fiyata uygun.", "date": "2026-05-10"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Tasarim sik, ses kaliteli, batarya uzun gidiyor.", "date": "2026-05-09"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Bluetooth menzili cok kisa, 5 metreden oteye gitmiyor.", "date": "2026-05-08"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Bahcedeki partilerde kullaniyorum, pil 8 saat gidiyor.", "date": "2026-05-07"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Iyi urun, sadece USB-C ile sarj olsa daha iyi olurdu.", "date": "2026-05-06"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Ortalama bir urun, ses kalitesi yeterli ama premium degil.", "date": "2026-05-05"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Cok memnunum, fiyat-performans urunu.", "date": "2026-05-04"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Bas kotu degil ama tiz biraz baskin, esitleyici ayar yok.", "date": "2026-05-03"},
-      {"marketplace": "trendyol", "rating": 1, "text": "1 haftada bozuldu, acilmiyor. Iade ettim.", "date": "2026-05-02"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Tasarim cok sik, evde ofiste her yerde kullaniyorum.", "date": "2026-05-01"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Ses cikisi guzel, batarya uzun gidiyor, memnunum.", "date": "2026-04-30"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Vasat, ozel bir sey beklemeyin.", "date": "2026-04-29"},
-      {"marketplace": "trendyol", "rating": 5, "text": "JBL kadar iyi, bu fiyata harika.", "date": "2026-04-28"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Reklamlandigi gibi 15 saat pil tutmuyor, 5-6 saatte sarj bitiyor.", "date": "2026-04-27"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Iyi hoparlor, ses gucu yeterli orta buyuklukte odalar icin.", "date": "2026-04-26"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Cok begendim, kucuk ama etkili.", "date": "2026-04-25"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Iyi urun, ses kalitesi tatmin edici. Bas biraz daha guclu olabilirdi.", "date": "2026-05-14"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Tasarim sik, Bluetooth baglantisi cok hizli.", "date": "2026-05-13"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Ortalama, daha iyileri var ama bu da fena degil.", "date": "2026-05-12"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Su gecirmiyor ozelligi cok pratik, banyo da bile kullaniyorum.", "date": "2026-05-11"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Pil sarj bittiginde icindeki bas tonu degisiyor, yazilim hatasi olabilir.", "date": "2026-05-10"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Cok memnunum, mukemmel ses, uzun pil omru.", "date": "2026-05-09"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Bluetooth 5.0 olmasi guzel, menzil de 10 metre kadar.", "date": "2026-05-08"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Idare eder bir urun, ses kalitesi ortalama.", "date": "2026-05-07"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Bahcede sik kullaniyorum, ses gucu yeterli.", "date": "2026-05-06"},
-      {"marketplace": "hepsiburada", "rating": 1, "text": "2 haftada bozuldu, sag tarafta cizirti baslandi.", "date": "2026-05-05"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Iyi urun, sadece USB-C olsaydi daha iyi olurdu, micro-USB devri gecti.", "date": "2026-05-04"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Memnunum, tasarim ve ses kalitesi ile fiyatina deger.", "date": "2026-05-03"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Ortalama, hayal etmedigim seyleri yapmiyor ama yeterli.", "date": "2026-05-02"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Tasarim cok sik, ev dekorumla uyumlu, memnunum.", "date": "2026-05-01"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Iyi hoparlor, partilerde kullaniyorum.", "date": "2026-04-30"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Bluetooth surekli kopuyor, telefon yaninda olsa bile.", "date": "2026-04-29"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Bu fiyata cok iyi, JBL kadar olmasa da yakini.", "date": "2026-04-28"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Amazon hizli kargo + Prime, bu fiyata harika hoparlor.", "date": "2026-05-14"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Iyi urun, ses kalitesi yeterli orta seviye partiler icin.", "date": "2026-05-13"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Tasarim sik, Bluetooth baglantisi cok hizli, memnunum.", "date": "2026-05-12"},
-      {"marketplace": "amazon_tr", "rating": 3, "text": "Ortalama, JBL Charge kadar iyi degil ama bu fiyata uygun.", "date": "2026-05-11"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Bas sesleri tatmin edici, kucuk olmasi pratik.", "date": "2026-05-10"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Su gecirmez ozelligi muhtesem, havuz kenarinda kullaniyorum.", "date": "2026-05-09"},
-      {"marketplace": "amazon_tr", "rating": 2, "text": "Pil omru reklamdaki kadar uzun degil, 6-7 saat anca.", "date": "2026-05-08"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Tum aile begendi, ortak kullaniyoruz partilerde.", "date": "2026-05-07"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Iyi tasarim, kaliteli ses, memnunum.", "date": "2026-05-06"},
-      {"marketplace": "amazon_tr", "rating": 3, "text": "Idare eder, premium beklemeyin bu fiyata.", "date": "2026-05-05"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Hizli kargo, kaliteli paketleme, urun yerli yerinde.", "date": "2026-05-04"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Bahcedeki partilerde guclu ses, evde de iyi.", "date": "2026-05-03"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Amazon Choice etiketi var, gercekten haketmis.", "date": "2026-05-02"},
-      {"marketplace": "amazon_tr", "rating": 2, "text": "Bluetooth menzili cok kisa, baska odadan calmiyor.", "date": "2026-05-01"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Mukemmel ses, dayanikli yapi, batarya uzun.", "date": "2026-04-30"},
-      {"marketplace": "n11", "rating": 4, "text": "Iyi urun, n11'de uygun fiyata aldim. Ses kalitesi tatmin edici.", "date": "2026-05-14"},
-      {"marketplace": "n11", "rating": 5, "text": "Tasarim cok sik, bas sesleri kucuk olmasina ragmen guclu.", "date": "2026-05-13"},
-      {"marketplace": "n11", "rating": 3, "text": "Ortalama bir urun, daha pahalisini almak gerekmez gunluk kullanim icin.", "date": "2026-05-12"},
-      {"marketplace": "n11", "rating": 5, "text": "Cok memnunum, pil omru de uzun, partilerde kullaniyorum.", "date": "2026-05-11"},
-      {"marketplace": "n11", "rating": 4, "text": "Iyi hoparlor, ses gucu yeterli, n11 indiriminde aldim cok ucuza.", "date": "2026-05-10"},
-      {"marketplace": "n11", "rating": 2, "text": "Bluetooth surekli kopuyor benim telefonla, yazilim guncellemesi gerekli.", "date": "2026-05-09"},
-      {"marketplace": "n11", "rating": 4, "text": "Su gecirmez ozelligi pratik, banyoda kullaniyorum.", "date": "2026-05-08"},
-      {"marketplace": "n11", "rating": 5, "text": "Mukemmel, kucuk ama etkili. Bu fiyata daha iyisi yok.", "date": "2026-05-07"},
-      {"marketplace": "n11", "rating": 3, "text": "Idare eder, ozel bir sey beklemeyenler icin yeterli.", "date": "2026-05-06"},
-      {"marketplace": "n11", "rating": 1, "text": "5 gunde acilmiyor, iade ettim. Kalitesizlik.", "date": "2026-05-05"},
-      {"marketplace": "n11", "rating": 5, "text": "Iyi tasarim, kaliteli ses, dayanikli yapi.", "date": "2026-05-04"},
-      {"marketplace": "n11", "rating": 4, "text": "Ses kalitesi tatmin edici, pil 8 saat gidiyor.", "date": "2026-05-03"},
-      {"marketplace": "n11", "rating": 3, "text": "Vasat, n11'de daha iyileri var ama bu da fena degil.", "date": "2026-05-02"},
-      {"marketplace": "n11", "rating": 5, "text": "Memnun kaldim, hizli kargo, kaliteli urun.", "date": "2026-05-01"},
-      {"marketplace": "n11", "rating": 2, "text": "Pil sarji cabuk bitiyor, reklamdaki kadar uzun degil.", "date": "2026-04-30"}
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Ses cikisi inanilmaz, kucuk ama etkili. Bahcede partilerde kullanivorum.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Baglantisi cok hizli kuruluyor, NFC olsaydi daha iyi olurdu.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Bas sesleri muthis, kucuk hoparlor olmasina ragmen guclu.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Su gecirmiyor, havuz kenarinda guvenle kullanabiliyorum.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Idare eder, JBL Charge alternatifi degil ama bu fiyata uygun.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Tasarim sik, ses kaliteli, batarya uzun gidiyor.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Bluetooth menzili cok kisa, 5 metreden oteye gitmiyor.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Bahcedeki partilerde kullaniyorum, pil 8 saat gidiyor.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Iyi urun, sadece USB-C ile sarj olsa daha iyi olurdu.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Ortalama bir urun, ses kalitesi yeterli ama premium degil.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Cok memnunum, fiyat-performans urunu.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Bas kotu degil ama tiz biraz baskin, esitleyici ayar yok.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 1,
+        "text": "1 haftada bozuldu, acilmiyor. Iade ettim.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Tasarim cok sik, evde ofiste her yerde kullaniyorum.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Ses cikisi guzel, batarya uzun gidiyor, memnunum.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Vasat, ozel bir sey beklemeyin.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "JBL kadar iyi, bu fiyata harika.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Reklamlandigi gibi 15 saat pil tutmuyor, 5-6 saatte sarj bitiyor.",
+        "date": "2026-04-27"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Iyi hoparlor, ses gucu yeterli orta buyuklukte odalar icin.",
+        "date": "2026-04-26"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Cok begendim, kucuk ama etkili.",
+        "date": "2026-04-25"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Iyi urun, ses kalitesi tatmin edici. Bas biraz daha guclu olabilirdi.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Tasarim sik, Bluetooth baglantisi cok hizli.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Ortalama, daha iyileri var ama bu da fena degil.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Su gecirmiyor ozelligi cok pratik, banyo da bile kullaniyorum.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Pil sarj bittiginde icindeki bas tonu degisiyor, yazilim hatasi olabilir.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Cok memnunum, mukemmel ses, uzun pil omru.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Bluetooth 5.0 olmasi guzel, menzil de 10 metre kadar.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Idare eder bir urun, ses kalitesi ortalama.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Bahcede sik kullaniyorum, ses gucu yeterli.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 1,
+        "text": "2 haftada bozuldu, sag tarafta cizirti baslandi.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Iyi urun, sadece USB-C olsaydi daha iyi olurdu, micro-USB devri gecti.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Memnunum, tasarim ve ses kalitesi ile fiyatina deger.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Ortalama, hayal etmedigim seyleri yapmiyor ama yeterli.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Tasarim cok sik, ev dekorumla uyumlu, memnunum.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Iyi hoparlor, partilerde kullaniyorum.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Bluetooth surekli kopuyor, telefon yaninda olsa bile.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Bu fiyata cok iyi, JBL kadar olmasa da yakini.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Amazon hizli kargo + Prime, bu fiyata harika hoparlor.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Iyi urun, ses kalitesi yeterli orta seviye partiler icin.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Tasarim sik, Bluetooth baglantisi cok hizli, memnunum.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 3,
+        "text": "Ortalama, JBL Charge kadar iyi degil ama bu fiyata uygun.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Bas sesleri tatmin edici, kucuk olmasi pratik.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Su gecirmez ozelligi muhtesem, havuz kenarinda kullaniyorum.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 2,
+        "text": "Pil omru reklamdaki kadar uzun degil, 6-7 saat anca.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Tum aile begendi, ortak kullaniyoruz partilerde.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Iyi tasarim, kaliteli ses, memnunum.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 3,
+        "text": "Idare eder, premium beklemeyin bu fiyata.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Hizli kargo, kaliteli paketleme, urun yerli yerinde.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Bahcedeki partilerde guclu ses, evde de iyi.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Amazon Choice etiketi var, gercekten haketmis.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 2,
+        "text": "Bluetooth menzili cok kisa, baska odadan calmiyor.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Mukemmel ses, dayanikli yapi, batarya uzun.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Iyi urun, n11'de uygun fiyata aldim. Ses kalitesi tatmin edici.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Tasarim cok sik, bas sesleri kucuk olmasina ragmen guclu.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Ortalama bir urun, daha pahalisini almak gerekmez gunluk kullanim icin.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Cok memnunum, pil omru de uzun, partilerde kullaniyorum.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Iyi hoparlor, ses gucu yeterli, n11 indiriminde aldim cok ucuza.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 2,
+        "text": "Bluetooth surekli kopuyor benim telefonla, yazilim guncellemesi gerekli.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Su gecirmez ozelligi pratik, banyoda kullaniyorum.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Mukemmel, kucuk ama etkili. Bu fiyata daha iyisi yok.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Idare eder, ozel bir sey beklemeyenler icin yeterli.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 1,
+        "text": "5 gunde acilmiyor, iade ettim. Kalitesizlik.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Iyi tasarim, kaliteli ses, dayanikli yapi.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Ses kalitesi tatmin edici, pil 8 saat gidiyor.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Vasat, n11'de daha iyileri var ama bu da fena degil.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Memnun kaldim, hizli kargo, kaliteli urun.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 2,
+        "text": "Pil sarji cabuk bitiyor, reklamdaki kadar uzun degil.",
+        "date": "2026-04-30"
+      }
     ],
     "P005": [
-      {"marketplace": "trendyol", "rating": 5, "text": "Laptopum artik isinmiyor, malzeme kalitesi cok iyi. Aluminyum cok saglam.", "date": "2026-05-14"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Sirt agrim bitti, yukseklik ayari cok basarili. Ergonomik.", "date": "2026-05-13"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Premium kalite, fiyatina deger. Apple stand kadar saglam.", "date": "2026-05-12"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Iyi stand, sadece katlanmasi biraz zorlu.", "date": "2026-05-11"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Mukemmel tasarim, masamdan kalkmadan rahatsiz olmuyorum.", "date": "2026-05-10"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Bu fiyata cok iyi, premium urunlere alternatif.", "date": "2026-05-09"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Hava sirkulasyonu super, laptop daha az isiniyor.", "date": "2026-05-08"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Ortalama bir stand, ozellikle de hareketli model degil.", "date": "2026-05-07"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Kanepeden hatta yataktan calismayi kolaylastirdi.", "date": "2026-05-06"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Aluminyum yapi cok premium gozukuyor, kalitesi yuksek.", "date": "2026-05-05"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Iyi stand, gozluklu kullanim icin uygun yukseklik veriyor.", "date": "2026-05-04"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Boyun agrim azaldi, monitor seviyesinde laptop kullaniyorum simdi.", "date": "2026-05-03"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Pratik ve fonksiyonel, tasinabilir olmasi avantaj.", "date": "2026-05-02"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Memnun kaldim, premium kalite, fiyatina deger.", "date": "2026-05-01"},
-      {"marketplace": "trendyol", "rating": 3, "text": "Idare eder, ozel bir sey degil ama is gorur.", "date": "2026-04-30"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Sirt agrim bitti, ergonomik calisma duzeni sagliyor.", "date": "2026-04-29"},
-      {"marketplace": "trendyol", "rating": 2, "text": "Yukseklik ayari yok, sabit yukseklik bana uymadi.", "date": "2026-04-28"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Cok memnunum, 6 ay olmasina ragmen sapasaglam.", "date": "2026-04-27"},
-      {"marketplace": "trendyol", "rating": 4, "text": "Iyi stand, sadece kayma onleyici daha guclu olabilirdi.", "date": "2026-04-26"},
-      {"marketplace": "trendyol", "rating": 5, "text": "Premium kalite, profesyonel kullanim icin ideal.", "date": "2026-04-25"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Sirt agrim bitti, yukseklik ayari cok basarili. Cok memnunum.", "date": "2026-05-14"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Iyi stand, aluminyum yapi premium gozukuyor.", "date": "2026-05-13"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Laptopum artik isinmiyor, hava sirkulasyonu mukemmel.", "date": "2026-05-12"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Premium kalite, fiyatina deger. Tavsiye ederim.", "date": "2026-05-11"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Pratik, tasinabilir, evde de ofiste de kullaniyorum.", "date": "2026-05-10"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Ortalama, daha iyileri de var ama bu da fena degil.", "date": "2026-05-09"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Mukemmel tasarim, ergonomik, sirt agrimi cozdu.", "date": "2026-05-08"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Iyi stand, sadece katlanmasi biraz zor ama tasiyabiliyorum.", "date": "2026-05-07"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Aluminyum yapi cok saglam, Apple stand kadar kaliteli.", "date": "2026-05-06"},
-      {"marketplace": "hepsiburada", "rating": 2, "text": "Beklediginden kucuk geldi, 16 inc laptopum sigmiyor tam.", "date": "2026-05-05"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Pratik, hizli kargo, kaliteli urun, memnunum.", "date": "2026-05-04"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Hava sirkulasyonu super, laptop fanlari daha az caligiyor.", "date": "2026-05-03"},
-      {"marketplace": "hepsiburada", "rating": 3, "text": "Idare eder, premium beklentide olanlara uygun degil.", "date": "2026-05-02"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Cok begendim, ev ofise iki tane aldim.", "date": "2026-05-01"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Iyi stand, sadece monte etmek biraz vakit aldi.", "date": "2026-04-30"},
-      {"marketplace": "hepsiburada", "rating": 5, "text": "Memnunum, malzeme kalitesi yuksek, dayanikli.", "date": "2026-04-29"},
-      {"marketplace": "hepsiburada", "rating": 4, "text": "Iyi urun, tasinabilir, hafif, ofiste-evde rahat kullanim.", "date": "2026-04-28"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Premium kalite, Apple stand kadar saglam. Prime ile hizli geldi.", "date": "2026-05-14"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Mukemmel ergonomik tasarim, sirt agrim azaldi.", "date": "2026-05-13"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Iyi stand, aluminyum yapi premium gozukuyor.", "date": "2026-05-12"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Laptopum daha az isiniyor, hava sirkulasyonu super.", "date": "2026-05-11"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Premium kalite, fiyatina kesinlikle deger.", "date": "2026-05-10"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Pratik, tasinabilir, hafif. Evde ofiste rahat kullanim.", "date": "2026-05-09"},
-      {"marketplace": "amazon_tr", "rating": 3, "text": "Ortalama, beklediginden ufak ama is gorur.", "date": "2026-05-08"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Boyun agrim azaldi, monitor seviyesinde calisiyorum.", "date": "2026-05-07"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Iyi stand, kayma onleyici ozelligi var, sabit duruyor.", "date": "2026-05-06"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Cok memnunum, ev-ofise iki tane aldim, super.", "date": "2026-05-05"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Aluminyum yapi cok saglam, dayanikli olacagi belli.", "date": "2026-05-04"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Mukemmel tasarim, calismam icin ideal.", "date": "2026-05-03"},
-      {"marketplace": "amazon_tr", "rating": 3, "text": "Idare eder, premium beklemeyin bu fiyata.", "date": "2026-05-02"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Hizli kargo, kaliteli paketleme, urun yerli yerinde.", "date": "2026-05-01"},
-      {"marketplace": "amazon_tr", "rating": 4, "text": "Iyi urun, sadece daha buyuk laptop modelleri icin ek alan gerekiyor.", "date": "2026-04-30"},
-      {"marketplace": "amazon_tr", "rating": 5, "text": "Amazon Choice etiketi haketmis, gercekten kaliteli urun.", "date": "2026-04-29"},
-      {"marketplace": "n11", "rating": 4, "text": "Iyi stand, n11'de uygun fiyata aldim. Aluminyum saglam.", "date": "2026-05-14"},
-      {"marketplace": "n11", "rating": 5, "text": "Sirt agrim bitti, ergonomik tasarim cok basarili.", "date": "2026-05-13"},
-      {"marketplace": "n11", "rating": 3, "text": "Ortalama, n11'de daha iyileri de var.", "date": "2026-05-12"},
-      {"marketplace": "n11", "rating": 5, "text": "Premium kalite, fiyatina deger. Kesinlikle tavsiye ederim.", "date": "2026-05-11"},
-      {"marketplace": "n11", "rating": 4, "text": "Iyi stand, sadece katlanmasi biraz zor.", "date": "2026-05-10"},
-      {"marketplace": "n11", "rating": 5, "text": "Mukemmel, laptop artik isinmiyor.", "date": "2026-05-09"},
-      {"marketplace": "n11", "rating": 4, "text": "Aluminyum yapi premium gozukuyor, kaliteli urun.", "date": "2026-05-08"},
-      {"marketplace": "n11", "rating": 2, "text": "Beklediginden kucuk geldi, kontrol etmek lazimmis.", "date": "2026-05-07"},
-      {"marketplace": "n11", "rating": 5, "text": "Cok memnunum, pratik ve fonksiyonel.", "date": "2026-05-06"},
-      {"marketplace": "n11", "rating": 4, "text": "Iyi urun, tasinabilir, hafif yapida.", "date": "2026-05-05"},
-      {"marketplace": "n11", "rating": 3, "text": "Idare eder, premium beklemeyin bu fiyata.", "date": "2026-05-04"},
-      {"marketplace": "n11", "rating": 5, "text": "Boyun agrim azaldi, sirt postur duzeldi.", "date": "2026-05-03"},
-      {"marketplace": "n11", "rating": 5, "text": "Mukemmel tasarim, ev ofise iki tane aldim.", "date": "2026-05-02"},
-      {"marketplace": "n11", "rating": 4, "text": "Pratik, ergonomik, sirt-boyun saglikli calisma duzeni.", "date": "2026-05-01"},
-      {"marketplace": "n11", "rating": 5, "text": "Hizli kargo, kaliteli urun, n11 indiriminde aldim.", "date": "2026-04-30"}
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Laptopum artik isinmiyor, malzeme kalitesi cok iyi. Aluminyum cok saglam.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Sirt agrim bitti, yukseklik ayari cok basarili. Ergonomik.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Premium kalite, fiyatina deger. Apple stand kadar saglam.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Iyi stand, sadece katlanmasi biraz zorlu.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Mukemmel tasarim, masamdan kalkmadan rahatsiz olmuyorum.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Bu fiyata cok iyi, premium urunlere alternatif.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Hava sirkulasyonu super, laptop daha az isiniyor.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Ortalama bir stand, ozellikle de hareketli model degil.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Kanepeden hatta yataktan calismayi kolaylastirdi.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Aluminyum yapi cok premium gozukuyor, kalitesi yuksek.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Iyi stand, gozluklu kullanim icin uygun yukseklik veriyor.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Boyun agrim azaldi, monitor seviyesinde laptop kullaniyorum simdi.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Pratik ve fonksiyonel, tasinabilir olmasi avantaj.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Memnun kaldim, premium kalite, fiyatina deger.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 3,
+        "text": "Idare eder, ozel bir sey degil ama is gorur.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Sirt agrim bitti, ergonomik calisma duzeni sagliyor.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 2,
+        "text": "Yukseklik ayari yok, sabit yukseklik bana uymadi.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Cok memnunum, 6 ay olmasina ragmen sapasaglam.",
+        "date": "2026-04-27"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 4,
+        "text": "Iyi stand, sadece kayma onleyici daha guclu olabilirdi.",
+        "date": "2026-04-26"
+      },
+      {
+        "marketplace": "trendyol",
+        "rating": 5,
+        "text": "Premium kalite, profesyonel kullanim icin ideal.",
+        "date": "2026-04-25"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Sirt agrim bitti, yukseklik ayari cok basarili. Cok memnunum.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Iyi stand, aluminyum yapi premium gozukuyor.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Laptopum artik isinmiyor, hava sirkulasyonu mukemmel.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Premium kalite, fiyatina deger. Tavsiye ederim.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Pratik, tasinabilir, evde de ofiste de kullaniyorum.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Ortalama, daha iyileri de var ama bu da fena degil.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Mukemmel tasarim, ergonomik, sirt agrimi cozdu.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Iyi stand, sadece katlanmasi biraz zor ama tasiyabiliyorum.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Aluminyum yapi cok saglam, Apple stand kadar kaliteli.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 2,
+        "text": "Beklediginden kucuk geldi, 16 inc laptopum sigmiyor tam.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Pratik, hizli kargo, kaliteli urun, memnunum.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Hava sirkulasyonu super, laptop fanlari daha az caligiyor.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 3,
+        "text": "Idare eder, premium beklentide olanlara uygun degil.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Cok begendim, ev ofise iki tane aldim.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Iyi stand, sadece monte etmek biraz vakit aldi.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 5,
+        "text": "Memnunum, malzeme kalitesi yuksek, dayanikli.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "hepsiburada",
+        "rating": 4,
+        "text": "Iyi urun, tasinabilir, hafif, ofiste-evde rahat kullanim.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Premium kalite, Apple stand kadar saglam. Prime ile hizli geldi.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Mukemmel ergonomik tasarim, sirt agrim azaldi.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Iyi stand, aluminyum yapi premium gozukuyor.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Laptopum daha az isiniyor, hava sirkulasyonu super.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Premium kalite, fiyatina kesinlikle deger.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Pratik, tasinabilir, hafif. Evde ofiste rahat kullanim.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 3,
+        "text": "Ortalama, beklediginden ufak ama is gorur.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Boyun agrim azaldi, monitor seviyesinde calisiyorum.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Iyi stand, kayma onleyici ozelligi var, sabit duruyor.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Cok memnunum, ev-ofise iki tane aldim, super.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Aluminyum yapi cok saglam, dayanikli olacagi belli.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Mukemmel tasarim, calismam icin ideal.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 3,
+        "text": "Idare eder, premium beklemeyin bu fiyata.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Hizli kargo, kaliteli paketleme, urun yerli yerinde.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 4,
+        "text": "Iyi urun, sadece daha buyuk laptop modelleri icin ek alan gerekiyor.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "amazon_tr",
+        "rating": 5,
+        "text": "Amazon Choice etiketi haketmis, gercekten kaliteli urun.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Iyi stand, n11'de uygun fiyata aldim. Aluminyum saglam.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Sirt agrim bitti, ergonomik tasarim cok basarili.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Ortalama, n11'de daha iyileri de var.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Premium kalite, fiyatina deger. Kesinlikle tavsiye ederim.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Iyi stand, sadece katlanmasi biraz zor.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Mukemmel, laptop artik isinmiyor.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Aluminyum yapi premium gozukuyor, kaliteli urun.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 2,
+        "text": "Beklediginden kucuk geldi, kontrol etmek lazimmis.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Cok memnunum, pratik ve fonksiyonel.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Iyi urun, tasinabilir, hafif yapida.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Idare eder, premium beklemeyin bu fiyata.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Boyun agrim azaldi, sirt postur duzeldi.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Mukemmel tasarim, ev ofise iki tane aldim.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Pratik, ergonomik, sirt-boyun saglikli calisma duzeni.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Hizli kargo, kaliteli urun, n11 indiriminde aldim.",
+        "date": "2026-04-30"
+      }
     ],
     "P006": [
-      {"marketplace": "n11", "rating": 5, "text": "Sessiz tiklama ozelligi mukemmel, gec saatte de rahatca kullaniyorum.", "date": "2026-05-14"},
-      {"marketplace": "n11", "rating": 4, "text": "Iyi mouse, ergonomik tasarim, eli yormuyor.", "date": "2026-05-13"},
-      {"marketplace": "n11", "rating": 5, "text": "Bluetooth + 2.4GHz cift mod, hangi cihazda olursa olsun calisivor.", "date": "2026-05-12"},
-      {"marketplace": "n11", "rating": 3, "text": "Idare eder, daha iyileri var ama bu da fena degil.", "date": "2026-05-11"},
-      {"marketplace": "n11", "rating": 4, "text": "Pil omru uzun, 6 ay ayni pil ile devam ediyor.", "date": "2026-05-10"},
-      {"marketplace": "n11", "rating": 5, "text": "Cok memnunum, profesyonel kullanim icin ideal.", "date": "2026-05-09"},
-      {"marketplace": "n11", "rating": 2, "text": "Sol click bazen takiliyor, kalibrasyon sorunu olabilir.", "date": "2026-05-08"},
-      {"marketplace": "n11", "rating": 4, "text": "Iyi mouse, tasarim sik, n11'de uygun fiyata aldim.", "date": "2026-05-07"},
-      {"marketplace": "n11", "rating": 5, "text": "Sessiz tiklama gercekten cok sessiz, ofiste meslektaslari rahatsiz etmiyor.", "date": "2026-05-06"},
-      {"marketplace": "n11", "rating": 3, "text": "Ortalama, ozel bir sey beklemiyorsaniz aliniz.", "date": "2026-05-05"},
-      {"marketplace": "n11", "rating": 5, "text": "Mukemmel mouse, ergonomik, sessiz, bu fiyata harika.", "date": "2026-05-04"},
-      {"marketplace": "n11", "rating": 4, "text": "Iyi urun, sadece DPI ayar dugmesi olsaydi daha iyi olurdu.", "date": "2026-05-03"},
-      {"marketplace": "n11", "rating": 1, "text": "1 haftada bozuldu, sol click calismiyor. Iade ettim.", "date": "2026-05-02"},
-      {"marketplace": "n11", "rating": 5, "text": "Cok memnunum, ofis kullanimi icin ideal.", "date": "2026-05-01"},
-      {"marketplace": "n11", "rating": 4, "text": "Ergonomik tasarim, eli yormuyor uzun sureli kullanim sonrasi.", "date": "2026-04-30"},
-      {"marketplace": "n11", "rating": 5, "text": "Sessiz tiklama harika, kutuphanede ders calisirken kullaniyorum.", "date": "2026-04-29"},
-      {"marketplace": "n11", "rating": 3, "text": "Idare eder, daha ergonomik modelleri var ama bu da yeterli.", "date": "2026-04-28"},
-      {"marketplace": "n11", "rating": 5, "text": "Memnunum, hizli kargo, kaliteli urun, fiyatina deger.", "date": "2026-04-27"}
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Sessiz tiklama ozelligi mukemmel, gec saatte de rahatca kullaniyorum.",
+        "date": "2026-05-14"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Iyi mouse, ergonomik tasarim, eli yormuyor.",
+        "date": "2026-05-13"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Bluetooth + 2.4GHz cift mod, hangi cihazda olursa olsun calisivor.",
+        "date": "2026-05-12"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Idare eder, daha iyileri var ama bu da fena degil.",
+        "date": "2026-05-11"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Pil omru uzun, 6 ay ayni pil ile devam ediyor.",
+        "date": "2026-05-10"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Cok memnunum, profesyonel kullanim icin ideal.",
+        "date": "2026-05-09"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 2,
+        "text": "Sol click bazen takiliyor, kalibrasyon sorunu olabilir.",
+        "date": "2026-05-08"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Iyi mouse, tasarim sik, n11'de uygun fiyata aldim.",
+        "date": "2026-05-07"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Sessiz tiklama gercekten cok sessiz, ofiste meslektaslari rahatsiz etmiyor.",
+        "date": "2026-05-06"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Ortalama, ozel bir sey beklemiyorsaniz aliniz.",
+        "date": "2026-05-05"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Mukemmel mouse, ergonomik, sessiz, bu fiyata harika.",
+        "date": "2026-05-04"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Iyi urun, sadece DPI ayar dugmesi olsaydi daha iyi olurdu.",
+        "date": "2026-05-03"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 1,
+        "text": "1 haftada bozuldu, sol click calismiyor. Iade ettim.",
+        "date": "2026-05-02"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Cok memnunum, ofis kullanimi icin ideal.",
+        "date": "2026-05-01"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 4,
+        "text": "Ergonomik tasarim, eli yormuyor uzun sureli kullanim sonrasi.",
+        "date": "2026-04-30"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Sessiz tiklama harika, kutuphanede ders calisirken kullaniyorum.",
+        "date": "2026-04-29"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 3,
+        "text": "Idare eder, daha ergonomik modelleri var ama bu da yeterli.",
+        "date": "2026-04-28"
+      },
+      {
+        "marketplace": "n11",
+        "rating": 5,
+        "text": "Memnunum, hizli kargo, kaliteli urun, fiyatina deger.",
+        "date": "2026-04-27"
+      }
     ]
   },
   "suppliers": [
-    {"name": "AliExpress - TechParts", "product": "Bluetooth Kulaklik", "current_price": 420, "min_order": 50, "shipping_days": 15, "discount_pct": 0},
-    {"name": "Alibaba - ShenZhen Audio", "product": "Bluetooth Kulaklik", "current_price": 380, "min_order": 100, "shipping_days": 20, "discount_pct": 5},
-    {"name": "Toptanci TR - Istanbul", "product": "Bluetooth Kulaklik", "current_price": 450, "min_order": 20, "shipping_days": 3, "discount_pct": 0},
-    {"name": "AliExpress - SmartWatch Factory", "product": "Akilli Saat", "current_price": 580, "min_order": 30, "shipping_days": 18, "discount_pct": 0},
-    {"name": "Alibaba - GZ Wearables", "product": "Akilli Saat", "current_price": 510, "min_order": 200, "shipping_days": 25, "discount_pct": 12},
-    {"name": "Toptanci TR - Ankara", "product": "USB-C Kablo", "current_price": 25, "min_order": 500, "shipping_days": 2, "discount_pct": 0},
-    {"name": "Alibaba - Cable King", "product": "USB-C Kablo", "current_price": 12, "min_order": 2000, "shipping_days": 22, "discount_pct": 8},
-    {"name": "AliExpress - SoundPro", "product": "Bluetooth Hoparlor", "current_price": 290, "min_order": 50, "shipping_days": 18, "discount_pct": 0},
-    {"name": "Alibaba - Acoustic GZ", "product": "Bluetooth Hoparlor", "current_price": 265, "min_order": 150, "shipping_days": 22, "discount_pct": 7},
-    {"name": "Toptanci TR - Izmir", "product": "Laptop Stand", "current_price": 150, "min_order": 30, "shipping_days": 3, "discount_pct": 0},
-    {"name": "Alibaba - Metal Works", "product": "Laptop Stand", "current_price": 118, "min_order": 200, "shipping_days": 25, "discount_pct": 10},
-    {"name": "AliExpress - MouseHub", "product": "Kablosuz Mouse", "current_price": 118, "min_order": 50, "shipping_days": 14, "discount_pct": 0},
-    {"name": "Alibaba - Periferal", "product": "Kablosuz Mouse", "current_price": 95, "min_order": 300, "shipping_days": 22, "discount_pct": 9}
+    {
+      "name": "AliExpress - TechParts",
+      "product": "Bluetooth Kulaklik",
+      "current_price": 420,
+      "min_order": 50,
+      "shipping_days": 15,
+      "discount_pct": 0
+    },
+    {
+      "name": "Alibaba - ShenZhen Audio",
+      "product": "Bluetooth Kulaklik",
+      "current_price": 380,
+      "min_order": 100,
+      "shipping_days": 20,
+      "discount_pct": 5
+    },
+    {
+      "name": "Toptanci TR - Istanbul",
+      "product": "Bluetooth Kulaklik",
+      "current_price": 450,
+      "min_order": 20,
+      "shipping_days": 3,
+      "discount_pct": 0
+    },
+    {
+      "name": "AliExpress - SmartWatch Factory",
+      "product": "Akilli Saat",
+      "current_price": 580,
+      "min_order": 30,
+      "shipping_days": 18,
+      "discount_pct": 0
+    },
+    {
+      "name": "Alibaba - GZ Wearables",
+      "product": "Akilli Saat",
+      "current_price": 510,
+      "min_order": 200,
+      "shipping_days": 25,
+      "discount_pct": 12
+    },
+    {
+      "name": "Toptanci TR - Ankara",
+      "product": "USB-C Kablo",
+      "current_price": 25,
+      "min_order": 500,
+      "shipping_days": 2,
+      "discount_pct": 0
+    },
+    {
+      "name": "Alibaba - Cable King",
+      "product": "USB-C Kablo",
+      "current_price": 12,
+      "min_order": 2000,
+      "shipping_days": 22,
+      "discount_pct": 8
+    },
+    {
+      "name": "AliExpress - SoundPro",
+      "product": "Bluetooth Hoparlor",
+      "current_price": 290,
+      "min_order": 50,
+      "shipping_days": 18,
+      "discount_pct": 0
+    },
+    {
+      "name": "Alibaba - Acoustic GZ",
+      "product": "Bluetooth Hoparlor",
+      "current_price": 265,
+      "min_order": 150,
+      "shipping_days": 22,
+      "discount_pct": 7
+    },
+    {
+      "name": "Toptanci TR - Izmir",
+      "product": "Laptop Stand",
+      "current_price": 150,
+      "min_order": 30,
+      "shipping_days": 3,
+      "discount_pct": 0
+    },
+    {
+      "name": "Alibaba - Metal Works",
+      "product": "Laptop Stand",
+      "current_price": 118,
+      "min_order": 200,
+      "shipping_days": 25,
+      "discount_pct": 10
+    },
+    {
+      "name": "AliExpress - MouseHub",
+      "product": "Kablosuz Mouse",
+      "current_price": 118,
+      "min_order": 50,
+      "shipping_days": 14,
+      "discount_pct": 0
+    },
+    {
+      "name": "Alibaba - Periferal",
+      "product": "Kablosuz Mouse",
+      "current_price": 95,
+      "min_order": 300,
+      "shipping_days": 22,
+      "discount_pct": 9
+    }
   ]
 }
