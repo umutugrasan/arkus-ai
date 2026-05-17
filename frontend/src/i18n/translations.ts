@@ -233,6 +233,7 @@ export const translations = {
   'landing.nav_home': { tr: 'Anasayfa', en: 'Home' },
   'landing.nav_features': { tr: 'Özellikler', en: 'Features' },
   'landing.nav_how': { tr: 'Nasıl Çalışır', en: 'How It Works' },
+  'landing.nav_about': { tr: 'Hakkımızda', en: 'About' },
   'landing.get_started': { tr: 'Hemen Başla', en: 'Get Started' },
   'landing.feat1_title': { tr: 'Otonom Ajanlar', en: 'Autonomous Agents' },
   'landing.feat1_desc': { tr: 'Siz sormadan verinizi tarar, rakiplerin fiyat düşüşlerini veya stok tükenmelerini algılayıp aksiyon önerir.', en: 'Scans your data before you ask, detects competitor price drops or stock-outs and suggests actions.' },
@@ -253,6 +254,42 @@ export const translations = {
   'landing.step3_desc': { tr: 'Sistem size net yönlendirmeler yapar. Fiyatınızı optimize edin, yeni tedarikçiye geçin veya listelemenizi iyileştirin.', en: 'The system gives you clear guidance. Optimize your price, switch suppliers or improve your listing.' },
   'landing.contact_desc': { tr: 'Demo talebi, entegrasyon veya işbirliği için doğrudan iletişime geçebilirsiniz. En kısa sürede dönüş yaparız.', en: 'Reach out directly for demo requests, integration or partnership. We will get back to you shortly.' },
   'landing.contact_response': { tr: 'Ortalama yanıt süremiz: 1 iş günü', en: 'Average response time: 1 business day' },
+
+  // ─── About / Hakkimizda ──────────────────────────────────────
+  'landing.about_badge': { tr: 'Hakkımızda', en: 'About' },
+  'landing.about_title_1': { tr: 'İsmin Hikâyesi:', en: 'The Story Behind the Name:' },
+  'landing.about_title_2': { tr: "Arkış'tan Arkus'a", en: "From Arkış to Arkus" },
+  'landing.about_intro': {
+    tr: "Arkus'un kökleri, 1300 yıl öncesine — Türklerin İpek Yolu'nda kurduğu ticaret ağına dayanıyor. İsmimiz bir tesadüf değil; üstlendiğimiz görevin tarihten gelen karşılığı.",
+    en: "Arkus's roots reach back 1,300 years — to the trade network the Turks built along the Silk Road. Our name is no coincidence; it is the historical equivalent of the task we take on today.",
+  },
+  'landing.about_arkis_title': { tr: 'Arkış', en: 'Arkış' },
+  'landing.about_arkis_tag': { tr: 'Eski Türkçe · 8. yüzyıl', en: 'Old Turkic · 8th century' },
+  'landing.about_arkis_desc': {
+    tr: 'Eski Türkçede kervan, elçi ve haberci anlamına gelir. Göktürk yazıtlarında (Kültigin, Bilge Kağan) ve Kutadgu Bilig\'de geçer: İpek Yolu boyunca Çin\'den ipek getiren, vergi taşıyan, uzak diyarların haberini ulaştıran tüccar kervanları.',
+    en: 'In Old Turkic it means caravan, envoy and messenger. It appears in the Göktürk inscriptions (Kültigin, Bilge Kağan) and in Kutadgu Bilig: the merchant caravans that brought silk from China along the Silk Road, carried tribute, and delivered news from distant lands.',
+  },
+  'landing.about_arkis_quote': {
+    tr: '"Hıtay arkışı ipek, altın, gümüş getirir." — Kutadgu Bilig, 11. yüzyıl',
+    en: '"The Khitan arkış brings silk, gold and silver." — Kutadgu Bilig, 11th century',
+  },
+  'landing.about_bridge_title': { tr: 'Bağlantı', en: 'The Connection' },
+  'landing.about_bridge_tag': { tr: 'Modern e-ticaret', en: 'Modern e-commerce' },
+  'landing.about_bridge_desc': {
+    tr: 'Bugünün satıcısı da bir kervancıdır: ürünü, fiyatı, rakip haberini, müşteri yorumunu pazaryerleri arasında taşır. Ama yalnız bir kervancı yorulur — her panel ayrı, her veri dağınık, her gün aynı yolculuk. Yardımcısı yok.',
+    en: "Today's seller is also a caravaneer: carrying products, prices, competitor news, and customer reviews between marketplaces. But a lone caravaneer tires out — every panel separate, every data point scattered, the same journey day after day. No helper.",
+  },
+  'landing.about_arkus_title': { tr: 'Arkus', en: 'Arkus' },
+  'landing.about_arkus_tag': { tr: 'AI · 21. yüzyıl', en: 'AI · 21st century' },
+  'landing.about_arkus_desc': {
+    tr: "Arkış'ın 21. yüzyıldaki hâli. Satıcıya, kendisi için çalışan dijital bir AI ajan kervanı verir: verisini Trendyol, Hepsiburada ve Amazon arasında taşır, rakibin haberini getirir, doğru tedarikçiyi bulur, her sabah özetini sunar.",
+    en: "Arkış reborn in the 21st century. It gives the seller a digital caravan of AI agents working for them: carrying data between Trendyol, Hepsiburada and Amazon, bringing competitor news, finding the right supplier, and presenting a daily summary every morning.",
+  },
+  'landing.about_closing': {
+    tr: '"Eski arkış at sırtında haber taşırdı. Modern Arkus, AI ile veri taşıyor — aynı görev, yeni çağ."',
+    en: '"The old arkış carried news on horseback. The modern Arkus carries data with AI — same mission, new era."',
+  },
+
   'landing.footer_copyright': { tr: '© 2026 Arkus. Tüm hakları saklıdır.', en: '© 2026 Arkus. All rights reserved.' },
   'landing.footer_privacy': { tr: 'Gizlilik Politikası', en: 'Privacy Policy' },
   'landing.footer_terms': { tr: 'Kullanım Şartları', en: 'Terms of Use' },
