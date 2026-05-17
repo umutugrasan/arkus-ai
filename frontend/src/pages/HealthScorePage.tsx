@@ -9,8 +9,9 @@ import { formatCurrency, formatPercent } from '../utils/formatters';
 import { useI18n } from '../context/I18nContext';
 import { useTheme } from '../hooks/useTheme';
 import { getChartTheme } from '../utils/chartTheme';
+import { useBackgroundAnalysis } from '../context/AnalysisContext';
 import type { TranslationKey } from '../i18n';
-import type { HealthScoreResponse, HealthBreakdownResponse, HealthHistoryResponse, HealthAnalyzeResponse } from '../types/api';
+import type { HealthScoreResponse, HealthBreakdownResponse, HealthHistoryResponse } from '../types/api';
 
 export default function HealthScorePage() {
   const { t } = useI18n();
@@ -19,10 +20,14 @@ export default function HealthScorePage() {
   const [score, setScore] = useState<HealthScoreResponse | null>(null);
   const [breakdown, setBreakdown] = useState<HealthBreakdownResponse | null>(null);
   const [history, setHistory] = useState<HealthHistoryResponse | null>(null);
-  const [aiAnalysis, setAiAnalysis] = useState('');
-  const [aiSources, setAiSources] = useState<Array<{ title: string; uri: string }>>([]);
   const [loading, setLoading] = useState(true);
-  const [aiLoading, setAiLoading] = useState(false);
+
+  const { text: aiAnalysis, isRunning: aiLoading, startFetch } = useBackgroundAnalysis({
+    type: 'health',
+    id: 'global',
+    label: 'Sağlık Skoru Analizi',
+    navigateTo: '/health',
+  });
 
   const categoryLabel = (cat: string) => {
     const translated = t(`health.cat.${cat}` as TranslationKey);
@@ -41,13 +46,11 @@ export default function HealthScorePage() {
     }).finally(() => setLoading(false));
   }, []);
 
-  const handleAiAnalysis = async () => {
-    setAiLoading(true);
-    try {
-      const res: HealthAnalyzeResponse = await healthScoreService.analyze(true);
-      setAiAnalysis(res.ai_analysis || '');
-      setAiSources(res.web_sources || []);
-    } finally { setAiLoading(false); }
+  const handleAiAnalysis = () => {
+    startFetch(async () => {
+      const res = await healthScoreService.analyze(true);
+      return res.ai_analysis || '';
+    });
   };
 
   if (loading) return <LoadingSpinner message={t('health.loading')} size="lg" />;
@@ -167,7 +170,7 @@ export default function HealthScorePage() {
           </button>
         </div>
         {aiAnalysis
-          ? <StreamingMarkdown content={aiAnalysis} webSources={aiSources} title={t('health.ai_analysis_title')} />
+          ? <StreamingMarkdown content={aiAnalysis} title={t('health.ai_analysis_title')} />
           : <p className="text-[var(--text-muted)] text-sm">{t('health.ai_hint')}</p>
         }
       </GlassCard>

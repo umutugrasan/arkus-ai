@@ -1,7 +1,7 @@
 // Streaming sırasında ekrana yazıldıkça blinking cursor gösteren markdown component
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { BrainCircuit, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { useI18n } from '../../context/I18nContext';
 
 interface Props {
@@ -78,8 +78,8 @@ export default function StreamingMarkdown({
         </div>
       </div>
 
-      <div className="ml-8 opacity-[0.15] hidden sm:block pointer-events-none absolute right-4 bottom-4">
-        <BrainCircuit size={80} className="text-[var(--accent)]" />
+      <div className="ml-8 opacity-[0.12] hidden sm:block pointer-events-none absolute right-4 bottom-4">
+        <img src="/assets/logos/logo-bird.png" alt="" aria-hidden="true" width={160} height={160} className="object-contain" />
       </div>
     </section>
   );

@@ -5,6 +5,7 @@ from datetime import datetime
 import json
 import re
 import logging
+import urllib.parse
 from app.dependencies import get_current_user, get_db
 from app.db.models import Supplier, PriceAlert, Financial
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
@@ -147,18 +148,24 @@ Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JS
             ai_data = json.loads(raw_text)
             suppliers = []
             for idx, item in enumerate(ai_data):
-                raw_price = item.get("current_price")
-                if raw_price is None:
-                    continue
+                # Price Parsing Algorithm Fix
+                def clean_price(val):
+                    s = re.sub(r'[^\d\.,]', '', str(val))
+                    if not s: return 0.0
+                    if '.' in s and ',' in s:
+                        if s.rfind('.') > s.rfind(','):
+                            s = s.replace(',', '')
+                        else:
+                            s = s.replace('.', '').replace(',', '.')
+                    elif ',' in s:
+                        s = s.replace(',', '.')
+                    return float(s)
 
                 try:
-                    cp = float(raw_price)
-                except (ValueError, TypeError):
-                    mp = re.search(r"([\d.,]+)", str(raw_price))
-                    if mp:
-                        cp = float(mp.group(1).replace(",", "."))
-                    else:
-                        continue
+                    cp = clean_price(raw_price)
+                    if cp <= 0: continue
+                except Exception:
+                    continue
 
                 dpct = int(item.get("discount_pct") or 0)
                 min_order = int(item.get("min_order") or 10)
@@ -167,10 +174,20 @@ Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JS
                 if min_order < 10:
                     continue
 
+                # URL Validation and Fallback Algorithm
+                raw_url = str(item.get("url") or "").strip()
+                sup_name = item.get("name") or "Web Supplier"
+                prod_title = item.get("product") or product_name
+                
+                valid_url = raw_url if (raw_url.startswith("http://") or raw_url.startswith("https://")) else ""
+                if not valid_url or len(valid_url) < 10:
+                    fallback_query = urllib.parse.quote_plus(f"{sup_name} {prod_title} b2b buy")
+                    valid_url = f"https://www.google.com/search?q={fallback_query}"
+
                 suppliers.append({
                     "id": 9000 + idx,
-                    "name": item.get("name") or "Web Supplier",
-                    "product": item.get("product") or product_name,
+                    "name": sup_name,
+                    "product": prod_title,
                     "current_price": cp,
                     "min_order": min_order,
                     "shipping_days": shipping_days,
@@ -178,7 +195,7 @@ Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JS
                     "discounted_price": round(cp * (1 - dpct / 100.0), 2),
                     "has_discount": dpct > 0,
                     "last_checked_at": _now(),
-                    "url": item.get("url"),
+                    "url": valid_url,
                 })
         except Exception as e:
             logger.error(f"Sourcing JSON parse hatasi: {e} | raw: {raw_text[:300]}")

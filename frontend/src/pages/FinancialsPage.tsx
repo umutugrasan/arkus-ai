@@ -13,9 +13,10 @@ import { formatCurrency, formatPercent, formatNumber } from '../utils/formatters
 import { useI18n } from '../context/I18nContext';
 import { useTheme } from '../hooks/useTheme';
 import { getChartTheme } from '../utils/chartTheme';
+import { useBackgroundAnalysis } from '../context/AnalysisContext';
 import type {
   FinancialOverviewResponse, MarketplaceFinancialRow, ProductFinancialRow,
-  ExpensesResponse, CashFlowResponse, FinancialAnalyzeResponse
+  ExpensesResponse, CashFlowResponse, FinancialAnalyzeResponse,
 } from '../types/api';
 
 const PIE_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444'];
@@ -31,61 +32,51 @@ export default function FinancialsPage() {
   const [byProduct, setByProduct] = useState<ProductFinancialRow[]>([]);
   const [expenses, setExpenses] = useState<ExpensesResponse | null>(null);
   const [cashFlow, setCashFlow] = useState<CashFlowResponse | null>(null);
-  const [aiAnalysis, setAiAnalysis] = useState('');
-  const [aiSources, setAiSources] = useState<Array<{ title: string; uri: string }>>([]);
-  const [aiError, setAiError] = useState('');
   const [loading, setLoading] = useState(true);
-  const [aiLoading, setAiLoading] = useState(false);
   const [tab, setTab] = useState<Tab>('marketplace');
   const abortRef = useRef<AbortController | null>(null);
   const mountedRef = useRef(true);
 
+  const { text: aiAnalysis, isRunning: aiLoading, startFetch } = useBackgroundAnalysis({
+    type: 'financials',
+    id: 'global',
+    label: 'Finansal Analiz',
+    navigateTo: '/financials',
+  });
+
   useEffect(() => {
     mountedRef.current = true;
+    abortRef.current = new AbortController();
+    const signal = abortRef.current.signal;
+
     Promise.all([
-      financialService.overview(),
-      financialService.byMarketplace(),
-      financialService.byProduct(),
-      financialService.expenses(),
-      financialService.cashFlow(),
+      financialService.overview(signal).catch(() => null),
+      financialService.byMarketplace(signal).catch(() => ({ marketplaces: [] })),
+      financialService.byProduct(signal).catch(() => ({ products: [] })),
+      financialService.expenses(signal).catch(() => null),
+      financialService.cashFlow(signal).catch(() => null),
     ]).then(([ov, mp, prod, exp, cf]) => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current || signal.aborted) return;
       setOverview(ov);
       setByMP(mp.marketplaces);
       setByProduct(prod.products);
       setExpenses(exp);
       setCashFlow(cf);
     }).finally(() => {
-      if (mountedRef.current) setLoading(false);
+      if (mountedRef.current && !signal.aborted) setLoading(false);
     });
-    return () => { mountedRef.current = false; };
-  }, []);
 
-  useEffect(() => {
     return () => {
+      mountedRef.current = false;
       abortRef.current?.abort();
     };
   }, []);
 
-  const handleAiAnalysis = async () => {
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
-    setAiLoading(true);
-    setAiError('');
-    setAiAnalysis('');
-    try {
+  const handleAiAnalysis = () => {
+    startFetch(async () => {
       const res: FinancialAnalyzeResponse = await financialService.analyze(true);
-      if (ctrl.signal.aborted || !mountedRef.current) return;
-      setAiAnalysis(res.ai_analysis || '');
-      setAiSources(res.web_sources || []);
-    } catch (err) {
-      if (ctrl.signal.aborted || !mountedRef.current) return;
-      const msg = err instanceof Error ? err.message : t('financials.load_failed');
-      setAiError(msg);
-    } finally {
-      if (mountedRef.current) setAiLoading(false);
-    }
+      return res.ai_analysis || '';
+    });
   };
 
   if (loading) {
@@ -271,16 +262,8 @@ export default function FinancialsPage() {
           </button>
         </div>
         {aiAnalysis
-          ? <StreamingMarkdown content={aiAnalysis} webSources={aiSources} title={t('financials.ai_analysis')} />
-          : aiError
-            ? (
-              <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl">
-                <p className="text-rose-500 text-sm font-medium">{t('financials.ai_failed')}</p>
-                <p className="text-rose-500/80 text-xs mt-1">{aiError}</p>
-                <button onClick={handleAiAnalysis} className="mt-3 text-xs text-rose-500 underline">{t('common.retry')}</button>
-              </div>
-            )
-            : <p className="text-[var(--text-muted)] text-sm">{t('financials.ai_desc')}</p>
+          ? <StreamingMarkdown content={aiAnalysis} title={t('financials.ai_analysis')} />
+          : <p className="text-[var(--text-muted)] text-sm">{t('financials.ai_desc')}</p>
         }
       </GlassCard>
     </div>

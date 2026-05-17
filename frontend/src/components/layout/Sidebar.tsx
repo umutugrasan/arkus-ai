@@ -96,11 +96,11 @@ export default function Sidebar({ open, onClose, unreadCount = 0 }: SidebarProps
         `}
       >
         <div className="flex items-center justify-between p-6">
-          <NavLink to="/dashboard" onClick={onClose} className="flex items-center gap-4 group">
+          <NavLink to="/dashboard" onClick={onClose} className="flex items-center gap-3 group">
             <img
               src="/assets/logos/logo-bird.png"
               alt="Arkus Logo"
-              className="w-12 h-12 object-contain group-hover:scale-105 transition-transform duration-300"
+              className="w-20 h-20 object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
             />
             <div className="flex flex-col justify-center">
               <h1 className="font-black text-2xl leading-none text-[var(--text-primary)] tracking-tighter">Arkus</h1>

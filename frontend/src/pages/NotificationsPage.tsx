@@ -49,17 +49,37 @@ export default function NotificationsPage() {
   }, [filter]);
 
   const handleMarkRead = async (id: number) => {
-    await notificationService.markRead(id);
+    // Optimistic update
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
     setUnreadCount(prev => Math.max(0, prev - 1));
+    
+    try {
+      await notificationService.markRead(id);
+    } catch {
+      // Revert if failed
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: false } : n));
+      setUnreadCount(prev => prev + 1);
+    }
   };
 
   const handleMarkAll = async () => {
+    if (markingAll || unreadCount === 0) return;
     setMarkingAll(true);
-    await notificationService.markAllRead();
+    
+    // Optimistic
+    const oldCount = unreadCount;
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     setUnreadCount(0);
-    setMarkingAll(false);
+    
+    try {
+      await notificationService.markAllRead();
+    } catch {
+      // Revert if failed
+      setUnreadCount(oldCount);
+      fetchNotifications();
+    } finally {
+      setMarkingAll(false);
+    }
   };
 
   const handleGenerate = async () => {

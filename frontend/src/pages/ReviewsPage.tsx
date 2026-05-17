@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   MessageSquare, Star, Brain, Filter, ChevronDown, History, RefreshCw,
-  Smile, Frown, Meh,
+  Smile, Frown, Meh, X,
 } from 'lucide-react';
 import PageHeader from '../components/shared/PageHeader';
 import GlassCard from '../components/shared/GlassCard';
@@ -12,9 +12,9 @@ import MarketplaceBadge from '../components/shared/MarketplaceBadge';
 import Button from '../components/ui/Button';
 import { Skeleton } from '../components/shared/Skeleton';
 import { productService, reviewService } from '../services';
-import { streamSSE } from '../utils/streaming';
 import { useToast } from '../context/ToastContext';
 import { useI18n } from '../context/I18nContext';
+import { useAnalysis, useAnalysisText } from '../context/AnalysisContext';
 import { getErrorMessage } from '../utils/errors';
 import { formatPercent } from '../utils/formatters';
 import { MARKETPLACES } from '../utils/constants';
@@ -24,36 +24,14 @@ import type {
 
 type Detail = 'short' | 'detailed';
 
-// ─── SessionStorage cache for AI analysis results ───────────────────────────
-const REVIEWS_CACHE_KEY = 'arkus_reviews_ai_cache';
 
-interface ReviewsAICache {
-  productId: string;
-  aiTexts: { short: string; detailed: string };
-  timestamp: number;
-}
-
-function getReviewsCache(productId: string): ReviewsAICache | null {
-  try {
-    const raw = sessionStorage.getItem(REVIEWS_CACHE_KEY);
-    if (!raw) return null;
-    const data: ReviewsAICache = JSON.parse(raw);
-    if (data.productId === productId && Date.now() - data.timestamp < 15 * 60 * 1000) return data;
-  } catch { /* ignore */ }
-  return null;
-}
-
-function setReviewsCache(productId: string, aiTexts: { short: string; detailed: string }) {
-  try {
-    sessionStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify({ productId, aiTexts, timestamp: Date.now() }));
-  } catch { /* ignore */ }
-}
 
 export default function ReviewsPage() {
   const { id: paramId } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const toast = useToast();
   const { t } = useI18n();
+  const { startAnalysis, getJobMeta } = useAnalysis();
 
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [productId, setProductId] = useState<string>('');
@@ -69,11 +47,17 @@ export default function ReviewsPage() {
   const [loadingList, setLoadingList] = useState(false);
   const [loadingMeta, setLoadingMeta] = useState(false);
 
-  // AI analyze (streaming)
+  // AI analyze — tab mode only
   const [detail, setDetail] = useState<Detail>('short');
-  const [aiTexts, setAiTexts] = useState({ short: '', detailed: '' });
-  const [aiStreaming, setAiStreaming] = useState({ short: false, detailed: false });
-  const aiAbortRef = useRef<AbortController | null>(null);
+  const [selectedHistory, setSelectedHistory] = useState<any>(null);
+
+  // Streaming text from module-level store via subscription (no re-render storm)
+  const shortText = useAnalysisText('reviews', productId ? `${productId}-short` : '');
+  const detailedText = useAnalysisText('reviews', productId ? `${productId}-detailed` : '');
+  const aiTexts = { short: shortText, detailed: detailedText };
+  const shortMeta = productId ? getJobMeta('reviews', `${productId}-short`) : undefined;
+  const detailedMeta = productId ? getJobMeta('reviews', `${productId}-detailed`) : undefined;
+  const aiStreaming = shortMeta?.status === 'running' || detailedMeta?.status === 'running';
 
   // Ürün listesi
   useEffect(() => {
@@ -130,16 +114,10 @@ export default function ReviewsPage() {
       setLoadingMeta(false);
     });
     fetchReviews();
-  }, [productId, fetchReviews]);  // Ürün değiştiğinde AI cache'ini geri yükle
-  useEffect(() => {
-    if (!productId) return;
-    const cached = getReviewsCache(productId);
-    if (cached) {
-      setAiTexts(cached.aiTexts);
-    } else {
-      setAiTexts({ short: '', detailed: '' });
-    }
-  }, [productId]);
+  }, [productId, fetchReviews]);  // When product changes, load from global analysis context OR localStorage cache
+  // No-op: aiTexts is now derived from globalJob above, no local state to set
+  // (localStorage cache is read from AnalysisContext when the job doesn't exist)
+
 
 
   const months = useMemo(() => {
@@ -150,69 +128,36 @@ export default function ReviewsPage() {
 
   const hasReviews = !!(reviewsResp && reviewsResp.reviews.length > 0);
 
-  // AI Analyze streaming
   const runAnalyze = useCallback(() => {
     if (!productId || !hasReviews) return;
-    aiAbortRef.current?.abort();
-    const ctrl = new AbortController();
-    aiAbortRef.current = ctrl;
-
-    setAiTexts({ short: '', detailed: '' });
-    setAiStreaming({ short: false, detailed: false });
-
+    const product = products.find((p) => p.id === productId);
+    const label = product?.name || productId;
     const first = detail;
-    const second = detail === 'short' ? 'detailed' : 'short';
-
-    const fetchSecond = () => {
-      if (ctrl.signal.aborted) return;
-      setAiStreaming((s) => ({ ...s, [second]: true }));
-      streamSSE(
-        `/api/v1/reviews/${encodeURIComponent(productId)}/analyze/stream?detail=${second}`,
-        {
-          onChunk: (chunk) => setAiTexts((p) => ({ ...p, [second]: p[second] + chunk })),
-          onDone: (data) => {
-            setAiStreaming((s) => ({ ...s, [second]: false }));
-            if (!data.is_fallback) reviewService.history(productId).then(setHistory).catch(() => {});
-            // Cache'e yaz (her iki tab tamamlandığında güncelle)
-            setAiTexts((prev) => {
-              const updated = { ...prev };
-              setReviewsCache(productId, updated);
-              return prev;
-            });
+    const second = first === 'short' ? 'detailed' : 'short';
+    // Start first stream; on done, chain second stream
+    startAnalysis({
+      type: 'reviews',
+      id: `${productId}-${first}`,
+      label: `${label} (${first})`,
+      navigateTo: `/reviews/${encodeURIComponent(productId)}`,
+      streamUrl: `/api/v1/reviews/${encodeURIComponent(productId)}/analyze/stream?detail=${first}`,
+      onDone: () => {
+        reviewService.history(productId).then(setHistory).catch(() => {});
+        // Chain second stream
+        startAnalysis({
+          type: 'reviews',
+          id: `${productId}-${second}`,
+          label: `${label} (${second})`,
+          navigateTo: `/reviews/${encodeURIComponent(productId)}`,
+          streamUrl: `/api/v1/reviews/${encodeURIComponent(productId)}/analyze/stream?detail=${second}`,
+          onDone: () => {
+            reviewService.history(productId).then(setHistory).catch(() => {});
           },
-          onError: (e) => {
-            setAiStreaming((s) => ({ ...s, [second]: false }));
-            console.error(`Second analysis (${second}) failed`, e);
-          },
-        },
-        { signal: ctrl.signal },
-      );
-    };
-
-    setAiStreaming((s) => ({ ...s, [first]: true }));
-    streamSSE(
-      `/api/v1/reviews/${encodeURIComponent(productId)}/analyze/stream?detail=${first}`,
-      {
-        onChunk: (chunk) => setAiTexts((p) => ({ ...p, [first]: p[first] + chunk })),
-        onDone: (data) => {
-          setAiStreaming((s) => ({ ...s, [first]: false }));
-          if (data.is_fallback) toast.warning(t('reviews.fallback_warn'));
-          else toast.success(t('reviews.active_done'));
-          reviewService.history(productId).then(setHistory).catch(() => {});
-          fetchSecond();
-        },
-        onError: (e) => {
-          setAiStreaming((s) => ({ ...s, [first]: false }));
-          const msg = e instanceof Error ? e.message : (e as Record<string, unknown>).error;
-          toast.error(typeof msg === 'string' ? msg : t('reviews.analysis_failed'));
-          fetchSecond();
-        },
+        });
       },
-      { signal: ctrl.signal },
-    );
-  }, [productId, detail, toast, hasReviews, t]);
-
-  useEffect(() => () => aiAbortRef.current?.abort(), []);
+    });
+    toast.info('Analiz arka planda başlatıldı. Başka sayfaya geçebilirsiniz.');
+  }, [productId, detail, products, hasReviews, startAnalysis, toast, t]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -262,20 +207,23 @@ export default function ReviewsPage() {
                   </button>
                 ))}
               </div>
+              {!hasReviews && !loadingList && (
+                <span className="text-xs text-rose-500 font-medium ml-2">{t('reviews.no_reviews')}</span>
+              )}
               <Button
                 variant="primary"
                 size="sm"
                 leftIcon={<RefreshCw size={14} />}
                 onClick={runAnalyze}
-                loading={aiStreaming.short || aiStreaming.detailed}
-                disabled={!reviewsResp || reviewsResp.reviews.length === 0}
+                loading={aiStreaming}
+                disabled={!hasReviews}
               >
                 {t('common.analyze')}
               </Button>
             </div>
           </div>
 
-          {(aiStreaming.short || aiStreaming.detailed) && !aiStreaming[detail] && (
+          {aiStreaming && (
             <div className="mb-2 px-3 py-1.5 bg-[var(--accent)]/10 border border-[var(--accent)]/20 rounded-md text-xs text-[var(--accent)] flex items-center gap-2">
               <RefreshCw size={12} className="animate-spin" /> {t('reviews.bg_analysis')}
             </div>
@@ -283,8 +231,8 @@ export default function ReviewsPage() {
 
           <StreamingMarkdown
             title={t('reviews.title')}
-            content={aiTexts[detail]}
-            streaming={aiStreaming[detail]}
+            content={detail === 'short' ? aiTexts.short : aiTexts.detailed}
+            streaming={detail === 'short' ? (shortMeta?.status === 'running') : (detailedMeta?.status === 'running')}
             className="!border-0 !bg-transparent"
           />
         </GlassCard>
@@ -437,7 +385,11 @@ export default function ReviewsPage() {
         ) : (
           <ul className="space-y-2 max-h-96 overflow-y-auto">
             {history.analyses.slice(0, 20).map((a) => (
-              <li key={a.id} className="p-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-color)] hover:border-[var(--border-strong)] transition-colors">
+              <li 
+                key={a.id} 
+                className="p-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-color)] hover:border-[var(--border-strong)] transition-colors cursor-pointer"
+                onClick={() => setSelectedHistory(a)}
+              >
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 dark:text-indigo-300 capitalize font-medium">
                     {a.analysis_type === 'short' ? t('reviews.short') : a.analysis_type === 'detailed' ? t('reviews.detailed') : a.analysis_type}
@@ -455,6 +407,39 @@ export default function ReviewsPage() {
           </ul>
         )}
       </GlassCard>
+
+      {/* History Detail Modal */}
+      {selectedHistory && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" style={{ pointerEvents: 'all' }}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedHistory(null)} />
+          <div className="relative w-full max-w-3xl max-h-[85vh] flex flex-col bg-[var(--bg-elevated)] rounded-2xl shadow-2xl border border-[var(--border-color)] overflow-hidden animate-fade-in">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
+              <div className="flex items-center gap-3">
+                <History size={18} className="text-cyan-400" />
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                  {selectedHistory.analysis_type === 'short' ? t('reviews.short') : selectedHistory.analysis_type === 'detailed' ? t('reviews.detailed') : selectedHistory.analysis_type} {t('reviews.title')}
+                </h3>
+                <span className="text-xs text-[var(--text-muted)] mt-1">{selectedHistory.created_at}</span>
+              </div>
+              <button 
+                onClick={() => setSelectedHistory(null)}
+                className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)] rounded-full transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            {/* Content */}
+            <div className="p-6 overflow-y-auto">
+              <StreamingMarkdown 
+                content={selectedHistory.content} 
+                className="!border-0 !bg-transparent !p-0"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

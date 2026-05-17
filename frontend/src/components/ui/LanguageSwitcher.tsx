@@ -10,7 +10,7 @@ export default function LanguageSwitcher({ className = '' }: LanguageSwitcherPro
 
   const options: { value: Locale; label: string; flag: string }[] = [
     { value: 'tr', label: 'TR', flag: '🇹🇷' },
-    { value: 'en', label: 'EN', flag: '🇬🇧' },
+    { value: 'en', label: 'EN', flag: '🇺🇸' },
   ];
 
   return (

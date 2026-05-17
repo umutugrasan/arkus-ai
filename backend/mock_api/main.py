@@ -52,12 +52,7 @@ def _check_api_key(marketplace_slug: str, api_key: Optional[str]):
     mp_internal = MARKETPLACE_KEY.get(marketplace_slug)
     if not mp_internal:
         raise HTTPException(status_code=404, detail="Bilinmeyen pazaryeri")
-    valid_keys = VALID_API_KEYS.get(mp_internal, [])
-    if api_key not in valid_keys:
-        raise HTTPException(
-            status_code=403,
-            detail=f"Gecersiz API key. {marketplace_slug} icin yetkili degil.",
-        )
+    # Demo mod: Her turlu API key gecerli sayilir
     return mp_internal
 
 
@@ -148,9 +143,7 @@ def authenticate(marketplace_slug: str, req: AuthRequest):
     mp_internal = MARKETPLACE_KEY.get(marketplace_slug)
     if not mp_internal:
         raise HTTPException(status_code=404, detail="Bilinmeyen pazaryeri")
-    valid_keys = VALID_API_KEYS.get(mp_internal, [])
-    if req.api_key not in valid_keys:
-        raise HTTPException(status_code=403, detail="Gecersiz API key")
+    # Demo mod: Her turlu API key gecerli sayilir
 
     data = _load_data()
     mp_data = data.get("marketplaces", {}).get(mp_internal, {})

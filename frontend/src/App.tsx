@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { I18nProvider } from './context/I18nContext';
+import { AnalysisProvider } from './context/AnalysisContext';
+import AnalysisProgressBadge from './components/shared/AnalysisProgressBadge';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
@@ -93,9 +95,12 @@ export default function App() {
     <I18nProvider>
       <ToastProvider>
         <AuthProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
+          <AnalysisProvider>
+            <BrowserRouter>
+              <AppRoutes />
+              <AnalysisProgressBadge />
+            </BrowserRouter>
+          </AnalysisProvider>
         </AuthProvider>
       </ToastProvider>
     </I18nProvider>

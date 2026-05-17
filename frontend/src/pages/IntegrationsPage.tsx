@@ -21,21 +21,9 @@ interface Toast { type: 'success' | 'error'; message: string }
 
 const AVAILABLE_MP = ['trendyol', 'hepsiburada', 'amazon_tr', 'n11'];
 
-const API_KEY_MARKETPLACE: Record<string, string> = {
-  'demo-key-trendyol': 'trendyol',
-  'TRY-DEMO-12345-ABCDE': 'trendyol',
-  'demo-key-hepsiburada': 'hepsiburada',
-  'HB-DEMO-67890-FGHIJ': 'hepsiburada',
-  'demo-key-amazon_tr': 'amazon_tr',
-  'AMZ-DEMO-13579-KLMNO': 'amazon_tr',
-  'demo-key-n11': 'n11',
-  'N11-DEMO-24680-PRSTU': 'n11',
-};
-
 const parseApiKeyInput = (value: string) => {
   const input = value.trim();
-  const apiKey = Object.keys(API_KEY_MARKETPLACE).find((key) => input.includes(key)) || input;
-  return { apiKey, marketplace: API_KEY_MARKETPLACE[apiKey] };
+  return { apiKey: input, marketplace: '' };
 };
 
 export default function IntegrationsPage() {
@@ -64,6 +52,16 @@ export default function IntegrationsPage() {
   useEffect(() => {
     refreshConnections().finally(() => setLoading(false));
   }, []);
+
+  const connList: StoreConnection[] = (connections?.connections || []).filter((connection) => connection.status === 'connected');
+  const connectedMPs = connList.map((connection) => connection.marketplace);
+  const selectableMarketplaces = AVAILABLE_MP.filter((marketplace) => !connectedMPs.includes(marketplace));
+
+  useEffect(() => {
+    if (selectableMarketplaces.length > 0 && !selectableMarketplaces.includes(newMP)) {
+      setNewMP(selectableMarketplaces[0]);
+    }
+  }, [connectedMPs.join(','), newMP]);
 
   const handleConnect = async () => {
     const parsed = parseApiKeyInput(newApiKey);
@@ -127,9 +125,7 @@ export default function IntegrationsPage() {
 
   if (loading) return <LoadingSpinner message={t('integrations.loading')} size="lg" />;
 
-  const connList: StoreConnection[] = (connections?.connections || []).filter((connection) => connection.status === 'connected');
-  const connectedMPs = connList.map((connection) => connection.marketplace);
-  const selectableMarketplaces = AVAILABLE_MP.filter((marketplace) => !connectedMPs.includes(marketplace));
+
 
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">

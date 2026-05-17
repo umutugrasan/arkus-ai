@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Shuffle, Brain, ChevronRight } from 'lucide-react';
 import GlassCard from '../components/shared/GlassCard';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -8,6 +9,7 @@ import MarketplaceBadge from '../components/shared/MarketplaceBadge';
 import { arbitrageService } from '../services';
 import { formatCurrency } from '../utils/formatters';
 import { useI18n } from '../context/I18nContext';
+import { useBackgroundAnalysis } from '../context/AnalysisContext';
 import type { ArbitrageOpportunitiesResponse, ArbitrageDetail, ArbitrageListing } from '../types/api';
 
 export default function ArbitragePage() {
@@ -15,35 +17,50 @@ export default function ArbitragePage() {
   const [opps, setOpps] = useState<ArbitrageOpportunitiesResponse | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [detail, setDetail] = useState<ArbitrageDetail | null>(null);
-  const [aiAnalysis, setAiAnalysis] = useState('');
-  const [aiSources, setAiSources] = useState<Array<{ title: string; uri: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlSelected = searchParams.get('id');
+
+  const { text: aiAnalysis, isRunning: aiLoading, startFetch } = useBackgroundAnalysis({
+    type: 'arbitrage',
+    id: selected || 'none',
+    label: 'Arbitraj Strateji Analizi',
+    navigateTo: `/arbitrage?id=${selected || ''}`,
+  });
 
   useEffect(() => {
     arbitrageService.opportunities().then(setOpps).finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (urlSelected && urlSelected !== selected) {
+      setSelected(urlSelected);
+      setDetailLoading(true);
+      arbitrageService.detail(urlSelected)
+        .then(setDetail)
+        .finally(() => setDetailLoading(false));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlSelected]);
+
   const handleSelect = async (productId: string) => {
-    if (selected === productId) { setSelected(null); setDetail(null); return; }
-    setSelected(productId);
-    setDetail(null);
-    setDetailLoading(true);
-    try {
-      const res = await arbitrageService.detail(productId);
-      setDetail(res);
-    } finally { setDetailLoading(false); }
+    if (selected === productId) { 
+      setSelected(null); 
+      setDetail(null); 
+      setSearchParams(new URLSearchParams());
+      return; 
+    }
+    setSearchParams(new URLSearchParams({ id: productId }));
   };
 
-  const handleAi = async () => {
+  const handleAi = () => {
     if (!selected) return;
-    setAiLoading(true);
-    try {
+    startFetch(async () => {
       const res = await arbitrageService.analyze(selected, true);
-      setAiAnalysis(res.ai_analysis || '');
-      setAiSources(res.web_sources || []);
-    } finally { setAiLoading(false); }
+      return res.ai_analysis || '';
+    });
   };
 
   if (loading) return <LoadingSpinner message={t('arbitrage.loading')} size="lg" />;
@@ -136,7 +153,7 @@ export default function ArbitragePage() {
       }
 
       {aiAnalysis && (
-        <StreamingMarkdown content={aiAnalysis} webSources={aiSources} title={t('arbitrage.ai_analysis')} />
+        <StreamingMarkdown content={aiAnalysis} title={t('arbitrage.ai_analysis')} />
       )}
     </div>
   );

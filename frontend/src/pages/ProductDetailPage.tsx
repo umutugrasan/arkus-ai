@@ -208,8 +208,11 @@ export default function ProductDetailPage() {
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const img = e.currentTarget as HTMLImageElement;
-                      img.src = `https://placehold.co/600x600?text=${encodeURIComponent(product.id)}`;
-                      img.alt = `${product.name} - görsel yüklenemedi`;
+                      // Fallback to local placeholder
+                      if (!img.src.includes('logo-bird.png')) {
+                        img.src = '/assets/logos/logo-bird.png';
+                        img.className = 'w-full h-full object-contain p-4 opacity-50';
+                      }
                     }}
                   />
                 </div>

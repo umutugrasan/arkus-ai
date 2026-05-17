@@ -244,15 +244,13 @@
     }
 
     function generateNewKey(slug) {
-      var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-      var parts = [];
-      for (var p = 0; p < 3; p++) {
-        var seg = "";
-        for (var c = 0; c < 5; c++) seg += chars[Math.floor(Math.random() * chars.length)];
-        parts.push(seg);
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
       }
-      var prefix = slug.toUpperCase().replace("_", "").slice(0, 3);
-      return prefix + "-" + parts.join("-");
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
     }
 
     function handleNewKey(slug, name) {

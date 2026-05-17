@@ -91,64 +91,52 @@ def get_trends(period: int = 30, user=Depends(get_current_user), db=Depends(get_
     has_real_data = len(user_orders) > 0
 
     if period == 7:
-        buckets = {(start + timedelta(days=i)).isoformat(): {"revenue": 0.0, "sales": 0, "returns": 0}
-                   for i in range(period + 1)}
+        buckets = {(start + timedelta(days=i)).isoformat(): {} for i in range(period + 1)}
         for o in user_orders:
             if o.date not in buckets:
                 continue
-            b = buckets[o.date]
             if o.status == "delivered":
-                b["revenue"] += o.total or 0.0
-                b["sales"] += o.quantity or 0
-            elif o.status == "returned":
-                b["returns"] += o.quantity or 0
+                mp = o.marketplace_name or "trendyol"
+                b = buckets[o.date]
+                b[mp] = b.get(mp, 0.0) + (o.total or 0.0)
+        
         daily = [
-            {"date": d, **{k: round(v, 2) if isinstance(v, float) else v for k, v in vals.items()}}
+            {"date": d, **{k: round(v, 2) for k, v in vals.items()}}
             for d, vals in sorted(buckets.items())
         ]
-        if has_real_data and any(d["revenue"] or d["sales"] or d["returns"] for d in daily):
+        if has_real_data and any(sum(vals.values()) > 0 for d, vals in buckets.items()):
             return {"period": "7 gun", "daily": daily}
 
         # ── Fallback: mock API'den sentetik gunluk trend ─────────────────────
         marketplaces = fetch_all_marketplaces(user.id)
-        total_rev_30d = 0.0
-        total_sales_30d = 0
-        total_returns_30d = 0
+        mp_rev_30d = {}
         for mp in marketplaces:
             mp_data = fetch_store_info(mp, user.id)
             if not mp_data:
                 continue
-            for p in mp_data.get("products", []):
-                price = p.get("price", 0) or 0
-                sales = p.get("sales_30d", 0) or 0
-                total_rev_30d += price * sales
-                total_sales_30d += sales
-                return_rate = p.get("return_rate", 0.04) or 0.04
-                total_returns_30d += int(sales * return_rate)
+            rev = sum((p.get("price", 0) or 0) * (p.get("sales_30d", 0) or 0) for p in mp_data.get("products", []))
+            mp_rev_30d[mp] = rev
 
-        if total_rev_30d == 0:
+        if sum(mp_rev_30d.values()) == 0:
             return {"period": "7 gun", "daily": []}
 
         # 30 gunluk toplami 7 gune dagit; hafta sonu biraz daha yuksek
-        daily_avg_rev = total_rev_30d / 30
-        daily_avg_sales = total_sales_30d / 30
-        daily_avg_returns = total_returns_30d / 30
-        # Salinim katsayilari (Pazartesi=1.0 ... Cumartesi=1.25 ... Pazar=1.15)
         day_weights = [1.0, 1.05, 1.1, 1.2, 1.3, 1.25, 1.15]
         synthetic_daily = []
         for i in range(period + 1):
             d = start + timedelta(days=i)
             w = day_weights[d.weekday()]
-            synthetic_daily.append({
-                "date": d.isoformat(),
-                "revenue": round(daily_avg_rev * w, 2),
-                "sales": max(1, int(daily_avg_sales * w)),
-                "returns": max(0, int(daily_avg_returns * w)),
-            })
+            day_data = {"date": d.isoformat()}
+            for mp, rev in mp_rev_30d.items():
+                day_data[mp] = round((rev / 30) * w, 2)
+            synthetic_daily.append(day_data)
         return {"period": "7 gun", "daily": synthetic_daily, "synthetic": True}
 
     # ── period=30 → 4 haftaya bol ─────────────────────────────────────────────
-    weeks = [{"week": f"Hafta {i+1}", "revenue": 0.0, "sales": 0, "returns": 0} for i in range(4)]
+    weeks = [{"week": f"Hafta {i+1}"} for i in range(4)]
+    for w in weeks:
+        w["_totals"] = {} # temp
+        
     for o in user_orders:
         try:
             o_date = datetime.fromisoformat(o.date).date()
@@ -156,34 +144,31 @@ def get_trends(period: int = 30, user=Depends(get_current_user), db=Depends(get_
             continue
         idx = min(3, max(0, (o_date - start).days // 7))
         if o.status == "delivered":
-            weeks[idx]["revenue"] += o.total or 0.0
-            weeks[idx]["sales"] += o.quantity or 0
-        elif o.status == "returned":
-            weeks[idx]["returns"] += o.quantity or 0
+            mp = o.marketplace_name or "trendyol"
+            w_totals = weeks[idx]["_totals"]
+            w_totals[mp] = w_totals.get(mp, 0.0) + (o.total or 0.0)
+            
+    has_any = False
     for w in weeks:
-        w["revenue"] = round(w["revenue"], 2)
+        totals = w.pop("_totals")
+        for mp, rev in totals.items():
+            w[mp] = round(rev, 2)
+            has_any = True
 
-    if has_real_data and any(w["revenue"] or w["sales"] or w["returns"] for w in weeks):
+    if has_real_data and has_any:
         return {"period": "30 gun", "weekly": weeks}
 
     # ── Fallback: mock API'den sentetik haftalik trend ────────────────────────
     marketplaces = fetch_all_marketplaces(user.id)
-    total_rev_30d = 0.0
-    total_sales_30d = 0
-    total_returns_30d = 0
+    mp_rev_30d = {}
     for mp in marketplaces:
         mp_data = fetch_store_info(mp, user.id)
         if not mp_data:
             continue
-        for p in mp_data.get("products", []):
-            price = p.get("price", 0) or 0
-            sales = p.get("sales_30d", 0) or 0
-            total_rev_30d += price * sales
-            total_sales_30d += sales
-            return_rate = p.get("return_rate", 0.04) or 0.04
-            total_returns_30d += int(sales * return_rate)
+        rev = sum((p.get("price", 0) or 0) * (p.get("sales_30d", 0) or 0) for p in mp_data.get("products", []))
+        mp_rev_30d[mp] = rev
 
-    if total_rev_30d == 0:
+    if sum(mp_rev_30d.values()) == 0:
         return {"period": "30 gun", "weekly": []}
 
     # 30 gunluk geliri 4 haftaya biraz artarak dagit
@@ -191,12 +176,10 @@ def get_trends(period: int = 30, user=Depends(get_current_user), db=Depends(get_
     synthetic_weeks = []
     for i, label in enumerate(["Hafta 1", "Hafta 2", "Hafta 3", "Hafta 4"]):
         ww = week_weights[i]
-        synthetic_weeks.append({
-            "week": label,
-            "revenue": round(total_rev_30d * ww, 2),
-            "sales": max(1, int(total_sales_30d * ww)),
-            "returns": max(0, int(total_returns_30d * ww)),
-        })
+        week_data = {"week": label}
+        for mp, rev in mp_rev_30d.items():
+            week_data[mp] = round(rev * ww, 2)
+        synthetic_weeks.append(week_data)
     return {"period": "30 gun", "weekly": synthetic_weeks, "synthetic": True}
 
 
@@ -210,44 +193,49 @@ async def get_ai_summary(
     Gemini ile dashboard ilk girisinde gosterilecek genel durum ozeti.
     Tum DB metrikleri context olarak verilir, AI proaktif uyarilar yazar.
     """
-    overview = _build_overview(user.id)
-    overall = overview["overall"]
+    def _get_context_data():
+        overview = _build_overview(user.id)
+        overall = overview["overall"]
 
-    # Stok kritik urunler
-    low_stock = (
-        db.query(Product)
-        .filter(Product.user_id == user.id, Product.stock < 50)
-        .order_by(Product.stock.asc())
-        .limit(5)
-        .all()
-    )
-    low_stock_lines = [
-        f"- {p.name}: {p.stock} adet (gunluk satis ~{(p.sales_30d or 0)/30:.1f})"
-        for p in low_stock
-    ]
-
-    # Dusuk puanli urunler
-    low_rated = (
-        db.query(Product)
-        .filter(Product.user_id == user.id, Product.rating < 4.0)
-        .order_by(Product.rating.asc())
-        .limit(5)
-        .all()
-    )
-    low_rated_lines = [f"- {p.name}: {p.rating} ({p.review_count} yorum)" for p in low_rated]
-
-    today = datetime.now().date()
-    last_7 = (
-        db.query(Order)
-        .filter(
-            Order.user_id == user.id,
-            Order.status == "delivered",
-            Order.date >= (today - timedelta(days=7)).isoformat(),
+        # Stok kritik urunler
+        low_stock = (
+            db.query(Product)
+            .filter(Product.user_id == user.id, Product.stock < 50)
+            .order_by(Product.stock.asc())
+            .limit(5)
+            .all()
         )
-        .all()
-    )
-    sales_7d = sum(o.quantity or 0 for o in last_7)
-    revenue_7d = sum(o.total or 0 for o in last_7)
+        low_stock_lines = [
+            f"- {p.name}: {p.stock} adet (gunluk satis ~{(p.sales_30d or 0)/30:.1f})"
+            for p in low_stock
+        ]
+
+        # Dusuk puanli urunler
+        low_rated = (
+            db.query(Product)
+            .filter(Product.user_id == user.id, Product.rating < 4.0)
+            .order_by(Product.rating.asc())
+            .limit(5)
+            .all()
+        )
+        low_rated_lines = [f"- {p.name}: {p.rating} ({p.review_count} yorum)" for p in low_rated]
+
+        today = datetime.now().date()
+        last_7 = (
+            db.query(Order)
+            .filter(
+                Order.user_id == user.id,
+                Order.status == "delivered",
+                Order.date >= (today - timedelta(days=7)).isoformat(),
+            )
+            .all()
+        )
+        sales_7d = sum(o.quantity or 0 for o in last_7)
+        revenue_7d = sum(o.total or 0 for o in last_7)
+        return overview, overall, low_stock, low_rated, low_stock_lines, low_rated_lines, sales_7d, revenue_7d
+
+    import asyncio
+    overview, overall, low_stock, low_rated, low_stock_lines, low_rated_lines, sales_7d, revenue_7d = await asyncio.to_thread(_get_context_data)
 
     context = f"""
 SATICI MAGAZA DURUMU (DB'den otomatik hesaplanmis):
@@ -323,28 +311,33 @@ async def get_ai_summary_stream(
     SSE: AI ozetini token token gonderir. Frontend ChatGPT gibi yazarken gosterir.
     Hizli ilk-byte: kullanici "salak gibi" beklemez.
     """
-    overview = _build_overview(user.id)
-    overall = overview["overall"]
-    low_stock = (
-        db.query(Product)
-        .filter(Product.user_id == user.id, Product.stock < 50)
-        .order_by(Product.stock.asc()).limit(5).all()
-    )
-    low_rated = (
-        db.query(Product)
-        .filter(Product.user_id == user.id, Product.rating < 4.0)
-        .order_by(Product.rating.asc()).limit(5).all()
-    )
-    today = datetime.now().date()
-    last_7 = (
-        db.query(Order)
-        .filter(
-            Order.user_id == user.id, Order.status == "delivered",
-            Order.date >= (today - timedelta(days=7)).isoformat(),
-        ).all()
-    )
-    sales_7d = sum(o.quantity or 0 for o in last_7)
-    revenue_7d = sum(o.total or 0 for o in last_7)
+    def _get_context_data():
+        overview = _build_overview(user.id)
+        overall = overview["overall"]
+        low_stock = (
+            db.query(Product)
+            .filter(Product.user_id == user.id, Product.stock < 50)
+            .order_by(Product.stock.asc()).limit(5).all()
+        )
+        low_rated = (
+            db.query(Product)
+            .filter(Product.user_id == user.id, Product.rating < 4.0)
+            .order_by(Product.rating.asc()).limit(5).all()
+        )
+        today = datetime.now().date()
+        last_7 = (
+            db.query(Order)
+            .filter(
+                Order.user_id == user.id, Order.status == "delivered",
+                Order.date >= (today - timedelta(days=7)).isoformat(),
+            ).all()
+        )
+        sales_7d = sum(o.quantity or 0 for o in last_7)
+        revenue_7d = sum(o.total or 0 for o in last_7)
+        return overview, overall, low_stock, low_rated, sales_7d, revenue_7d
+
+    import asyncio
+    overview, overall, low_stock, low_rated, sales_7d, revenue_7d = await asyncio.to_thread(_get_context_data)
 
     low_stock_lines = [
         f"- {p.name}: {p.stock} adet" for p in low_stock

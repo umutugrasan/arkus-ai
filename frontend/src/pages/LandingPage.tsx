@@ -40,7 +40,7 @@ export default function LandingPage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-primary)] backdrop-blur-md border-b border-[var(--border-strong)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-14 h-14 object-contain" />
+            <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-20 h-20 object-contain drop-shadow-sm" />
             <span className="text-3xl font-black text-[var(--text-primary)] tracking-tighter">
               Arkus
             </span>
@@ -314,7 +314,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between text-[var(--text-muted)] font-medium text-sm">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <img src="/assets/logos/logo-full.png" alt="Arkus Logo" className="h-14 object-contain opacity-90 hover:opacity-100 transition-opacity" />
+              <img src="/assets/logos/logo-full.png" alt="Arkus Logo" className="h-20 object-contain opacity-90 hover:opacity-100 transition-opacity" />
             </div>
             <p>{t('landing.footer_copyright')}</p>
             <div className="flex gap-4 mt-4 md:mt-0">

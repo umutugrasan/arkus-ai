@@ -230,9 +230,10 @@ export const competitorService = {
     const r = await api.get<CompetitorsResponse>(`/competitors/${encodeURIComponent(id)}`);
     return r.data;
   },
-  analyze: async (id: string, detail: 'short' | 'detailed' = 'short', use_web = true): Promise<CompetitorAnalyzeResponse> => {
+  analyze: async (id: string, detail: 'short' | 'detailed' = 'short', use_web = true, signal?: AbortSignal): Promise<CompetitorAnalyzeResponse> => {
     const r = await api.get<CompetitorAnalyzeResponse>(
       `/competitors/${encodeURIComponent(id)}/analyze?detail=${detail}&use_web=${use_web}`,
+      { signal }
     );
     return r.data;
   },
@@ -264,28 +265,28 @@ export const arbitrageService = {
 
 // ===================== FINANCIALS =====================
 export const financialService = {
-  overview: async (): Promise<FinancialOverviewResponse> => {
-    const r = await api.get<FinancialOverviewResponse>('/financials/overview');
+  overview: async (signal?: AbortSignal): Promise<FinancialOverviewResponse> => {
+    const r = await api.get<FinancialOverviewResponse>('/financials/overview', { signal });
     return r.data;
   },
-  byMarketplace: async (): Promise<{ marketplaces: MarketplaceFinancialRow[] }> => {
-    const r = await api.get<{ marketplaces: MarketplaceFinancialRow[] }>('/financials/by-marketplace');
+  byMarketplace: async (signal?: AbortSignal): Promise<{ marketplaces: MarketplaceFinancialRow[] }> => {
+    const r = await api.get<{ marketplaces: MarketplaceFinancialRow[] }>('/financials/by-marketplace', { signal });
     return r.data;
   },
-  byProduct: async (): Promise<{ products: ProductFinancialRow[] }> => {
-    const r = await api.get<{ products: ProductFinancialRow[] }>('/financials/by-product');
+  byProduct: async (signal?: AbortSignal): Promise<{ products: ProductFinancialRow[] }> => {
+    const r = await api.get<{ products: ProductFinancialRow[] }>('/financials/by-product', { signal });
     return r.data;
   },
-  expenses: async (): Promise<ExpensesResponse> => {
-    const r = await api.get<ExpensesResponse>('/financials/expenses');
+  expenses: async (signal?: AbortSignal): Promise<ExpensesResponse> => {
+    const r = await api.get<ExpensesResponse>('/financials/expenses', { signal });
     return r.data;
   },
-  cashFlow: async (): Promise<CashFlowResponse> => {
-    const r = await api.get<CashFlowResponse>('/financials/cash-flow');
+  cashFlow: async (signal?: AbortSignal): Promise<CashFlowResponse> => {
+    const r = await api.get<CashFlowResponse>('/financials/cash-flow', { signal });
     return r.data;
   },
-  analyze: async (use_web = true): Promise<FinancialAnalyzeResponse> => {
-    const r = await api.get<FinancialAnalyzeResponse>(`/financials/analyze?use_web=${use_web}`);
+  analyze: async (use_web = true, signal?: AbortSignal): Promise<FinancialAnalyzeResponse> => {
+    const r = await api.get<FinancialAnalyzeResponse>(`/financials/analyze?use_web=${use_web}`, { signal });
     return r.data;
   },
 };

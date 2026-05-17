@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Brain } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -14,6 +15,7 @@ import { formatCurrency, formatNumber } from '../utils/formatters';
 import { useI18n } from '../context/I18nContext';
 import { useTheme } from '../hooks/useTheme';
 import { getChartTheme } from '../utils/chartTheme';
+import { useBackgroundAnalysis } from '../context/AnalysisContext';
 import type {
   CompetitorsResponse, CompetitorAnalyzeResponse,
   PriceMapResponse, CompetitorTrackResponse, ProductListItem, PriceMapEntry
@@ -22,38 +24,8 @@ import type {
 type SubTab = 'list' | 'pricemap' | 'track';
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-const CACHE_KEY = 'arkus_competitor_cache';
 const SELECTED_PRODUCT_KEY = 'arkus_competitor_product';
 
-interface CachedAnalysis {
-  productId: string;
-  aiAnalysis: string;
-  aiSources: Array<{ title: string; uri: string }>;
-  timestamp: number;
-}
-
-function getCachedAnalysis(productId: string): CachedAnalysis | null {
-  try {
-    const raw = sessionStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const data: CachedAnalysis = JSON.parse(raw);
-    if (data.productId === productId && Date.now() - data.timestamp < 10 * 60 * 1000) {
-      return data;
-    }
-  } catch { /* ignore */ }
-  return null;
-}
-
-function setCachedAnalysis(productId: string, aiAnalysis: string, aiSources: Array<{ title: string; uri: string }>) {
-  try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify({
-      productId,
-      aiAnalysis,
-      aiSources,
-      timestamp: Date.now(),
-    }));
-  } catch { /* ignore */ }
-}
 
 export default function CompetitorsPage() {
   const { t } = useI18n();
@@ -64,13 +36,20 @@ export default function CompetitorsPage() {
   const [competitors, setCompetitors] = useState<CompetitorsResponse | null>(null);
   const [priceMap, setPriceMap] = useState<PriceMapResponse | null>(null);
   const [track, setTrack] = useState<CompetitorTrackResponse | null>(null);
-  const [aiAnalysis, setAiAnalysis] = useState('');
-  const [aiSources, setAiSources] = useState<Array<{ title: string; uri: string }>>([]);
   const [loading, setLoading] = useState(true);
-  const [aiLoading, setAiLoading] = useState(false);
   const [tab, setTab] = useState<SubTab>('list');
   const didInit = useRef(false);
   const mountedRef = useRef(true);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlSelected = searchParams.get('id');
+
+  const { text: aiAnalysis, isRunning: aiLoading, startFetch } = useBackgroundAnalysis({
+    type: 'competitors',
+    id: selectedProduct || 'none',
+    label: `Rakip Analizi`,
+    navigateTo: `/competitors?id=${selectedProduct || ''}`,
+  });
 
   useEffect(() => {
     mountedRef.current = true;
@@ -87,25 +66,32 @@ export default function CompetitorsPage() {
       });
       setProducts(unique);
       if (unique.length > 0 && !didInit.current) {
-        // Önce sessionStorage'dan kaydedilmiş ürünü dene
+        let restoredId = unique[0].id;
         const savedId = sessionStorage.getItem(SELECTED_PRODUCT_KEY);
-        const restoredId = savedId && unique.find(p => p.id === savedId) ? savedId : unique[0].id;
+        
+        if (urlSelected && unique.find(p => p.id === urlSelected)) {
+          restoredId = urlSelected;
+        } else if (savedId && unique.find(p => p.id === savedId)) {
+          restoredId = savedId;
+        }
+
         setSelectedProduct(restoredId);
+        if (restoredId !== urlSelected) {
+          setSearchParams(new URLSearchParams({ id: restoredId }));
+        }
         didInit.current = true;
       }
     }).finally(() => setLoading(false));
-  }, []);
+  }, [urlSelected, setSearchParams]);
+
+  useEffect(() => {
+    if (urlSelected && urlSelected !== selectedProduct && products.find(p => p.id === urlSelected)) {
+      setSelectedProduct(urlSelected);
+    }
+  }, [urlSelected, selectedProduct, products]);
 
   const loadProductData = useCallback((productId: string) => {
     setCompetitors(null); setPriceMap(null); setTrack(null);
-    const cached = getCachedAnalysis(productId);
-    if (cached) {
-      setAiAnalysis(cached.aiAnalysis);
-      setAiSources(cached.aiSources);
-    } else {
-      setAiAnalysis('');
-      setAiSources([]);
-    }
     Promise.all([
       competitorService.list(productId),
       competitorService.priceMap(productId),
@@ -123,20 +109,12 @@ export default function CompetitorsPage() {
     loadProductData(selectedProduct);
   }, [selectedProduct, loadProductData]);
 
-  const handleAiAnalysis = async () => {
+  const handleAiAnalysis = () => {
     if (!selectedProduct) return;
-    setAiLoading(true);
-    try {
+    startFetch(async () => {
       const res: CompetitorAnalyzeResponse = await competitorService.analyze(selectedProduct, 'detailed', true);
-      if (!mountedRef.current) return;
-      const analysis = res.ai_analysis || '';
-      const sources = res.web_sources || [];
-      setAiAnalysis(analysis);
-      setAiSources(sources);
-      setCachedAnalysis(selectedProduct, analysis, sources);
-    } finally {
-      if (mountedRef.current) setAiLoading(false);
-    }
+      return res.ai_analysis || '';
+    });
   };
 
   if (loading) return <LoadingSpinner message={t('competitors.loading')} size="lg" />;
@@ -166,7 +144,10 @@ export default function CompetitorsPage() {
       <GlassCard>
         <div className="flex flex-wrap items-center gap-3">
           <label className="text-[var(--text-muted)] text-sm font-medium">{t('competitors.select_product')}</label>
-          <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)}
+          <select value={selectedProduct} onChange={e => {
+            setSelectedProduct(e.target.value);
+            setSearchParams(new URLSearchParams({ id: e.target.value }));
+          }}
             className="bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
             {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
@@ -295,7 +276,7 @@ export default function CompetitorsPage() {
           </button>
         </div>
         {aiAnalysis
-          ? <StreamingMarkdown content={aiAnalysis} webSources={aiSources} title={t('competitors.ai_analysis')} />
+          ? <StreamingMarkdown content={aiAnalysis} title={t('competitors.ai_analysis')} />
           : <p className="text-[var(--text-muted)] text-sm">{t('competitors.ai_hint')}</p>
         }
       </GlassCard>

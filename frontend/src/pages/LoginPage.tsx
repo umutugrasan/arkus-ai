@@ -63,7 +63,7 @@ export default function LoginPage() {
 
       <div className="relative z-10 w-full max-w-md p-4">
         <div className="flex flex-col items-center mb-10">
-          <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-24 h-24 object-contain mb-4 drop-shadow-md" />
+          <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-32 h-32 object-contain mb-4 drop-shadow-md" />
           <h1 className="text-5xl font-black text-[var(--text-primary)] tracking-tighter">Arkus</h1>
           <p className="text-[var(--text-muted)] text-sm mt-1 font-medium">{t('auth.tagline')}</p>
         </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Brain, XCircle, ExternalLink, Lightbulb } from 'lucide-react';
 import GlassCard from '../components/shared/GlassCard';
 import { Skeleton, SkeletonCard } from '../components/shared/Skeleton';
@@ -6,43 +6,37 @@ import StreamingMarkdown from '../components/shared/StreamingMarkdown';
 import { financeGuideService } from '../services';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { useI18n } from '../context/I18nContext';
-import type { FinanceOptionsResponse, FinanceEligibilityResponse, FinanceAnalyzeResponse, FinanceOption } from '../types/api';
+import { useBackgroundAnalysis } from '../context/AnalysisContext';
+import type { FinanceOptionsResponse, FinanceEligibilityResponse, FinanceOption } from '../types/api';
 
 export default function FinanceGuidePage() {
   const { t } = useI18n();
   const [options, setOptions] = useState<FinanceOptionsResponse | null>(null);
   const [eligibility, setEligibility] = useState<FinanceEligibilityResponse | null>(null);
-  const [aiAnalysis, setAiAnalysis] = useState('');
-  const [aiSources, setAiSources] = useState<Array<{ title: string; uri: string }>>([]);
   const [loading, setLoading] = useState(true);
-  const [aiLoading, setAiLoading] = useState(false);
-  const mountedRef = useRef(true);
+
+  const { text: aiAnalysis, isRunning: aiLoading, startFetch } = useBackgroundAnalysis({
+    type: 'finance',
+    id: 'global',
+    label: 'Finansman Analizi',
+    navigateTo: '/finance-guide',
+  });
 
   useEffect(() => {
-    mountedRef.current = true;
     Promise.all([
       financeGuideService.options(),
       financeGuideService.eligibility(),
     ]).then(([o, e]) => {
-      if (!mountedRef.current) return;
       setOptions(o);
       setEligibility(e);
-    }).finally(() => {
-      if (mountedRef.current) setLoading(false);
-    });
-    return () => { mountedRef.current = false; };
+    }).finally(() => setLoading(false));
   }, []);
 
-  const handleAi = async () => {
-    setAiLoading(true);
-    try {
-      const res: FinanceAnalyzeResponse = await financeGuideService.analyze(true);
-      if (!mountedRef.current) return;
-      setAiAnalysis(res.ai_analysis || '');
-      setAiSources(res.web_sources || []);
-    } finally {
-      if (mountedRef.current) setAiLoading(false);
-    }
+  const handleAi = () => {
+    startFetch(async () => {
+      const res = await financeGuideService.analyze(true);
+      return res.ai_analysis || '';
+    });
   };
 
   if (loading) {
@@ -195,7 +189,7 @@ export default function FinanceGuidePage() {
           </button>
         </div>
         {aiAnalysis
-          ? <StreamingMarkdown content={aiAnalysis} webSources={aiSources} title={t('finance.ai_analysis_title')} />
+          ? <StreamingMarkdown content={aiAnalysis} title={t('finance.ai_analysis_title')} />
           : <p className="text-[var(--text-muted)] text-sm">{t('finance.ai_hint')}</p>
         }
       </GlassCard>

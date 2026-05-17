@@ -4,7 +4,7 @@ import {
   Percent, RotateCcw, BarChart3, Calendar, Sparkles, RefreshCw,
 } from 'lucide-react';
 import {
-  Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart,
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import PageHeader from '../components/shared/PageHeader';
@@ -48,6 +48,14 @@ export default function DashboardPage() {
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiSnapshot, setAiSnapshot] = useState<AiSummaryResponse['snapshot'] | null>(null);
   const aiAbortRef = useRef<AbortController | null>(null);
+
+  const getDashboardCacheKey = () => `arkus_dashboard_summary_${new Date().toISOString().split('T')[0]}`;
+
+  interface DashboardAICache {
+    aiText: string;
+    aiSources: AiSummaryResponse['web_sources'];
+    snapshot: AiSummaryResponse['snapshot'] | null;
+  }
 
   /** DB snapshot'tan basit özet üretir (Gemini yokken fallback) */
   const buildFallbackSummary = (snap: AiSummaryResponse['snapshot']): string => {
@@ -122,11 +130,28 @@ export default function DashboardPage() {
         onChunk: (text) => setAiText((prev) => prev + text),
         onDone: (data) => {
           setAiStreaming(false);
-          // full_text bazen done event'te tüm metni gönderir
           if (data.full_text && typeof data.full_text === 'string' && !aiText) {
             setAiText(data.full_text as string);
           }
           if (Array.isArray(data.sources)) setAiSources(data.sources as AiSummaryResponse['web_sources']);
+          
+          // Cache the final result
+          setAiText((finalText) => {
+            setAiSources((finalSources) => {
+              setAiSnapshot((finalSnapshot) => {
+                try {
+                  localStorage.setItem(getDashboardCacheKey(), JSON.stringify({
+                    aiText: data.full_text || finalText,
+                    aiSources: data.sources || finalSources,
+                    snapshot: finalSnapshot,
+                  }));
+                } catch { /* ignore */ }
+                return finalSnapshot;
+              });
+              return finalSources;
+            });
+            return finalText;
+          });
         },
         onError: (e) => {
           setAiStreaming(false);
@@ -134,17 +159,41 @@ export default function DashboardPage() {
           setAiError(msg);
           // Snapshot varsa fallback özet üret
           setAiSnapshot((snap) => {
-            if (snap) setAiText(buildFallbackSummary(snap));
+            if (snap) {
+              const fallbackText = buildFallbackSummary(snap);
+              setAiText(fallbackText);
+              try {
+                localStorage.setItem(getDashboardCacheKey(), JSON.stringify({
+                  aiText: fallbackText,
+                  aiSources: [],
+                  snapshot: snap,
+                }));
+              } catch { /* ignore */ }
+            }
             return snap;
           });
         },
       },
       { signal: ctrl.signal },
     );
-  }, [toast]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [toast, buildFallbackSummary]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!loading && overview) runAiSummary();
+    if (!loading && overview) {
+      try {
+        const cached = localStorage.getItem(getDashboardCacheKey());
+        if (cached) {
+          const parsed = JSON.parse(cached) as DashboardAICache;
+          if (parsed.aiText) {
+            setAiText(parsed.aiText);
+            setAiSources(parsed.aiSources || []);
+            setAiSnapshot(parsed.snapshot);
+            return;
+          }
+        }
+      } catch { /* ignore */ }
+      runAiSummary();
+    }
     return () => aiAbortRef.current?.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
@@ -166,9 +215,21 @@ export default function DashboardPage() {
   }
 
   const o = overview.overall;
+  
+  const connectedMps = mpSummaries.map(m => m.marketplace);
   const trendData = trends?.daily
-    ? trends.daily.map((d) => ({ name: d.date.slice(5), Ciro: d.revenue, Satış: d.sales, İade: d.returns }))
-    : trends?.weekly?.map((w) => ({ name: w.week, Ciro: w.revenue, Satış: w.sales, İade: w.returns })) || [];
+    ? trends.daily.map((d) => {
+        const item: any = { name: d.date.slice(5) };
+        const record = d as Record<string, any>;
+        connectedMps.forEach(mp => { if (record[mp] !== undefined) item[mp] = Number(record[mp]); });
+        return item;
+      })
+    : trends?.weekly?.map((w) => {
+        const item: any = { name: w.week };
+        const record = w as Record<string, any>;
+        connectedMps.forEach(mp => { if (record[mp] !== undefined) item[mp] = Number(record[mp]); });
+        return item;
+      }) || [];
 
   const mpBarData = mpSummaries.map((m) => ({
     name: MARKETPLACES[m.marketplace]?.label || m.marketplace,
@@ -305,11 +366,30 @@ export default function DashboardPage() {
               />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
-                <LineChart data={trendData}>
-                  <CartesianGrid stroke={chart.grid} strokeDasharray="3 3" />
-                  <XAxis dataKey="name" stroke={chart.axis} fontSize={11} />
-                  <YAxis stroke={chart.axis} fontSize={11} />
+                <AreaChart data={trendData}>
+                  <defs>
+                    {connectedMps.map((mp, i) => (
+                      <linearGradient key={mp} id={`color${mp}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={MP_CHART_COLORS[i % MP_CHART_COLORS.length]} stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor={MP_CHART_COLORS[i % MP_CHART_COLORS.length]} stopOpacity={0}/>
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  <CartesianGrid stroke={chart.grid} strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" stroke={chart.axis} fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis
+                    stroke={chart.axis}
+                    fontSize={11}
+                    tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : String(v)}
+                    tickLine={false}
+                    axisLine={false}
+                  />
                   <Tooltip
+                    itemSorter={(item: any) => -item.value}
+                    formatter={(value: any, name: any) => [
+                      formatCurrency(Number(value) || 0), 
+                      MARKETPLACES[name as string]?.label || name
+                    ]}
                     contentStyle={{
                       background: chart.tooltipBg,
                       border: `1px solid ${chart.tooltipBorder}`,
@@ -319,11 +399,19 @@ export default function DashboardPage() {
                     labelStyle={{ color: chart.tooltipText }}
                     itemStyle={{ color: chart.tooltipText }}
                   />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Line type="monotone" dataKey="Ciro" stroke="#6366f1" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="Satış" stroke="#22c55e" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="İade" stroke="#f43f5e" strokeWidth={2} dot={false} />
-                </LineChart>
+                  <Legend wrapperStyle={{ fontSize: 11 }} formatter={(value) => MARKETPLACES[value]?.label || value} />
+                  {connectedMps.map((mp, i) => (
+                    <Area
+                      key={mp}
+                      type="monotone"
+                      dataKey={mp}
+                      stroke={MP_CHART_COLORS[i % MP_CHART_COLORS.length]}
+                      fillOpacity={1}
+                      fill={`url(#color${mp})`}
+                      strokeWidth={2}
+                    />
+                  ))}
+                </AreaChart>
               </ResponsiveContainer>
             )}
           </GlassCard>
