@@ -111,6 +111,43 @@ mock_raw.json -> mock-api (HTTP) -> backend -> PostgreSQL -> endpoint response
 Bu mimaride mock-api'yi gercek pazaryeri API'siyle degistirmek tek satirlik degisiklik:
 `MOCK_MARKETPLACE_API_URL=https://api.trendyol.com`
 
+## 🔌 Marketplace API Entegrasyonu (Mock → Prod)
+
+Hackathon süresince Trendyol/Hepsiburada/Amazon TR/N11 satıcı paneli API'lerine erişimimiz yok — gerçek satıcı paneli API başvuru süreci haftalar sürer. Çözüm: **gerçek API'nin endpoint yapısını, auth pattern'ini ve response şemasını birebir taklit eden ayrı bir FastAPI servisi** (port 8001).
+
+Bu sadece "demo için mock data" **değil** — production-ready bir **Marketplace Adapter Pattern**:
+
+- ✅ Gerçek pazaryeri API'larındaki gibi `X-API-KEY` header auth
+- ✅ Gerçek satıcı paneli endpoint isimleri (`/{marketplace}/products`, `/auth`, `/reviews`, `/store-info`)
+- ✅ Trendyol response şemasıyla uyumlu JSON çıktı (`store_name`, `commission_rate`, `products[].competitors[]`)
+- ✅ Per-marketplace izole auth (Trendyol/HB/Amazon TR/N11 ayrı slug + ayrı API key havuzu)
+- ✅ Auth `403` / unknown marketplace `404` / rate-limit gibi gerçek API error code'larını döner
+
+### Mock pazaryeri endpoint haritası
+
+| Mock Endpoint (`localhost:8001`) | Gerçek Pazaryeri Karşılığı | Auth |
+|---|---|---|
+| `POST /{slug}/auth` | Mağaza OAuth / HMAC dogrulama | API key body |
+| `GET /{slug}/store-info` | Mağaza profil + komisyon ayarları | `X-API-KEY` |
+| `GET /{slug}/products` | Ürün listesi (+ rakip snapshot'ları) | `X-API-KEY` |
+| `GET /{slug}/reviews?product_id=` | Müşteri yorumları, filtreli | `X-API-KEY` |
+
+`slug`: `trendyol`, `hepsiburada`, `amazon-tr`, `n11`.
+
+### Production geçişi: tek env değişkeni
+
+```bash
+# .env (development) — mock servis
+MOCK_MARKETPLACE_API_URL=http://mock-api:8001
+
+# .env (production) — gerçek pazaryeri
+MOCK_MARKETPLACE_API_URL=https://api.trendyol.com/sapigw
+```
+
+Tüm HTTP çağrıları `backend/app/services/marketplace_api.py` içinde tek noktada toplandığı için, gerçek API'ye geçişte **backend kodunda 0 satır değişiklik** gerekir. Kullanıcı zaten kendi gerçek API key'ini `/api/v1/store/connect` endpoint'ine girer; demo key'lerin (`demo-key-trendyol` vb.) yerini gerçek key'ler alır. Frontend, ajan katmanı, calculator, AI servisleri **hiç dokunulmaz**.
+
+> 📐 Sequence diagram + endpoint mapping + production checklist için: [**ARCHITECTURE.md § 4.5**](./ARCHITECTURE.md#45-marketplace-api-adapter-mock--prod-geçiş)
+
 ## Veritabani
 
 15+ tablo: users, marketplace_connections, products, reviews, review_analyses, competitors, competitor_price_history, orders, financials, notifications, reports, chat_history, price_alerts, listing_optimizations, image_analyses, suppliers, sellers.

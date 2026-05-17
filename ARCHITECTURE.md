@@ -12,6 +12,7 @@
 2. [Katmanlı Mimari (4 Layer)](#2-katmanlı-mimari-4-layer)
 3. [Modül Haritası (17 Modül / 88 Endpoint)](#3-modül-haritası)
 4. [Veri Akışı (Request Lifecycle)](#4-veri-akışı)
+4.5 [Marketplace API Adapter (Mock → Prod)](#45-marketplace-api-adapter-mock--prod-geçiş)
 5. [Agentic Orkestrasyon](#5-agentic-orkestrasyon)
 6. [Veritabanı Şeması (17 Tablo)](#6-veritabanı-şeması)
 7. [Teknoloji Stack'i ve Gerekçeler](#7-teknoloji-stacki)
@@ -221,8 +222,127 @@ sequenceDiagram
 ### Veri Akışı Garantileri
 
 - **At-most-once delivery for AI write-back:** Stream tamamlanmadan DB'ye yazılmaz; user iptal ederse stale cache oluşmaz.
-- **Fallback semantics:** AI hatası `"is_fallback": true` ile işaretlenir, **cache'lenmez** — sahte analiz DB'ye sızmaz.
+- **Fallback semantics:** AI hatası `"is_fallback": true` ile işaretlenir, **cache'lenmez** — sahte analiz DB'ya sızmaz.
 - **Backpressure:** Nginx `proxy_buffering off` + `X-Accel-Buffering: no` header'ı, SSE token'ları gerçek zamanlı akıtır.
+
+---
+
+## 4.5. Marketplace API Adapter (Mock → Prod Geçiş)
+
+> Bu mimarinin **en kritik production-readiness sinyali**: gerçek satıcı paneli API'lerine erişimimiz yok ama kod tarafı sanki varmış gibi yazıldı.
+
+### Neden Mock?
+
+Hackathon süresinde Trendyol/Hepsiburada/Amazon TR/N11 **satıcı paneli** (Seller Center) API'larına erişimimiz yok — bu API'ler sadece doğrulanmış kurumsal satıcılara, haftalar süren başvuru süreçleriyle açılır. Demo amaçlı public endpoint'ler de yetersiz: çünkü bu projenin kalbi **satıcının kendi mağazasının** verisi (ürünleri, yorumları, komisyonu, ROAS'i).
+
+Bu sebeple **3-katmanlı bir adapter pattern** kurduk:
+
+```
+gerçek pazaryeri API  ←→  marketplace_api.py adapter  ←→  Backend route'lar
+       (yok)                  (HTTP client)              (calculator, agents)
+                                    │
+                                    ▼  fallback (env: MOCK_MARKETPLACE_API_URL)
+                                    
+                              mock-api (port 8001)
+                              gerçek API yapısının
+                                 birebir kopyası
+```
+
+### Mimari Karar: Tek HTTP İletişim Noktası
+
+Tüm pazaryeri HTTP çağrıları **tek bir dosyada** toplandı:
+
+| Fonksiyon (`backend/app/services/marketplace_api.py`) | Sorumluluk |
+|---|---|
+| `fetch_raw_marketplace_data(marketplace, api_key)` | Ürünler + rakipler + yorumlar — tek HTTP turuna sığar |
+| `validate_marketplace_api_key(marketplace, api_key, store_url)` | Sync öncesi auth check |
+| `fetch_*` (DB okuyucular) | Sync sonrası hızlı route cevapları için ORM tarafı |
+
+Bu sayede gerçek API'ye geçişte **TEK dosyada** değişiklik yeter.
+
+### Endpoint Eşleme Tablosu
+
+Mock-api endpoint'leri, gerçek Trendyol satıcı paneli API'siyle birebir aynı pattern'i izler:
+
+| Mock (`localhost:8001`) | Trendyol Production Karşılığı | Auth | Notlar |
+|---|---|---|---|
+| `POST /{slug}/auth` | OAuth/HMAC handshake | API key body | 403 = invalid key |
+| `GET /{slug}/store-info` | `sapigw.trendyol.com/suppliers/{id}` | `X-API-KEY` | store_name, rating, komisyon |
+| `GET /{slug}/products` | `sapigw.trendyol.com/suppliers/{id}/products` | `X-API-KEY` | + rakipler embedded |
+| `GET /{slug}/reviews?product_id=` | `sapigw.trendyol.com/suppliers/{id}/q&a` | `X-API-KEY` | Filtre opsiyonel |
+
+URL slug ↔ internal name eşlemesi: `trendyol`↔`trendyol`, `hepsiburada`↔`hepsiburada`, `amazon-tr`↔`amazon_tr` (URL'de dash, DB'de underscore), `n11`↔`n11`.
+
+### Sequence: Pazaryeri Bağlama Akışı
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Frontend
+    participant B as Backend<br/>(FastAPI)
+    participant A as marketplace_api.py<br/>(Adapter)
+    participant M as Mock API / Trendyol API<br/>(env: MOCK_MARKETPLACE_API_URL)
+    participant DB as PostgreSQL
+
+    U->>B: POST /api/v1/store/connect<br/>{marketplace: "trendyol", api_key: "..."}
+    B->>A: validate_marketplace_api_key(...)
+    A->>M: POST /trendyol/auth<br/>{api_key, store_url}
+    alt API key gecerli
+        M-->>A: 200 {authenticated: true, session_token}
+    else gecersiz
+        M-->>A: 403 {detail: "Gecersiz API key"}
+        A-->>B: raise ValueError
+        B-->>U: 401 Unauthorized
+    end
+
+    B->>A: fetch_raw_marketplace_data(mp, api_key)
+    A->>M: GET /trendyol/products (X-API-KEY)
+    M-->>A: 200 [products + competitors]
+    A->>M: GET /trendyol/reviews (X-API-KEY)
+    M-->>A: 200 [reviews]
+    A-->>B: {store_name, products[], reviews[]}
+
+    B->>DB: UPSERT products + competitors
+    B->>DB: INSERT competitor_price_history (snapshot)
+    B->>DB: INSERT reviews
+    B->>DB: REBUILD financial snapshot
+    B-->>U: 200 {store: {...}, product_count: 6}
+```
+
+### Production'a Geçiş Checklist'i
+
+Hackathon → MVP → Production geçişi için bu adımlar yeterli — başka kod değişikliği gerekmez:
+
+1. **Env değişkeni güncellemesi**
+   ```bash
+   # .env (production)
+   MOCK_MARKETPLACE_API_URL=https://api.trendyol.com/sapigw
+   ```
+
+2. **Demo key havuzu çıkarılır**
+   - `marketplace_api.py:DEMO_KEYS` dict'i kaldırılır
+   - `req.api_key` (kullanıcının kendi gerçek key'i) tek kaynak olur
+   - `/api/v1/store/connect` zaten `api_key` parametresi alıyor — frontend değişmez
+
+3. **Pazaryeri-spesifik auth dispatch** (opsiyonel — sadece HB OAuth gibi karmaşık auth gerekirse)
+   - `marketplace_api.py` içinde basit if/elif branching → her marketplace için custom client method
+
+4. **Rate limit / retry** (opsiyonel)
+   - `httpx` zaten 429 alır; mevcut log mantığı yeterli
+   - Gerçek API quota'sı sıkıysa `tenacity` retry decorator eklenebilir
+
+5. **Per-marketplace özel response field'ları** (gerekirse)
+   - `_normalize_response()` helper'ı eklenir, ama Trendyol/HB/Amazon TR şeması zaten %90+ benzer
+
+### Adapter Pattern'in Faydaları
+
+| Fayda | Etki |
+|---|---|
+| **Frontend değişmez** | UI sadece backend endpoint'lerini bilir |
+| **Agent katmanı değişmez** | Ajanlar `marketplace_api.fetch_*` çağrılarını kullanır, kaynak kim umurunda değil |
+| **Calculator/Gemini değişmez** | Saf fonksiyonlar, input formatı sabit |
+| **Test edilebilirlik** | Mock-api Docker'la her yerde ayağa kalkar — CI test'ler dış servise bağımlı değil |
+| **Çoklu pazaryeri** | Yeni bir pazaryeri eklemek: `MP_SLUG` dict'e bir satır + mock-api'ye 1 entry |
 
 ---
 
