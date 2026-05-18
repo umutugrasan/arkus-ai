@@ -72,7 +72,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <Link to="/products" className="inline-flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-indigo-600 dark:hover:text-indigo-300">
+      <Link to="/products" className="inline-flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--accent)]">
         <ArrowLeft size={12} /> {t('productdetail.back')}
       </Link>
 
@@ -134,7 +134,7 @@ export default function ProductDetailPage() {
       {/* Listings tablosu */}
       <GlassCard className="p-5">
         <div className="flex items-center gap-2 mb-3">
-          <ShoppingBag size={16} className="text-indigo-600 dark:text-indigo-300" />
+          <ShoppingBag size={16} className="text-[var(--accent)]" />
           <h3 className="text-[var(--text-primary)] font-semibold">{t('productdetail.listings')}</h3>
         </div>
         <div className="overflow-x-auto">
@@ -191,7 +191,7 @@ export default function ProductDetailPage() {
       {images && images.images_by_marketplace.length > 0 && (
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-3">
-            <ImageIcon size={16} className="text-violet-500" />
+            <ImageIcon size={16} className="text-[var(--accent)]" />
             <h3 className="text-[var(--text-primary)] font-semibold">{t('productdetail.images')}</h3>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">

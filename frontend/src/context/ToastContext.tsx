@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import { CheckCircle2, AlertCircle, Info, AlertTriangle, X } from 'lucide-react';
 
 export type ToastKind = 'success' | 'error' | 'info' | 'warning';
 
@@ -56,26 +57,48 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
+const kindConfig: Record<ToastKind, { border: string; icon: JSX.Element }> = {
+  success: {
+    border: 'border-l-emerald-500',
+    icon: <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />,
+  },
+  error: {
+    border: 'border-l-rose-500',
+    icon: <AlertCircle size={16} className="text-rose-500 flex-shrink-0 mt-0.5" />,
+  },
+  info: {
+    border: 'border-l-[var(--accent-solid)]',
+    icon: <Info size={16} className="text-[var(--accent)] flex-shrink-0 mt-0.5" />,
+  },
+  warning: {
+    border: 'border-l-amber-500',
+    icon: <AlertTriangle size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />,
+  },
+};
+
 function ToastViewport() {
   const { toasts, dismiss } = useToast();
-  const kindClass: Record<ToastKind, string> = {
-    success: 'bg-emerald-600 border-emerald-400',
-    error: 'bg-rose-600 border-rose-400',
-    info: 'bg-[#4a3f44] border-[#6b6266]',
-    warning: 'bg-amber-500 border-amber-300',
-  };
   return (
-    <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 max-w-md">
-      {toasts.map((t) => (
-        <div
-          key={t.id}
-          className={`${kindClass[t.kind]} text-white px-4 py-3 rounded-lg border shadow-2xl flex items-start gap-3 animate-fade-in`}
-          role="alert"
-        >
-          <div className="flex-1 text-sm whitespace-pre-wrap">{t.message}</div>
-          <button onClick={() => dismiss(t.id)} className="text-white/80 hover:text-white text-xs">✕</button>
-        </div>
-      ))}
+    <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 max-w-sm w-[calc(100vw-2rem)]">
+      {toasts.map((t) => {
+        const cfg = kindConfig[t.kind];
+        return (
+          <div
+            key={t.id}
+            className={`bg-[var(--bg-card)] border border-[var(--border-strong)] border-l-4 ${cfg.border} rounded-xl shadow-xl flex items-start gap-3 px-4 py-3 animate-fade-in`}
+            role="alert"
+          >
+            {cfg.icon}
+            <div className="flex-1 text-sm text-[var(--text-primary)] whitespace-pre-wrap">{t.message}</div>
+            <button
+              onClick={() => dismiss(t.id)}
+              className="flex-shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors mt-0.5"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -391,7 +391,7 @@ export default function ReviewsPage() {
                 onClick={() => setSelectedHistory(a)}
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 dark:text-indigo-300 capitalize font-medium">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] capitalize font-medium">
                     {a.analysis_type === 'short' ? t('reviews.short') : a.analysis_type === 'detailed' ? t('reviews.detailed') : a.analysis_type}
                   </span>
                   <span className="text-[var(--text-muted)] text-[10px]">{a.created_at}</span>

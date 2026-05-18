@@ -144,15 +144,13 @@ export default function ReportsPage() {
                 onClick={() => handleViewReport(r)}>
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-xl ${r.type === 'daily' ? 'bg-indigo-50' : 'bg-violet-500/20'}`}>
-                      <FileText size={16} className={r.type === 'daily' ? 'text-indigo-600 dark:text-indigo-300' : 'text-violet-500'} />
+                    <div className="p-2 rounded-xl bg-[var(--accent)]/10">
+                      <FileText size={16} className="text-[var(--accent)]" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="text-[var(--text-primary)] font-semibold text-sm">{r.title}</p>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                          r.type === 'daily' ? 'bg-indigo-50 text-indigo-600 dark:text-indigo-300' : 'bg-violet-500/20 text-violet-500'
-                        }`}>{r.type === 'daily' ? t('reports.daily') : t('reports.weekly')}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-[var(--accent)]/10 text-[var(--accent)]">{r.type === 'daily' ? t('reports.daily') : t('reports.weekly')}</span>
                       </div>
                       <p className="text-[var(--text-muted)] text-xs mt-0.5">{formatDate(r.created_at)}</p>
                       {r.preview && <p className="text-[var(--text-muted)] text-xs mt-1 line-clamp-2">{r.preview}</p>}

@@ -295,11 +295,11 @@ export default function LandingPage() {
 
             {/* Kart 3 — Arkus (modern AI) */}
             <div className="bg-[var(--bg-card)] p-8 rounded-2xl border-2 border-[var(--accent)]/40 shadow-md relative overflow-hidden hover:shadow-xl transition-shadow">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100 dark:bg-indigo-500/15 rounded-bl-full -z-10"></div>
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 rounded-xl flex items-center justify-center mb-5">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent)]/15 rounded-bl-full -z-10"></div>
+              <div className="w-12 h-12 bg-[var(--accent)]/15 text-[var(--accent)] rounded-xl flex items-center justify-center mb-5">
                 <Sparkles className="w-6 h-6" />
               </div>
-              <div className="text-xs text-indigo-600 dark:text-indigo-300 font-bold uppercase tracking-wider mb-1">
+              <div className="text-xs text-[var(--accent)] font-bold uppercase tracking-wider mb-1">
                 {t('landing.about_arkus_tag')}
               </div>
               <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-3">

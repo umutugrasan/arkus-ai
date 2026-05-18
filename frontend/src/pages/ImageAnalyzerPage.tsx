@@ -93,7 +93,7 @@ export default function ImageAnalyzerPage() {
           <div>
             <label className="text-[var(--text-muted)] text-xs block mb-1">{t('products.col_product')}</label>
             <select value={selectedProductId} onChange={e => setSelectedProductId(e.target.value)}
-              className="bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+              className="bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent)]">
               {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
@@ -206,7 +206,7 @@ export default function ImageAnalyzerPage() {
                   <p className="text-[var(--text-primary)] font-semibold">{a.action}</p>
                   <p className="text-[var(--text-muted)] text-sm mt-0.5">{a.reason}</p>
                   <div className="flex gap-2 mt-2">
-                    <span className="text-xs text-indigo-600 dark:text-indigo-300 bg-indigo-50 px-2 py-0.5 rounded-full">📈 {a.expected_impact}</span>
+                    <span className="text-xs text-[var(--accent)] bg-[var(--accent)]/10 px-2 py-0.5 rounded-full">📈 {a.expected_impact}</span>
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       a.difficulty === 'kolay' ? 'bg-emerald-500/10 text-emerald-500' :
                       a.difficulty === 'orta' ? 'bg-amber-500/10 text-amber-500' :
@@ -223,7 +223,7 @@ export default function ImageAnalyzerPage() {
               <ul className="space-y-1">
                 {suggestions.tools_to_use.map((tool, i) => (
                   <li key={`tool-${i}-${tool.slice(0, 24)}`} className="text-[var(--text-secondary)] text-sm flex items-center gap-2">
-                    <span className="text-indigo-600 dark:text-indigo-300">•</span> {tool}
+                    <span className="text-[var(--accent)]">•</span> {tool}
                   </li>
                 ))}
               </ul>

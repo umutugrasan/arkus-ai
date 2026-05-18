@@ -7,14 +7,14 @@ interface AIResponseBoxProps {
   title?: string;
 }
 
-export default function AIResponseBox({ content, title = 'Gemini AI Analizi' }: AIResponseBoxProps) {
+export default function AIResponseBox({ content, title = 'AI Analizi' }: AIResponseBoxProps) {
   return (
-    <div className="glass-card border border-indigo-100 dark:border-indigo-400/15 animate-fade-in">
+    <div className="glass-card border border-[var(--border-color)] animate-fade-in">
       <div className="flex items-center gap-2 p-4 border-b border-[var(--border-color)]">
-        <div className="flex items-center gap-2 bg-gradient-to-r from-indigo-500/20 to-violet-500/20 rounded-lg px-3 py-1.5">
-          <Brain size={16} className="text-indigo-600 dark:text-indigo-300" />
-          <span className="text-indigo-600 dark:text-indigo-300 text-sm font-semibold">{title}</span>
-          <Sparkles size={12} className="text-violet-400" />
+        <div className="flex items-center gap-2 bg-[var(--accent)]/10 rounded-lg px-3 py-1.5">
+          <Brain size={16} className="text-[var(--accent)]" />
+          <span className="text-[var(--accent)] text-sm font-semibold">{title}</span>
+          <Sparkles size={12} className="text-[var(--accent)]" />
         </div>
       </div>
       <div className="p-4 ai-response text-sm leading-relaxed">

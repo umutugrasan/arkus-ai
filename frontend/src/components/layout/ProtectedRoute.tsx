@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }: Props) {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#f9f8f4] flex items-center justify-center">
-        <Loader2 size={32} className="text-indigo-600 animate-spin" />
+        <Loader2 size={32} className="text-[var(--accent)] animate-spin" />
       </div>
     );
   }

@@ -234,7 +234,7 @@ export default function ProductsPage() {
                     <td className="py-2.5 pl-2">
                       <Link
                         to={`/products/${encodeURIComponent(p.id)}`}
-                        className="text-[var(--text-primary)] font-medium hover:text-indigo-600 dark:hover:text-indigo-300 max-w-[260px] truncate block"
+                        className="text-[var(--text-primary)] font-medium hover:text-[var(--accent)] max-w-[260px] truncate block"
                       >
                         {p.name}
                       </Link>
@@ -253,14 +253,14 @@ export default function ProductsPage() {
                     <td className="py-2.5 text-right text-[var(--text-secondary)]">{formatCurrency(p.avg_profit_per_item)}</td>
                     <td className="py-2.5 text-right text-[var(--text-secondary)]">{formatNumber(p.total_stock)}</td>
                     <td className="py-2.5 text-center">
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 dark:text-indigo-300">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)]">
                         {p.marketplace_count}
                       </span>
                     </td>
                     <td className="py-2.5 pr-2 text-right">
                       <Link
                         to={`/products/${encodeURIComponent(p.id)}`}
-                        className="inline-flex p-1 rounded text-[var(--text-muted)] hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50"
+                        className="inline-flex p-1 rounded text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/10"
                       >
                         <ChevronRight size={14} />
                       </Link>

@@ -136,7 +136,7 @@ export default function FinancialsPage() {
                 labelStyle={{ color: chart.tooltipText }} itemStyle={{ color: chart.tooltipText }}
                 formatter={(value) => formatCurrency(Number(value))} />
               <Legend />
-              <Line type="monotone" dataKey="revenue" name={t('financials.revenue')} stroke="#6366f1" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="revenue" name={t('financials.revenue')} stroke="#6b6266" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="profit" name={t('financials.profit')} stroke="#10b981" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -257,7 +257,7 @@ export default function FinancialsPage() {
 
       <GlassCard>
         <div className="flex flex-wrap items-center gap-3 mb-4">
-          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-indigo-600 dark:text-indigo-300" /> {t('financials.ai_analysis')}</h3>
+          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-[var(--accent)]" /> {t('financials.ai_analysis')}</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading}
             className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> {t('common.analyzing')}</> : <><Brain size={14} /> {t('common.analyze')}</>}

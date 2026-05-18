@@ -132,8 +132,8 @@ export default function ChatPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-50 rounded-xl">
-            <Bot size={20} className="text-indigo-600 dark:text-indigo-300" />
+          <div className="p-2 bg-[var(--accent)]/10 rounded-xl">
+            <Bot size={20} className="text-[var(--accent)]" />
           </div>
           <div>
             <h2 className="text-[var(--text-primary)] font-semibold">{t('chat.title')}</h2>
@@ -154,8 +154,8 @@ export default function ChatPage() {
       <GlassCard className="flex-1 overflow-y-auto mb-4 p-4 space-y-4">
         {messages.length === 0 && !streaming ? (
           <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
-            <div className="p-4 bg-indigo-50 rounded-2xl">
-              <MessageSquare size={40} className="text-indigo-600 dark:text-indigo-300" />
+            <div className="p-4 bg-[var(--accent)]/10 rounded-2xl">
+              <MessageSquare size={40} className="text-[var(--accent)]" />
             </div>
             <div>
               <h3 className="text-[var(--text-primary)] font-semibold mb-1">{t('chat.empty_title')}</h3>
@@ -166,7 +166,7 @@ export default function ChatPage() {
                 <button
                   key={s}
                   onClick={() => { setInput(s); inputRef.current?.focus(); }}
-                  className="text-left text-xs px-3 py-2 bg-[var(--bg-elevated)] hover:bg-indigo-50 hover:border-indigo-500/40 border border-[var(--border-strong)] rounded-xl text-[var(--text-secondary)] transition-all"
+                  className="text-left text-xs px-3 py-2 bg-[var(--bg-elevated)] hover:bg-[var(--accent)]/10 hover:border-[var(--accent)]/40 border border-[var(--border-strong)] rounded-xl text-[var(--text-secondary)] transition-all"
                 >
                   {s}
                 </button>
@@ -178,9 +178,9 @@ export default function ChatPage() {
             {messages.map((m, i) => (
               <div key={i} className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                 <div className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center ${
-                  m.role === 'user' ? 'bg-indigo-50' : 'bg-violet-500/20'
+                  m.role === 'user' ? 'bg-[var(--accent)]/10' : 'bg-[var(--accent)]/15'
                 }`}>
-                  {m.role === 'user' ? <User size={14} className="text-indigo-600 dark:text-indigo-300" /> : <Bot size={14} className="text-violet-500" />}
+                  {m.role === 'user' ? <User size={14} className="text-[var(--accent)]" /> : <Bot size={14} className="text-[var(--accent)]" />}
                 </div>
                 <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm ${
                   m.role === 'user'
@@ -197,12 +197,12 @@ export default function ChatPage() {
             {/* Streaming message */}
             {streaming && (
               <div className="flex gap-3 flex-row">
-                <div className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center bg-violet-500/20">
-                  <Bot size={14} className="text-violet-500" />
+                <div className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center bg-[var(--accent)]/15">
+                  <Bot size={14} className="text-[var(--accent)]" />
                 </div>
                 <div className="max-w-[80%] px-4 py-3 rounded-2xl rounded-tl-sm text-sm bg-[var(--bg-elevated)] text-[var(--text-primary)] ai-response">
                   {streamText
-                    ? <><ReactMarkdown remarkPlugins={[remarkGfm]}>{streamText}</ReactMarkdown><span className="inline-block w-2 h-4 bg-indigo-400 ml-0.5 animate-pulse" /></>
+                    ? <><ReactMarkdown remarkPlugins={[remarkGfm]}>{streamText}</ReactMarkdown><span className="inline-block w-2 h-4 bg-[var(--accent)] ml-0.5 animate-pulse" /></>
                     : <div className="flex gap-1 items-center text-[var(--text-muted)]"><Loader2 size={14} className="animate-spin" /> {t('ai.writing')}</div>
                   }
                 </div>

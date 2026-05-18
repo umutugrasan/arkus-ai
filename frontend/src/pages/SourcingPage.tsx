@@ -238,7 +238,7 @@ export default function SourcingPage() {
 
                 return (
                   <a key={s.id ?? `${s.name}-${s.discounted_price}`} href={href} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:scale-[1.01]">
-                    <GlassCard className="hover:border-indigo-500/50 transition-colors cursor-pointer">
+                    <GlassCard className="hover:border-[var(--accent)]/50 transition-colors cursor-pointer">
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="text-[var(--text-primary)] font-medium text-lg">{s.name}</p>
@@ -304,7 +304,7 @@ export default function SourcingPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      a.status === 'active' ? 'bg-indigo-50 text-indigo-600 dark:text-indigo-300' : 'bg-[var(--bg-muted)] text-[var(--text-muted)]'
+                      a.status === 'active' ? 'bg-[var(--accent)]/10 text-[var(--accent)]' : 'bg-[var(--bg-muted)] text-[var(--text-muted)]'
                     }`}>{a.status === 'active' ? t('sourcing.active') : t('sourcing.triggered')}</span>
                     <button onClick={() => handleDeleteAlert(a.id)}
                       className="p-1.5 hover:bg-rose-500/10 rounded-lg text-[var(--text-muted)] hover:text-rose-500 transition-colors">

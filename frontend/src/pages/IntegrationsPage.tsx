@@ -141,7 +141,7 @@ export default function IntegrationsPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            <PlugZap className="text-indigo-600 dark:text-indigo-300" size={24} />
+            <PlugZap className="text-[var(--accent)]" size={24} />
             {t('integrations.title')}
           </h2>
           <p className="text-[var(--text-muted)] mt-1 text-sm">
@@ -167,7 +167,7 @@ export default function IntegrationsPage() {
               value={newMP}
               onChange={(event) => setNewMP(event.target.value)}
               disabled={selectableMarketplaces.length === 0}
-              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-500 disabled:opacity-50"
+              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--accent)] disabled:opacity-50"
             >
               {selectableMarketplaces.map((marketplace) => (
                 <option key={marketplace} value={marketplace}>{marketplace}</option>
@@ -182,7 +182,7 @@ export default function IntegrationsPage() {
                 value={newApiKey}
                 onChange={(event) => setNewApiKey(event.target.value)}
                 placeholder={t('integrations.api_key_placeholder')}
-                className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:border-[var(--accent)]"
               />
             </div>
           </div>

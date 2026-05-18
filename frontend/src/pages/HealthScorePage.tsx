@@ -63,7 +63,7 @@ export default function HealthScorePage() {
 
   const gradeConfig: Record<string, { text: string; bg: string; ring: string }> = {
     A: { text: 'text-emerald-500', bg: 'from-emerald-500/30 to-emerald-600/10', ring: '#10b981' },
-    B: { text: 'text-indigo-600 dark:text-indigo-300', bg: 'from-indigo-500/30 to-indigo-600/10', ring: '#6366f1' },
+    B: { text: 'text-[var(--accent)]', bg: 'from-[var(--accent)]/25 to-[var(--accent)]/5', ring: '#6b6266' },
     C: { text: 'text-amber-500', bg: 'from-amber-500/30 to-amber-600/10', ring: '#f59e0b' },
     D: { text: 'text-rose-500', bg: 'from-rose-500/30 to-rose-600/10', ring: '#ef4444' },
   };
@@ -125,7 +125,7 @@ export default function HealthScorePage() {
           <div className="space-y-3">
             {(breakdown.breakdown || []).map((item) => {
               const pct = item.percentage;
-              const barColor = pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-indigo-500' : pct >= 30 ? 'bg-amber-500' : 'bg-rose-500';
+              const barColor = pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-[var(--accent-solid)]' : pct >= 30 ? 'bg-amber-500' : 'bg-rose-500';
               return (
                 <div key={item.category}>
                   <div className="flex items-center justify-between mb-1">
@@ -154,7 +154,7 @@ export default function HealthScorePage() {
               <Tooltip contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: 8 }}
                 labelStyle={{ color: chart.tooltipText }} itemStyle={{ color: chart.tooltipText }}
                 formatter={(value) => `${value}/100`} />
-              <Line type="monotone" dataKey="score" stroke="#6366f1" strokeWidth={2} dot={{ fill: '#6366f1', r: 4 }} />
+              <Line type="monotone" dataKey="score" stroke="#6b6266" strokeWidth={2} dot={{ fill: '#6b6266', r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </GlassCard>
@@ -163,7 +163,7 @@ export default function HealthScorePage() {
       {/* AI Analiz */}
       <GlassCard>
         <div className="flex flex-wrap items-center gap-3 mb-4">
-          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-indigo-600 dark:text-indigo-300" /> {t('health.ai_title')}</h3>
+          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-[var(--accent)]" /> {t('health.ai_title')}</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading}
             className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> {t('common.analyzing')}</> : <><Brain size={14} /> {t('common.analyze')}</>}

@@ -148,7 +148,7 @@ export default function CompetitorsPage() {
             setSelectedProduct(e.target.value);
             setSearchParams(new URLSearchParams({ id: e.target.value }));
           }}
-            className="bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+            className="bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent)]">
             {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
           {competitors && <span className="text-[var(--text-muted)] text-sm">{competitors.total} {t('competitors.found')}</span>}
@@ -224,7 +224,7 @@ export default function CompetitorsPage() {
                       <Tooltip formatter={(value) => formatCurrency(Number(value))}
                         contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: 8 }}
                         labelStyle={{ color: chart.tooltipText }} itemStyle={{ color: chart.tooltipText }} />
-                      <Bar dataKey="price" fill="#6366f1" radius={4} />
+                      <Bar dataKey="price" fill="#6b6266" radius={4} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -271,7 +271,7 @@ export default function CompetitorsPage() {
 
       <GlassCard>
         <div className="flex flex-wrap items-center gap-3 mb-4">
-          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-indigo-600 dark:text-indigo-300" /> {t('competitors.ai_analysis')}</h3>
+          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-[var(--accent)]" /> {t('competitors.ai_analysis')}</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading || !selectedProduct}
             className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> {t('common.analyzing')}</> : <><Brain size={14} /> {t('competitors.detailed_analysis')}</>}

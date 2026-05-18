@@ -97,14 +97,14 @@ export default function ListingOptimizerPage() {
           <div className="flex items-center gap-2">
             <label className="text-[var(--text-muted)] text-sm">{t('products.col_product')}:</label>
             <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)}
-              className="bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+              className="bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent)]">
               {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div className="flex items-center gap-2">
             <label className="text-[var(--text-muted)] text-sm">{t('common.marketplace')}:</label>
             <select value={targetMP} onChange={e => setTargetMP(e.target.value)}
-              className="bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+              className="bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent)]">
               {MARKETPLACES.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
@@ -217,7 +217,7 @@ export default function ListingOptimizerPage() {
                     <h3 className="text-[var(--text-primary)] font-semibold mb-3">🔑 {t('listing.keywords')}</h3>
                     <div className="flex flex-wrap gap-2">
                       {optimizeResult.keywords.map((kw: string, i: number) => (
-                        <span key={`kw-${i}-${kw}`} className="px-3 py-1 bg-indigo-50 border border-indigo-500/30 rounded-full text-indigo-600 dark:text-indigo-300 text-sm">{kw}</span>
+                        <span key={`kw-${i}-${kw}`} className="px-3 py-1 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-full text-[var(--accent)] text-sm">{kw}</span>
                       ))}
                     </div>
                   </GlassCard>
@@ -262,14 +262,14 @@ export default function ListingOptimizerPage() {
                     <h3 className="text-[var(--text-primary)] font-semibold mb-3 capitalize">{group.replace('_', ' ')}</h3>
                     <div className="flex flex-wrap gap-2">
                       {(kws as string[]).map((kw: string) => (
-                        <span key={`${group}-${kw}`} className="px-3 py-1 bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-full text-[var(--text-secondary)] text-sm hover:border-indigo-500/50 transition-colors">{kw}</span>
+                        <span key={`${group}-${kw}`} className="px-3 py-1 bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-full text-[var(--text-secondary)] text-sm hover:border-[var(--accent)]/50 transition-colors">{kw}</span>
                       ))}
                     </div>
                   </GlassCard>
                 ) : null)}
                 {kbData?.strategy_note && (
-                  <GlassCard className="border border-indigo-100 dark:border-indigo-400/15">
-                    <h3 className="text-indigo-600 dark:text-indigo-300 font-semibold mb-2 flex items-center gap-2"><Brain size={14} /> {t('listing.strategy_note')}</h3>
+                  <GlassCard className="border border-[var(--border-color)]">
+                    <h3 className="text-[var(--accent)] font-semibold mb-2 flex items-center gap-2"><Brain size={14} /> {t('listing.strategy_note')}</h3>
                     <p className="text-[var(--text-secondary)] text-sm">{String(kbData.strategy_note)}</p>
                   </GlassCard>
                 )}

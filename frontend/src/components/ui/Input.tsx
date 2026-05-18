@@ -32,7 +32,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           ref={ref}
           id={id}
           className={`w-full bg-[var(--bg-elevated)] border ${
-            error ? 'border-rose-500/50' : 'border-[var(--border-strong)] focus:border-indigo-500/60'
+            error ? 'border-rose-500/50' : 'border-[var(--border-strong)] focus:border-[var(--accent)]'
           } rounded-xl px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition-colors ${
             leftIcon ? 'pl-10' : ''
           } ${rightAddon ? 'pr-12' : ''} ${className}`}

@@ -75,17 +75,17 @@ export default function FinanceGuidePage() {
       {/* Satıcı Profili */}
       {profile && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <GlassCard className="bg-gradient-to-br from-indigo-500/20 to-indigo-600/10">
+          <GlassCard className="bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent)]/5">
             <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider">{t('finance.score')}</p>
-            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-300 mt-1">{profile.eligibility_score ?? '—'}</p>
+            <p className="text-3xl font-bold text-[var(--accent)] mt-1">{profile.eligibility_score ?? '—'}</p>
           </GlassCard>
           <GlassCard className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10">
             <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider">{t('financials.cf_monthly_revenue')}</p>
             <p className="text-2xl font-bold text-emerald-500 mt-1">{formatCurrency(profile.monthly_revenue)}</p>
           </GlassCard>
-          <GlassCard className="bg-gradient-to-br from-violet-500/20 to-violet-600/10">
+          <GlassCard className="bg-gradient-to-br from-[var(--accent)]/15 to-[var(--accent)]/5">
             <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider">{t('financials.cf_monthly_profit')}</p>
-            <p className="text-2xl font-bold text-violet-500 mt-1">{formatCurrency(profile.monthly_net_profit)}</p>
+            <p className="text-2xl font-bold text-[var(--accent)] mt-1">{formatCurrency(profile.monthly_net_profit)}</p>
           </GlassCard>
           <GlassCard className="bg-gradient-to-br from-amber-500/20 to-amber-600/10">
             <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider">{t('financials.net_margin')}</p>
@@ -114,9 +114,9 @@ export default function FinanceGuidePage() {
           <h3 className="text-[var(--text-primary)] font-semibold mb-3">{t('finance.options_title')}</h3>
           <div className="grid md:grid-cols-2 gap-4">
             {allOptions.map((opt, i) => (
-              <GlassCard key={`${opt.name}-${opt.provider}-${i}`} className={`relative transition-all ${opt.is_recommended ? 'border-2 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : (opt.eligible ? 'border border-emerald-500/30' : 'opacity-70')}`}>
+              <GlassCard key={`${opt.name}-${opt.provider}-${i}`} className={`relative transition-all ${opt.is_recommended ? 'border-2 border-[var(--accent-solid)] shadow-[0_0_15px_rgba(74,63,68,0.15)]' : (opt.eligible ? 'border border-emerald-500/30' : 'opacity-70')}`}>
                 {opt.is_recommended && (
-                  <div className="absolute -top-3 -right-3 bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+                  <div className="absolute -top-3 -right-3 bg-[var(--accent-solid)] text-[var(--accent-fg)] text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
                     <Lightbulb size={12} /> {t('finance.recommended')}
                   </div>
                 )}
@@ -153,8 +153,8 @@ export default function FinanceGuidePage() {
                 )}
                 {/* Recommendation Reason */}
                 {opt.is_recommended && opt.recommendation_reason && (
-                  <div className="mt-3 p-3 bg-indigo-50 rounded-lg border border-indigo-100 dark:border-indigo-400/15">
-                    <p className="text-indigo-600 dark:text-indigo-300 text-xs flex items-start gap-1">
+                  <div className="mt-3 p-3 bg-[var(--accent)]/10 rounded-lg border border-[var(--border-color)]">
+                    <p className="text-[var(--accent)] text-xs flex items-start gap-1">
                       <Lightbulb size={14} className="mt-0.5 flex-shrink-0" />
                       {opt.recommendation_reason}
                     </p>
@@ -182,7 +182,7 @@ export default function FinanceGuidePage() {
       {/* AI Analiz */}
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2"><Brain size={16} className="text-indigo-600 dark:text-indigo-300" /> {t('finance.ai_title')}</h3>
+          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2"><Brain size={16} className="text-[var(--accent)]" /> {t('finance.ai_title')}</h3>
           <button onClick={handleAi} disabled={aiLoading}
             className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> {t('common.analyzing')}</> : <><Brain size={14} /> {t('common.analyze')}</>}
