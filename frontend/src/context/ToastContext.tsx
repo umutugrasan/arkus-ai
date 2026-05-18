@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useState, type ReactNode, type ReactElement } from 'react';
 import { CheckCircle2, AlertCircle, Info, AlertTriangle, X } from 'lucide-react';
 
 export type ToastKind = 'success' | 'error' | 'info' | 'warning';
@@ -57,7 +57,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
-const kindConfig: Record<ToastKind, { border: string; icon: JSX.Element }> = {
+const kindConfig: Record<ToastKind, { border: string; icon: ReactElement }> = {
   success: {
     border: 'border-l-emerald-500',
     icon: <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />,
