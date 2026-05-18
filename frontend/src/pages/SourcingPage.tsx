@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Bell, Trash2, Brain, Loader2 } from 'lucide-react';
+import type { Supplier as SupplierType } from '../types/api';
 import GlassCard from '../components/shared/GlassCard';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import EmptyState from '../components/shared/EmptyState';
@@ -9,7 +10,7 @@ import { formatCurrency } from '../utils/formatters';
 import { useI18n } from '../context/I18nContext';
 import type {
   SuppliersResponse, BestPriceResponse, SourcingOpportunitiesResponse,
-  PriceAlertsResponse, Supplier, PriceAlert, RealSearchResponse,
+  PriceAlertsResponse, PriceAlert, RealSearchResponse,
 } from '../types/api';
 
 type Tab = 'suppliers' | 'search' | 'alerts' | 'opportunities';
@@ -17,6 +18,30 @@ type Tab = 'suppliers' | 'search' | 'alerts' | 'opportunities';
 function getApiErrorMessage(error: unknown, fallback: string) {
   const detail = (error as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
   return typeof detail === 'string' ? detail : fallback;
+}
+
+function SourceBadge({ source }: { source?: string }) {
+  if (source === 'toptanbul') return (
+    <span className="text-xs px-2 py-0.5 bg-emerald-500/15 text-emerald-500 rounded-full border border-emerald-500/30 font-medium">
+      Trendyol
+    </span>
+  );
+  if (source === 'aliexpress') return (
+    <span className="text-xs px-2 py-0.5 bg-orange-500/15 text-orange-400 rounded-full border border-orange-500/30 font-medium">
+      AliExpress
+    </span>
+  );
+  if (source === 'web' || source === 'gemini') return (
+    <span className="text-xs px-2 py-0.5 bg-blue-500/15 text-blue-400 rounded-full border border-blue-500/30 font-medium">
+      Web Araştırması
+    </span>
+  );
+  if (!source || source === 'db') return null;
+  return (
+    <span className="text-xs px-2 py-0.5 bg-[var(--accent)]/10 text-[var(--accent)] rounded-full border border-[var(--accent)]/30 font-medium">
+      AI Tahmini
+    </span>
+  );
 }
 
 export default function SourcingPage() {
@@ -33,6 +58,7 @@ export default function SourcingPage() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [oppLoading, setOppLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [priceView, setPriceView] = useState<'sale' | 'wholesale'>('sale');
 
   // Alert form
   const [alertProduct, setAlertProduct] = useState('');
@@ -75,7 +101,11 @@ export default function SourcingPage() {
         sourcingService.bestPrice(searchQuery),
         sourcingService.realSearch(searchQuery),
       ]);
-      if (bestPriceResult.status === 'fulfilled') setBestPrice(bestPriceResult.value);
+      if (bestPriceResult.status === 'fulfilled') {
+        setBestPrice(bestPriceResult.value);
+        const all = bestPriceResult.value.all_suppliers || [];
+        setPriceView(all.some((s) => s.source === 'toptanbul') ? 'sale' : 'wholesale');
+      }
       if (realSearchResult.status === 'fulfilled') setRealSearch(realSearchResult.value);
 
       const bestFailed = bestPriceResult.status === 'rejected';
@@ -131,7 +161,7 @@ export default function SourcingPage() {
 
   if (loading) return <LoadingSpinner message={t('sourcing.loading')} size="lg" />;
 
-  const supplierList: Supplier[] = suppliers?.suppliers || [];
+  const supplierList: SupplierType[] = suppliers?.suppliers || [];
   const alertList: PriceAlert[] = alerts?.alerts || [];
 
   return (
@@ -226,40 +256,130 @@ export default function SourcingPage() {
             </div>
           )}
 
-          {bestPrice && (
-            <div className="space-y-3">
-              {([...bestPrice.all_suppliers || []].sort((a, b) => a.discounted_price - b.discounted_price)).map((s: Supplier) => {
-                // Saticinin adina gore yonlendirilecek temsili URL (Alibaba/AliExpress aramasi)
-                const isValidUrl = s.url && (s.url.startsWith('http://') || s.url.startsWith('https://'));
-                const searchDomain = s.name.toLowerCase().includes('alibaba') ? 'alibaba.com/trade/search?SearchText=' :
-                                     s.name.toLowerCase().includes('aliexpress') ? 'aliexpress.com/w/wholesale-' :
-                                     'google.com/search?q=buy+wholesale+';
-                const href = isValidUrl ? s.url! : `https://www.${searchDomain}${encodeURIComponent(s.product + ' ' + s.name)}`;
+          {bestPrice && (() => {
+            const all: SupplierType[] = bestPrice.all_suppliers || [];
+            const saleItems = all
+              .filter((s) => s.source === 'toptanbul')
+              .sort((a, b) => a.current_price - b.current_price);
+            const wholesaleItems = all
+              .filter((s) => s.source !== 'toptanbul')
+              .sort((a, b) => a.discounted_price - b.discounted_price);
 
-                return (
-                  <a key={s.id ?? `${s.name}-${s.discounted_price}`} href={href} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:scale-[1.01]">
-                    <GlassCard className="hover:border-[var(--accent)]/50 transition-colors cursor-pointer">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-[var(--text-primary)] font-medium text-lg">{s.name}</p>
-                          <div className="flex gap-3 mt-1 text-xs text-[var(--text-muted)]">
-                            <span>{t('sourcing.min_short').replace('{n}', String(s.min_order))}</span>
-                            <span>{t('sourcing.delivery_short').replace('{n}', String(s.shipping_days))}</span>
-                          </div>
+            const avgSale = saleItems.length
+              ? saleItems.reduce((sum, i) => sum + i.current_price, 0) / saleItems.length
+              : 0;
+            const minWholesale = wholesaleItems.length
+              ? Math.min(...wholesaleItems.map((i) => i.discounted_price))
+              : 0;
+            const profit = avgSale > 0 && minWholesale > 0 ? avgSale - minWholesale : 0;
+            const marginPct = avgSale > 0 ? Math.round((profit / avgSale) * 100) : 0;
+
+            const shown = priceView === 'sale' ? saleItems : wholesaleItems;
+
+            const renderCard = (s: SupplierType) => {
+              const isValidUrl = s.url && (s.url.startsWith('http://') || s.url.startsWith('https://'));
+              const searchDomain = s.name.toLowerCase().includes('alibaba') ? 'alibaba.com/trade/search?SearchText=' :
+                                   s.name.toLowerCase().includes('aliexpress') ? 'aliexpress.com/w/wholesale-' :
+                                   'google.com/search?q=buy+wholesale+';
+              const href = isValidUrl ? s.url! : `https://www.${searchDomain}${encodeURIComponent(s.product + ' ' + s.name)}`;
+
+              return (
+                <a key={s.id ?? `${s.name}-${s.discounted_price}`} href={href} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:scale-[1.01]">
+                  <GlassCard className="hover:border-[var(--accent)]/50 transition-colors cursor-pointer">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 min-w-0 mr-4">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-[var(--text-primary)] font-medium text-lg leading-tight">{s.name}</p>
+                          <SourceBadge source={s.source} />
                         </div>
-                        <div className="text-right">
-                          <p className="text-[var(--text-primary)] font-bold text-xl">{formatCurrency(s.current_price)}</p>
-                          {s.discount_pct > 0 && (
-                            <p className="text-emerald-500 text-sm mt-0.5">{t('sourcing.savings').replace('{pct}', String(s.discount_pct))}</p>
-                          )}
+                        <div className="flex gap-3 mt-1 text-xs text-[var(--text-muted)]">
+                          <span>{t('sourcing.min_short').replace('{n}', String(s.min_order))}</span>
+                          <span>{t('sourcing.delivery_short').replace('{n}', String(s.shipping_days))}</span>
                         </div>
                       </div>
-                    </GlassCard>
-                  </a>
-                );
-              })}
-            </div>
-          )}
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-[var(--text-primary)] font-bold text-xl">{formatCurrency(s.current_price)}</p>
+                        {s.price_usd && s.price_usd > 0 && (
+                          <p className="text-[var(--text-muted)] text-xs mt-0.5">≈ ${s.price_usd.toFixed(2)}</p>
+                        )}
+                        {s.discount_pct > 0 && (
+                          <p className="text-emerald-500 text-sm mt-0.5">{t('sourcing.savings').replace('{pct}', String(s.discount_pct))}</p>
+                        )}
+                      </div>
+                    </div>
+                  </GlassCard>
+                </a>
+              );
+            };
+
+            return (
+              <div className="space-y-4">
+                {/* Kâr Marjı Analizi */}
+                {saleItems.length > 0 && wholesaleItems.length > 0 && (
+                  <GlassCard>
+                    <p className="text-[var(--text-primary)] font-semibold mb-3">Kâr Marjı Analizi</p>
+                    <div className="grid grid-cols-3 gap-3 text-center">
+                      <div>
+                        <p className="text-xs text-[var(--text-muted)] mb-1">Ort. Satış Fiyatı</p>
+                        <p className="text-lg sm:text-xl font-bold text-emerald-500">{formatCurrency(avgSale)}</p>
+                        <p className="text-[10px] text-[var(--text-muted)] mt-0.5">Trendyol</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-[var(--text-muted)] mb-1">En Ucuz Toptan</p>
+                        <p className="text-lg sm:text-xl font-bold text-blue-400">{formatCurrency(minWholesale)}</p>
+                        <p className="text-[10px] text-[var(--text-muted)] mt-0.5">Toptancı</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-[var(--text-muted)] mb-1">Tahmini Kâr / Adet</p>
+                        <p className="text-lg sm:text-xl font-bold text-[var(--accent)]">{formatCurrency(profit)}</p>
+                        <p className="text-[10px] text-[var(--text-muted)] mt-0.5">%{marginPct} marj</p>
+                      </div>
+                    </div>
+                  </GlassCard>
+                )}
+
+                {/* Satış / Toptancı geçiş butonları */}
+                <div className="flex gap-1.5 bg-[var(--bg-elevated)] p-1 rounded-xl">
+                  <button onClick={() => setPriceView('sale')}
+                    className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                      priceView === 'sale'
+                        ? 'bg-emerald-500/15 text-emerald-500'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                    }`}>
+                    Satış Fiyatı ({saleItems.length})
+                  </button>
+                  <button onClick={() => setPriceView('wholesale')}
+                    className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                      priceView === 'wholesale'
+                        ? 'bg-blue-500/15 text-blue-400'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                    }`}>
+                    Toptancı Fiyatları ({wholesaleItems.length})
+                  </button>
+                </div>
+
+                {/* Seçili görünüm açıklaması */}
+                <p className="text-xs text-[var(--text-muted)] px-1">
+                  {priceView === 'sale'
+                    ? 'Trendyol’da bu ürünün güncel perakende satış fiyatları — pazardaki satış fiyatı referansı.'
+                    : 'Alibaba / DHgate / 1688 toptancılarından bulunan B2B fiyatlar — minimum 50 adet alımda geçerli.'}
+                </p>
+
+                {/* Liste */}
+                {shown.length === 0 ? (
+                  <div className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-muted)] p-6 rounded-xl text-center text-sm">
+                    {priceView === 'sale'
+                      ? 'Trendyol’da satış fiyatı bulunamadı.'
+                      : 'Toptancı fiyatı bulunamadı.'}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {shown.map(renderCard)}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {realSearch && (
             <StreamingMarkdown

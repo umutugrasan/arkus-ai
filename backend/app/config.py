@@ -78,6 +78,11 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.5-flash"
 
+    # --- AliExpress Affiliate API ---
+    # Kayıt: https://portals.aliexpress.com/ → Publisher → Tools → API Access
+    ALIEXPRESS_APP_KEY: str = ""
+    ALIEXPRESS_APP_SECRET: str = ""
+
     # --- Rate limit ---
     RATE_LIMIT_AI_PER_MIN: str = "10/minute"
     RATE_LIMIT_DEFAULT_PER_MIN: str = "60/minute"

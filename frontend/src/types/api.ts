@@ -543,6 +543,9 @@ export interface Supplier {
   has_discount: boolean;
   last_checked_at: string | null;
   url?: string;
+  source?: 'toptanbul' | 'aliexpress' | 'db' | string;
+  price_usd?: number;
+  currency?: string;
 }
 
 export interface SuppliersResponse {

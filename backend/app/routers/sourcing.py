@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+import asyncio
 import json
 import re
 import logging
@@ -11,6 +12,7 @@ from app.db.models import Supplier, PriceAlert, Financial
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_overall_metrics, calculate_marketplace_metrics
 from app.services.gemini_service import ask_gemini, ask_gemini_with_search
+from app.services.scrapers import search_wholesale
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +38,35 @@ def _supplier_to_dict(s: Supplier) -> dict:
         "discounted_price": discounted,
         "has_discount": discount > 0,
         "last_checked_at": s.last_checked_at,
+        "source": "db",
     }
 
 
 def _normalize_search_text(value: str) -> str:
     table = str.maketrans("çğıöşüÇĞİÖŞÜ", "cgiosuCGIOSU")
     return (value or "").translate(table).lower()
+
+
+def _upsert_supplier(db, item: dict, product_name: str) -> None:
+    name = item.get("name", "")
+    product = item.get("product") or product_name
+    existing = db.query(Supplier).filter(Supplier.name == name, Supplier.product == product).first()
+    if existing:
+        existing.current_price = item.get("current_price", existing.current_price)
+        existing.min_order = item.get("min_order", existing.min_order)
+        existing.shipping_days = item.get("shipping_days", existing.shipping_days)
+        existing.discount_pct = item.get("discount_pct", 0)
+        existing.last_checked_at = _now()
+    else:
+        db.add(Supplier(
+            name=name,
+            product=product,
+            current_price=item.get("current_price", 0),
+            min_order=item.get("min_order", 50),
+            shipping_days=item.get("shipping_days", 14),
+            discount_pct=item.get("discount_pct", 0),
+            last_checked_at=_now(),
+        ))
 
 
 def _supplier_matches_product(supplier: Supplier, product_name: str) -> bool:
@@ -69,24 +94,19 @@ def list_suppliers(
     return {"total": len(suppliers), "suppliers": suppliers}
 
 
-@router.get("/best-price/{product_name}")
-async def best_price(product_name: str, user=Depends(get_current_user), db=Depends(get_db)):
-    rows = db.query(Supplier).filter(Supplier.product.ilike(f"%{product_name}%")).all()
-    if not rows:
-        rows = [s for s in db.query(Supplier).all() if _supplier_matches_product(s, product_name)]
-    
-    if rows:
-        suppliers = [_supplier_to_dict(s) for s in rows]
-    else:
-        # DB'de yoksa, Google Search (Gemini) uzerinden canli B2B toptanci fiyatlarini arastir
-        prompt = f"""Google Search grounding kullanarak "{product_name}" icin TOPTAN (B2B/wholesale) fiyatlari bul.
+async def _gemini_wholesale_search(product_name: str) -> list[dict]:
+    """
+    Gemini Google Search grounding ile Alibaba/AliExpress/DHgate/1688'den
+    TOPTAN (B2B) fiyat arar. Sonuçları 'web' kaynaklı supplier dict listesi döner.
+    """
+    prompt = f"""Google Search grounding kullanarak "{product_name}" icin TOPTAN (B2B/wholesale) fiyatlari bul.
 
 ARANACAK KAYNAKLAR (oncelik sirasi):
 1. alibaba.com - fabrika ve ihracatci fiyatlari
 2. 1688.com - Cin icindeki en dusuk toptan fiyatlar (Turkce veya Ingilizce ara)
 3. dhgate.com - toptan B2B
 4. aliexpress.com/wholesale - sadece toptan listelemeleri
-5. Turkiye icindeki toptancilar: toptanbul.com, sahibinden.com/ilan/toptan, n11.com/toptan, hepsiburadabusiness.com
+5. Turkiye icindeki toptancilar: sahibinden.com toptan ilanlari, n11.com toptan
 
 KESIN KURAL - MIN SIPARIS ADEDI:
 - SADECE minimum siparis adedi (MOQ) 50 adet VEYA USTU olan listeleri al.
@@ -95,128 +115,224 @@ KESIN KURAL - MIN SIPARIS ADEDI:
 
 DIGER KURALLAR:
 - Asla hayali fiyat uydurma. Sadece gercekten gordugun fiyatlari yaz.
-- Birim fiyat TL veya USD olabilir; USD ise bunu belirt (name alanina "(USD)" ekle).
+- Birim fiyati TL'ye cevir; orijinali USD ise yaklasik TL karsiligini yaz.
 - Gercek satin alma linkini (url) mutlaka ekle.
 - "current_price" SADECE sayi olmali (ornek: 143.75).
 
 Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JSON:
 [
   {{"name": "Alibaba - Factory Direct", "current_price": 45.0, "discount_pct": 0, "min_order": 100, "shipping_days": 20, "product": "{product_name}", "url": "https://alibaba.com/..."}},
-  {{"name": "Toptanbul - Toptanci X", "current_price": 55.0, "discount_pct": 5, "min_order": 50, "shipping_days": 3, "product": "{product_name}", "url": "https://toptanbul.com/..."}}
+  {{"name": "1688 - Tedarikci X", "current_price": 38.0, "discount_pct": 0, "min_order": 200, "shipping_days": 25, "product": "{product_name}", "url": "https://1688.com/..."}}
 ]"""
-        system = "Sen sadece JSON donduren bir B2B tedarik botusun. Hic metin aciklamasi yapma, sadece JSON dizisi dondur."
+    system = "Sen sadece JSON donduren bir B2B tedarik botusun. Hic metin aciklamasi yapma, sadece JSON dizisi dondur."
 
-        # ── 1. Deneme: Google Search grounding ile ──
-        raw_text = ""
+    # ── 1. Google Search grounding ile dene ──
+    raw_text = ""
+    try:
+        result = await ask_gemini_with_search(prompt, system)
+        raw_text = (result.get("text") or "").strip()
+        if raw_text.startswith("⚠"):  # mock fallback geldi
+            raw_text = ""
+    except Exception as e_search:
+        logger.warning(f"ask_gemini_with_search basarisiz ({type(e_search).__name__})")
+
+    # ── 2. Search grounding basarisizsa search'suz dene ──
+    if not raw_text:
         try:
-            result = await ask_gemini_with_search(prompt, system)
-            raw_text = (result.get("text") or "").strip()
-            if raw_text.startswith("\u26a0"):  # ⚠️ mock fallback geldi
+            raw_text = await ask_gemini(prompt, system, endpoint="sourcing_best_price")
+            raw_text = (raw_text or "").strip()
+            if raw_text.startswith("⚠"):
                 raw_text = ""
-        except Exception as e_search:
-            logger.warning(f"ask_gemini_with_search basarisiz ({type(e_search).__name__}), search'suz deneniyor...")
+        except Exception as e_plain:
+            logger.error(f"ask_gemini da basarisiz: {type(e_plain).__name__}: {e_plain}")
+            return []
 
-        # ── 2. Fallback: Search grounding basarisizsa search'suz dene ──
-        if not raw_text:
-            try:
-                logger.info("Sourcing: search grounding yok, ask_gemini ile fallback...")
-                raw_text = await ask_gemini(prompt, system, endpoint="sourcing_best_price")
-                raw_text = (raw_text or "").strip()
-                if raw_text.startswith("\u26a0"):
-                    raw_text = ""
-            except Exception as e_plain:
-                logger.error(f"ask_gemini da basarisiz: {type(e_plain).__name__}: {e_plain}")
-                raw_text = ""
+    if not raw_text:
+        return []
 
-        # ── 3. JSON ayikla ve parse et ──
+    # ── 3. JSON ayikla ve parse et ──
+    try:
+        if "```json" in raw_text:
+            raw_text = raw_text.split("```json", 1)[1]
+        if "```" in raw_text:
+            raw_text = raw_text.rsplit("```", 1)[0]
+        raw_text = raw_text.strip()
+        m = re.search(r'\[.*\]', raw_text, re.DOTALL)
+        if m:
+            raw_text = m.group(0)
+        ai_data = json.loads(raw_text)
+    except Exception as e:
+        logger.error(f"Sourcing JSON parse hatasi: {e} | raw: {raw_text[:200]}")
+        return []
+
+    def _clean_price(val) -> float:
+        s = re.sub(r'[^\d\.,]', '', str(val))
+        if not s:
+            return 0.0
+        if '.' in s and ',' in s:
+            if s.rfind('.') > s.rfind(','):
+                s = s.replace(',', '')
+            else:
+                s = s.replace('.', '').replace(',', '.')
+        elif ',' in s:
+            s = s.replace(',', '.')
         try:
-            if not raw_text:
-                raise ValueError("Gemini bos yanit dondu.")
+            return float(s)
+        except ValueError:
+            return 0.0
 
-            # markdown fence temizle
-            if "```json" in raw_text:
-                raw_text = raw_text.split("```json", 1)[1]
-            if "```" in raw_text:
-                raw_text = raw_text.rsplit("```", 1)[0]
-            raw_text = raw_text.strip()
+    def _pick(item: dict, *keys):
+        # Gemini bazen Turkce/farkli anahtar isimleri kullaniyor — hepsini dene
+        for k in keys:
+            v = item.get(k)
+            if v not in (None, "", []):
+                return v
+        return None
 
-            # Sadece JSON dizi kismini cek
-            m = re.search(r'\[.*\]', raw_text, re.DOTALL)
-            if m:
-                raw_text = m.group(0)
+    def _to_int(val, default: int) -> int:
+        if val is None:
+            return default
+        m = re.search(r'\d+', str(val))
+        return int(m.group(0)) if m else default
 
-            ai_data = json.loads(raw_text)
-            suppliers = []
-            for idx, item in enumerate(ai_data):
-                # Price Parsing Algorithm Fix
-                def clean_price(val):
-                    s = re.sub(r'[^\d\.,]', '', str(val))
-                    if not s: return 0.0
-                    if '.' in s and ',' in s:
-                        if s.rfind('.') > s.rfind(','):
-                            s = s.replace(',', '')
-                        else:
-                            s = s.replace('.', '').replace(',', '.')
-                    elif ',' in s:
-                        s = s.replace(',', '.')
-                    return float(s)
+    suppliers: list[dict] = []
+    for idx, item in enumerate(ai_data):
+        if not isinstance(item, dict):
+            continue
+        try:
+            cp = _clean_price(_pick(
+                item, "current_price", "fiyat", "birim_fiyat", "birim_fiyati",
+                "toptan_fiyat", "toptan_fiyati", "price", "unit_price",
+            ))
+            if cp <= 0:
+                continue
+            cp = round(cp, 2)
 
-                try:
-                    cp = clean_price(raw_price)
-                    if cp <= 0: continue
-                except Exception:
-                    continue
+            dpct = _to_int(_pick(item, "discount_pct", "indirim", "indirim_yuzdesi"), 0)
+            min_order = _to_int(_pick(
+                item, "min_order", "moq", "minimum_siparis", "min_siparis",
+                "minimum_order", "min_siparis_adedi",
+            ), 50)
+            shipping_days = _to_int(_pick(
+                item, "shipping_days", "kargo_gun", "teslimat_gun", "kargo", "teslimat",
+            ), 18)
+            if min_order < 10:
+                continue
 
-                dpct = int(item.get("discount_pct") or 0)
-                min_order = int(item.get("min_order") or 10)
-                shipping_days = int(item.get("shipping_days") or 14)
+            sup_name = _pick(
+                item, "name", "tedarikci", "tedarikci_adi", "firma", "firma_adi",
+                "site", "satici", "kaynak",
+            ) or "Web Tedarikci"
 
-                if min_order < 10:
-                    continue
+            # Ürün adı: product yoksa marka + model birleştir
+            prod_title = _pick(item, "product", "urun", "urun_adi", "ürün_adı", "urun_ismi", "ürün")
+            if not prod_title:
+                marka = _pick(item, "marka", "brand")
+                model = _pick(item, "model")
+                prod_title = " ".join(str(x) for x in (marka, model) if x) or product_name
 
-                # URL Validation and Fallback Algorithm
-                raw_url = str(item.get("url") or "").strip()
-                sup_name = item.get("name") or "Web Supplier"
-                prod_title = item.get("product") or product_name
-                
-                valid_url = raw_url if (raw_url.startswith("http://") or raw_url.startswith("https://")) else ""
-                if not valid_url or len(valid_url) < 10:
-                    fallback_query = urllib.parse.quote_plus(f"{sup_name} {prod_title} b2b buy")
-                    valid_url = f"https://www.google.com/search?q={fallback_query}"
+            raw_url = str(_pick(item, "url", "link", "kaynak_url", "kaynak_link") or "").strip()
+            valid_url = raw_url if raw_url.startswith(("http://", "https://")) else ""
+            if not valid_url or len(valid_url) < 10:
+                fallback_query = urllib.parse.quote_plus(f"{sup_name} {prod_title} b2b toptan")
+                valid_url = f"https://www.google.com/search?q={fallback_query}"
 
-                suppliers.append({
-                    "id": 9000 + idx,
-                    "name": sup_name,
-                    "product": prod_title,
-                    "current_price": cp,
-                    "min_order": min_order,
-                    "shipping_days": shipping_days,
-                    "discount_pct": dpct,
-                    "discounted_price": round(cp * (1 - dpct / 100.0), 2),
-                    "has_discount": dpct > 0,
-                    "last_checked_at": _now(),
-                    "url": valid_url,
-                })
-        except Exception as e:
-            logger.error(f"Sourcing JSON parse hatasi: {e} | raw: {raw_text[:300]}")
+            suppliers.append({
+                "id": 9000 + idx,
+                "name": str(sup_name)[:100],
+                "product": str(prod_title)[:120],
+                "current_price": cp,
+                "min_order": min_order,
+                "shipping_days": shipping_days,
+                "discount_pct": dpct,
+                "discounted_price": round(cp * (1 - dpct / 100.0), 2),
+                "has_discount": dpct > 0,
+                "last_checked_at": _now(),
+                "url": valid_url,
+                "source": "web",
+            })
+        except Exception:
+            continue
+    return suppliers
+
+
+@router.get("/best-price/{product_name}")
+async def best_price(product_name: str, user=Depends(get_current_user), db=Depends(get_db)):
+    # ── Trendyol scraping + Gemini toptan araması PARALEL çalışır ──
+    scraped, gemini_results = await asyncio.gather(
+        search_wholesale(product_name),
+        _gemini_wholesale_search(product_name),
+        return_exceptions=True,
+    )
+    if isinstance(scraped, BaseException):
+        logger.warning(f"Scraping başarısız: {type(scraped).__name__}: {scraped}")
+        scraped = []
+    if isinstance(gemini_results, BaseException):
+        logger.warning(f"Gemini araması başarısız: {type(gemini_results).__name__}: {gemini_results}")
+        gemini_results = []
+
+    # Trendyol/scrape sonuçlarını DB'ye kaydet
+    for idx, item in enumerate(scraped):
+        item.setdefault("id", 9100 + idx)
+        item.setdefault("discounted_price", item.get("current_price", 0))
+        item.setdefault("has_discount", False)
+        _upsert_supplier(db, item, product_name)
+    if scraped:
+        db.commit()
+
+    suppliers = list(scraped) + list(gemini_results)
+    logger.info(
+        f"best_price({product_name!r}): {len(suppliers)} sonuç "
+        f"(trendyol={len(scraped)}, web={len(gemini_results)})"
+    )
+
+    # ── Her ikisi de boşsa DB önbelleğine bak ──
+    if not suppliers:
+        rows = db.query(Supplier).filter(Supplier.product.ilike(f"%{product_name}%")).all()
+        if not rows:
+            rows = [s for s in db.query(Supplier).all() if _supplier_matches_product(s, product_name)]
+        if rows:
             suppliers = [_supplier_to_dict(s) for s in rows]
 
     if not suppliers:
         raise HTTPException(status_code=404, detail="Bu urun icin tedarikci bulunamadi")
 
-    # Backend mantigi olarak cheapest best'tir; frontend de bu sirayi korur.
+    # En ucuz = en iyi tedarik kaynağı
     suppliers.sort(key=lambda x: x["discounted_price"])
 
     best = suppliers[0]
     avg_price = round(sum(s["discounted_price"] for s in suppliers) / len(suppliers), 2)
     savings_vs_avg = round(avg_price - best["discounted_price"], 2)
-    
+
     return {
         "product": product_name,
         "best_supplier": best,
         "avg_price": avg_price,
         "savings_vs_avg": savings_vs_avg,
         "all_suppliers": suppliers,
+    }
+
+
+@router.get("/scrape/{query}")
+async def direct_scrape(
+    query: str,
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """Toptanbul + AliExpress'i doğrudan scrape eder, DB'ye kaydeder."""
+    results = await search_wholesale(query)
+    if results:
+        for idx, item in enumerate(results):
+            item.setdefault("id", 9200 + idx)
+            item.setdefault("discounted_price", item.get("current_price", 0))
+            item.setdefault("has_discount", False)
+            _upsert_supplier(db, item, query)
+        db.commit()
+    return {
+        "query": query,
+        "count": len(results),
+        "results": results,
+        "source": "realtime_scrape" if results else "no_results",
     }
 
 
