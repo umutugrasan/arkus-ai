@@ -1,3 +1,4 @@
+import os
 import re
 import logging
 import httpx
@@ -5,6 +6,8 @@ from urllib.parse import quote
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
+
+_SCRAPER_API_KEY = os.getenv("SCRAPER_API_KEY", "")
 
 _HEADERS = {
     "User-Agent": (
@@ -28,7 +31,6 @@ def _parse_price(text: str) -> float:
     if not nums:
         return 0.0
     raw = nums[0]
-    # Turkish format: 1.234,56 → float
     if "," in raw and "." in raw:
         if raw.rfind(".") < raw.rfind(","):
             raw = raw.replace(".", "").replace(",", ".")
@@ -43,22 +45,43 @@ def _parse_price(text: str) -> float:
 
 
 def _extract_moq(text: str) -> int:
-    """'Min sipariş: 100 adet' gibi metinden MOQ çıkar."""
     m = re.search(r"(\d+)\s*(?:adet|pcs|piece|lot|units?)", text, re.IGNORECASE)
     return int(m.group(1)) if m else 50
 
 
+def _build_url(target_url: str) -> str:
+    """ScraperAPI key varsa ScraperAPI üzerinden, yoksa direkt URL döner."""
+    if _SCRAPER_API_KEY:
+        encoded = quote(target_url, safe="")
+        return (
+            f"https://api.scraperapi.com"
+            f"?api_key={_SCRAPER_API_KEY}"
+            f"&url={encoded}"
+            f"&render=true"          # JavaScript render — Trendyol için şart
+            f"&country_code=tr"      # Türkiye IP'si
+        )
+    return target_url
+
+
 async def search_toptanbul(query: str, max_results: int = 12) -> list[dict]:
     """
-    Toptanbul.com'da arama yapar. Gerçek HTML içeriği varsa parse eder,
-    JS-rendered veya engellenmişse boş liste döner (hata fırlatmaz).
+    Trendyol'dan perakende satış fiyatlarını çeker.
+    - Prodüksiyonda: ScraperAPI HTTP render API (CloudFlare bypass)
+    - Lokalde: Doğrudan httpx
     """
-    url = f"https://www.toptanbul.com/arama?q={quote(query)}"
+    target_url = f"https://www.trendyol.com/sr?q={quote(query)}"
+    fetch_url  = _build_url(target_url)
+
+    if _SCRAPER_API_KEY:
+        logger.info(f"Toptanbul: ScraperAPI render ile Trendyol ({query})")
+    else:
+        logger.info(f"Toptanbul: Direkt httpx ile Trendyol ({query})")
+
     try:
         async with httpx.AsyncClient(
-            timeout=15.0, follow_redirects=True, headers=_HEADERS
+            timeout=30.0, follow_redirects=True, headers=_HEADERS
         ) as client:
-            resp = await client.get(url)
+            resp = await client.get(fetch_url)
 
         if resp.status_code != 200:
             logger.info(f"Toptanbul HTTP {resp.status_code} — atlanıyor")
@@ -66,94 +89,80 @@ async def search_toptanbul(query: str, max_results: int = 12) -> list[dict]:
 
         html = resp.text
 
-        # JS-rendered tespiti: ürün içeriği yoksa boş dön
-        if "toptanbul" not in html.lower() or len(html) < 5000:
+        # ScraperAPI bazen hata JSON döner
+        if _SCRAPER_API_KEY and ('"error"' in html[:200] or len(html) < 2000):
+            logger.info("Toptanbul: ScraperAPI hata yanıtı döndü")
+            return []
+
+        if "trendyol" not in html.lower() or len(html) < 5000:
             logger.info("Toptanbul: içerik yok (JS-rendered veya engellendi)")
             return []
 
         soup = BeautifulSoup(html, "lxml")
         results: list[dict] = []
 
-        # --- Selector zinciri: bilinen ve yaygın class'ları dene ---
-        card_selectors = [
-            "div.product-card",
-            "div.product-item",
-            "div.urun-kart",
-            "div.item-card",
-            "li.product-card",
-            "li.product-item",
-            "div[class*='product']",
-            "article[class*='product']",
-        ]
-
-        cards = []
-        for sel in card_selectors:
-            cards = soup.select(sel)
-            if cards:
-                logger.info(f"Toptanbul: {len(cards)} kart bulundu ({sel})")
-                break
+        # Trendyol ürün kartları
+        cards = soup.select(".product-card")
+        if not cards:
+            # Alternatif selector'lar
+            for sel in ["div[data-testid='product-card']", "div.prdct-cntnr-wrppr", "div[class*='product']"]:
+                cards = soup.select(sel)
+                if cards:
+                    break
 
         if not cards:
-            logger.info("Toptanbul: ürün kartı bulunamadı — sayfada olmayabilir")
+            logger.info("Toptanbul: Trendyol ürün kartı bulunamadı")
             return []
 
         for card in cards[:max_results]:
             try:
-                # Ürün adı
-                name_el = (
-                    card.select_one("h2")
-                    or card.select_one("h3")
-                    or card.select_one("[class*='title']")
-                    or card.select_one("[class*='name']")
-                    or card.select_one("a[title]")
-                )
-                name = (name_el.get_text(strip=True) or name_el.get("title", "")) if name_el else ""
+                img = card.select_one("img[alt]")
+                name_el = card.select_one("[class*='name']") or card.select_one("[class*='title']")
+                name = ""
+                if img and img.get("alt") and len(img["alt"]) > 5:
+                    name = img["alt"].strip()
+                elif name_el:
+                    name = name_el.get_text(strip=True)
                 if not name:
                     continue
 
-                # Fiyat
-                price_el = (
-                    card.select_one("[class*='price']")
-                    or card.select_one("[class*='fiyat']")
-                    or card.select_one("span.fiyat")
-                )
+                price_el = card.select_one(".price-value") or card.select_one("[class*='price']")
                 price = _parse_price(price_el.get_text()) if price_el else 0.0
                 if price <= 0:
                     continue
 
-                # URL
+                old_price_el = card.select_one(".strikethrough-price") or card.select_one("[class*='old']")
+                old_price = _parse_price(old_price_el.get_text()) if old_price_el else 0.0
+                discount_pct = 0
+                if old_price > price > 0:
+                    discount_pct = round((old_price - price) / old_price * 100)
+
                 link_el = card.select_one("a[href]")
                 href = link_el["href"] if link_el else ""
                 if href and not href.startswith("http"):
-                    href = "https://www.toptanbul.com" + href
-
-                # MOQ (bazı kartlarda "Min: 50 adet" yazar)
-                full_text = card.get_text(" ", strip=True)
-                moq = _extract_moq(full_text)
-
-                # Satıcı
-                seller_el = card.select_one("[class*='seller']") or card.select_one("[class*='satici']")
-                seller = seller_el.get_text(strip=True) if seller_el else "Toptanbul Satıcısı"
+                    href = "https://www.trendyol.com" + href
 
                 results.append({
-                    "name": f"Toptanbul — {seller}",
+                    "name": name[:120],
                     "product": name[:120],
                     "current_price": price,
-                    "min_order": moq,
+                    "min_order": 1,
                     "shipping_days": 3,
-                    "discount_pct": 0,
+                    "discount_pct": discount_pct,
                     "discounted_price": price,
-                    "has_discount": False,
-                    "url": href or url,
+                    "has_discount": discount_pct > 0,
+                    "url": href or target_url,
                     "source": "toptanbul",
                     "currency": "TRY",
                 })
             except Exception:
                 continue
 
-        logger.info(f"Toptanbul: {len(results)} gerçek ürün dönüyor")
+        logger.info(f"Toptanbul: {len(results)} Trendyol ürünü döndü")
         return results
 
     except Exception as e:
         logger.warning(f"Toptanbul scraping hatası: {type(e).__name__}: {e}")
         return []
+
+
