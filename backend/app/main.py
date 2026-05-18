@@ -71,10 +71,14 @@ app = FastAPI(
 # --- Middleware (sira onemli: response giderken tersi calistirilir) ---
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 app.add_middleware(RequestContextMiddleware)
+_cors_origins = settings.CORS_ORIGINS
+# allow_credentials=True is incompatible with wildcard origins per CORS spec.
+# When a specific origin list is provided, credentials are allowed; with "*" they are not.
+_allow_credentials = _cors_origins != ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
+    allow_origins=_cors_origins,
+    allow_credentials=_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["X-Request-ID"],
