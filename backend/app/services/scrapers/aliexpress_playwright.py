@@ -1,6 +1,8 @@
+import os
 import logging
 from urllib.parse import quote
 from playwright.async_api import async_playwright
+from .toptanbul_playwright import _get_proxy  # ScraperAPI proxy paylaşımlı kullan
 from .aliexpress import _items_from_run_params, _usd_price
 from .currency import get_usd_to_try
 
@@ -29,14 +31,20 @@ async def search_aliexpress_playwright(query: str, max_results: int = 10) -> lis
     url = f"https://www.aliexpress.com/wholesale?SearchText={quote(query)}&SortType=total_tranpro_desc"
     try:
         async with async_playwright() as p:
-            browser = await p.chromium.launch(
-                headless=True,
-                args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
-            )
+            proxy = _get_proxy()
+            launch_kwargs: dict = {
+                "headless": True,
+                "args": ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
+            }
+            if proxy:
+                launch_kwargs["proxy"] = proxy
+                logger.info("AliExpress Playwright: ScraperAPI proxy aktif")
+            browser = await p.chromium.launch(**launch_kwargs)
             try:
                 context = await browser.new_context(
                     user_agent=_UA,
                     locale="en-US",
+                    ignore_https_errors=True,
                     extra_http_headers={
                         "Accept-Language": "en-US,en;q=0.9",
                         "Referer": "https://www.aliexpress.com",

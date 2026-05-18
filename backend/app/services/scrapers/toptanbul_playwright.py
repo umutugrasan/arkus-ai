@@ -1,8 +1,22 @@
+import os
 import re
 import socket
 import logging
 from urllib.parse import quote
 from playwright.async_api import async_playwright
+
+# ScraperAPI residential proxy — sadece SCRAPER_API_KEY tanimli ise aktif
+_SCRAPER_API_KEY = os.getenv("SCRAPER_API_KEY", "")
+
+def _get_proxy() -> dict | None:
+    """ScraperAPI proxy konfig. Key yoksa None (direkt baglanti)."""
+    if not _SCRAPER_API_KEY:
+        return None
+    return {
+        "server": "http://proxy.scraperapi.com:8001",
+        "username": "scraperapi",
+        "password": _SCRAPER_API_KEY,
+    }
 
 logger = logging.getLogger(__name__)
 
@@ -92,13 +106,21 @@ async def search_toptanbul_playwright(query: str, max_results: int = 12) -> list
         url = site["url_tpl"].format(query=quote(query))
         try:
             async with async_playwright() as p:
-                browser = await p.chromium.launch(
-                    headless=True,
-                    args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
-                )
+                proxy = _get_proxy()
+                launch_kwargs: dict = {
+                    "headless": True,
+                    "args": ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
+                }
+                if proxy:
+                    launch_kwargs["proxy"] = proxy
+                    logger.info(f"Toptanbul Playwright: ScraperAPI proxy aktif ({site['host']})")
+                browser = await p.chromium.launch(**launch_kwargs)
                 try:
-                    page = await browser.new_page(user_agent=_UA)
-                    await page.goto(url, wait_until="domcontentloaded", timeout=10000)
+                    page = await browser.new_page(
+                        user_agent=_UA,
+                        ignore_https_errors=True,
+                    )
+                    await page.goto(url, wait_until="domcontentloaded", timeout=30000)
 
                     wait_ms = site.get("wait_ms", 0)
                     if wait_ms:

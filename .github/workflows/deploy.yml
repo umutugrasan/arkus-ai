@@ -107,6 +107,7 @@ jobs:
         GEMINI_API_KEYS_VISION: ${{ secrets.GEMINI_API_KEYS_VISION }}
         GEMINI_API_KEYS_DEFAULT: ${{ secrets.GEMINI_API_KEYS_DEFAULT }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        SCRAPER_API_KEY: ${{ secrets.SCRAPER_API_KEY }}
         MOCK_API_URL: ${{ needs.deploy-mock-api.outputs.url }}
         CORS_ORIGINS: ${{ steps.cors.outputs.origins }}
       run: |
@@ -122,6 +123,7 @@ jobs:
         ENV_VARS="${ENV_VARS}|GEMINI_API_KEYS_ANALYZE=${GEMINI_API_KEYS_ANALYZE}"
         ENV_VARS="${ENV_VARS}|GEMINI_API_KEYS_VISION=${GEMINI_API_KEYS_VISION}"
         ENV_VARS="${ENV_VARS}|GEMINI_API_KEYS_DEFAULT=${GEMINI_API_KEYS_DEFAULT}"
+        [ -n "${SCRAPER_API_KEY}" ] && ENV_VARS="${ENV_VARS}|SCRAPER_API_KEY=${SCRAPER_API_KEY}"
         ENV_VARS="${ENV_VARS}|MOCK_MARKETPLACE_API_URL=${MOCK_API_URL}"
         ENV_VARS="${ENV_VARS}|DATABASE_URL=${DATABASE_URL}"
         ENV_VARS="${ENV_VARS}|CORS_ORIGINS=${CORS_ORIGINS}"
@@ -131,6 +133,10 @@ jobs:
           --region ${{ env.BACKEND_REGION }} \
           --allow-unauthenticated \
           --port 8080 \
+          --memory 2Gi \
+          --cpu 2 \
+          --timeout 300 \
+          --concurrency 10 \
           --add-cloudsql-instances=gen-lang-client-0173678969:europe-west3:arkus-db \
           --set-env-vars "$ENV_VARS"
 
