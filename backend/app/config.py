@@ -75,6 +75,8 @@ class Settings(BaseSettings):
     MOCK_API_URL: str = Field(default="http://mock-api:8001", alias="MOCK_MARKETPLACE_API_URL")
 
     # --- Gemini ---
+    # Tek-key (legacy / fallback). Yeni pool degiskenlerinden hicbiri tanimli
+    # degilse bu key tum cagrilara DEFAULT pool olarak servis edilir.
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.5-flash"
 
@@ -82,6 +84,44 @@ class Settings(BaseSettings):
     # Kayıt: https://portals.aliexpress.com/ → Publisher → Tools → API Access
     ALIEXPRESS_APP_KEY: str = ""
     ALIEXPRESS_APP_SECRET: str = ""
+    # --- Gemini API key havuzlari (purpose-based pools) ---
+    # Virgulle ayrilmis key listesi. Bos = ilgili pool DEFAULT'a fallback eder.
+    # 429 (quota) durumunda pool icinde round-robin ile sonraki key denenir.
+    GEMINI_API_KEYS_AGENTS_RAW: str = Field(default="", alias="GEMINI_API_KEYS_AGENTS")
+    GEMINI_API_KEYS_CHAT_RAW: str = Field(default="", alias="GEMINI_API_KEYS_CHAT")
+    GEMINI_API_KEYS_ANALYZE_RAW: str = Field(default="", alias="GEMINI_API_KEYS_ANALYZE")
+    GEMINI_API_KEYS_VISION_RAW: str = Field(default="", alias="GEMINI_API_KEYS_VISION")
+    GEMINI_API_KEYS_DEFAULT_RAW: str = Field(default="", alias="GEMINI_API_KEYS_DEFAULT")
+
+    @staticmethod
+    def _parse_key_list(raw: str) -> List[str]:
+        return [k.strip() for k in (raw or "").split(",") if k.strip()]
+
+    @property
+    def GEMINI_API_KEYS_AGENTS(self) -> List[str]:
+        return self._parse_key_list(self.GEMINI_API_KEYS_AGENTS_RAW)
+
+    @property
+    def GEMINI_API_KEYS_CHAT(self) -> List[str]:
+        return self._parse_key_list(self.GEMINI_API_KEYS_CHAT_RAW)
+
+    @property
+    def GEMINI_API_KEYS_ANALYZE(self) -> List[str]:
+        return self._parse_key_list(self.GEMINI_API_KEYS_ANALYZE_RAW)
+
+    @property
+    def GEMINI_API_KEYS_VISION(self) -> List[str]:
+        return self._parse_key_list(self.GEMINI_API_KEYS_VISION_RAW)
+
+    @property
+    def GEMINI_API_KEYS_DEFAULT(self) -> List[str]:
+        """Default pool. Bos ise tek-key GEMINI_API_KEY'i tek elemanli liste yapar."""
+        keys = self._parse_key_list(self.GEMINI_API_KEYS_DEFAULT_RAW)
+        if keys:
+            return keys
+        if self.GEMINI_API_KEY and self.GEMINI_API_KEY.strip() and self.GEMINI_API_KEY != "your_gemini_api_key_here":
+            return [self.GEMINI_API_KEY.strip()]
+        return []
 
     # --- Rate limit ---
     RATE_LIMIT_AI_PER_MIN: str = "10/minute"

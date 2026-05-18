@@ -280,12 +280,12 @@ CIKTIYI sadece JSON formatinda dondur:
 
     sources, used_web = [], False
     if use_web:
-        result = await ask_gemini_with_search(prompt, system)
+        result = await ask_gemini_with_search(prompt, system, pool="analyze")
         raw = result["text"]
         sources = result["sources"]
         used_web = result["used_search"]
     else:
-        raw = await ask_gemini(prompt, system)
+        raw = await ask_gemini(prompt, system, pool="analyze")
 
     parsed = _try_extract_json(raw) or {}
     optimized_title = parsed.get("optimized_title") or product.name
@@ -391,12 +391,12 @@ CIKTI sadece JSON:
 
     sources, used_web = [], False
     if use_web:
-        result = await ask_gemini_with_search(prompt, system)
+        result = await ask_gemini_with_search(prompt, system, pool="analyze")
         raw = result["text"]
         sources = result["sources"]
         used_web = result["used_search"]
     else:
-        raw = await ask_gemini(prompt, system)
+        raw = await ask_gemini(prompt, system, pool="analyze")
 
     parsed = _try_extract_json(raw) or {}
 
@@ -466,12 +466,12 @@ Asiri pazarlamaci dilden kacin. "Orijinal", "garantili", "mukemmel" gibi riskli 
 
     sources, used_web = [], False
     if use_web:
-        result = await ask_gemini_with_search(prompt, system)
+        result = await ask_gemini_with_search(prompt, system, pool="analyze")
         description = result["text"]
         sources = result["sources"]
         used_web = result["used_search"]
     else:
-        description = await ask_gemini(prompt, system)
+        description = await ask_gemini(prompt, system, pool="analyze")
 
     char_count = len(description) if description else 0
     word_count = len(description.split()) if description else 0

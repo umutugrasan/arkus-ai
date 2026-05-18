@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Bell, CheckCheck, RefreshCw, Info, AlertTriangle, XCircle } from 'lucide-react';
+import { Bell, CheckCheck, RefreshCw, Info, AlertTriangle, XCircle, Copy, Check, MessageSquare } from 'lucide-react';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import EmptyState from '../components/shared/EmptyState';
 import { notificationService } from '../services';
@@ -7,7 +7,31 @@ import { formatDate } from '../utils/formatters';
 import { useI18n } from '../context/I18nContext';
 import type { NotificationItem, NotificationsResponse } from '../types/api';
 
-type FilterType = 'all' | 'unread' | 'stok_uyarisi' | 'puan_dususu' | 'rakip_fiyat' | 'tedarikci_indirimi';
+type FilterType =
+  | 'all'
+  | 'unread'
+  | 'stok_uyarisi'
+  | 'puan_dususu'
+  | 'rakip_fiyat'
+  | 'tedarikci_indirimi'
+  | 'fiyat_alarmi'
+  | 'ucuz_tedarikci'
+  | 'yorum_cevap_taslagi';
+
+/**
+ * ReviewResponseAgent'in olusturdugu bildirimde mesajin yapisi:
+ *   "{urun} icin ... yorum:\n\"{yorum}\"\n\n--- CEVAP TASLAGI ---\n{taslak}\n\n(...)"
+ * "--- CEVAP TASLAGI ---" markerinden sonraki ve "(Bu taslagi" oncesindeki kisim
+ * panoya kopyalanacak olan taslagidir.
+ */
+function extractDraftFromMessage(message: string): string | null {
+  const marker = '--- CEVAP TASLAGI ---';
+  const idx = message.indexOf(marker);
+  if (idx === -1) return null;
+  const rest = message.slice(idx + marker.length).trim();
+  const tailIdx = rest.indexOf('\n\n(');
+  return (tailIdx === -1 ? rest : rest.slice(0, tailIdx)).trim();
+}
 
 export default function NotificationsPage() {
   const { t } = useI18n();
@@ -22,6 +46,9 @@ export default function NotificationsPage() {
     puan_dususu: '⭐ ' + t('notifications.filter_rating').replace('⭐ ', ''),
     rakip_fiyat: '💰 ' + t('notifications.filter_competitor').replace('💰 ', ''),
     tedarikci_indirimi: '🏷️ ' + t('notifications.filter_discount').replace('🏷️ ', ''),
+    fiyat_alarmi: '🚨 ' + t('notifications.filter_price_alarm').replace('🚨 ', ''),
+    ucuz_tedarikci: '💸 ' + t('notifications.filter_cheap_supplier').replace('💸 ', ''),
+    yorum_cevap_taslagi: '✍️ ' + t('notifications.filter_review_draft').replace('✍️ ', ''),
   }), [t]);
 
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -30,6 +57,7 @@ export default function NotificationsPage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [markingAll, setMarkingAll] = useState(false);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   const fetchNotifications = async () => {
     const opts = filter === 'unread' ? { unread_only: true } :
@@ -93,11 +121,25 @@ export default function NotificationsPage() {
   const filters: { id: FilterType; label: string }[] = [
     { id: 'all', label: t('notifications.filter_all') },
     { id: 'unread', label: `${t('notifications.filter_unread')} (${unreadCount})` },
+    { id: 'yorum_cevap_taslagi', label: t('notifications.filter_review_draft') },
+    { id: 'fiyat_alarmi', label: t('notifications.filter_price_alarm') },
+    { id: 'ucuz_tedarikci', label: t('notifications.filter_cheap_supplier') },
     { id: 'stok_uyarisi', label: t('notifications.filter_stock') },
     { id: 'puan_dususu', label: t('notifications.filter_rating') },
     { id: 'rakip_fiyat', label: t('notifications.filter_competitor') },
     { id: 'tedarikci_indirimi', label: t('notifications.filter_discount') },
   ];
+
+  const handleCopyDraft = async (e: React.MouseEvent, id: number, draft: string) => {
+    e.stopPropagation(); // bildirimi okundu isaretleme tetigi ele dusmesin
+    try {
+      await navigator.clipboard.writeText(draft);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId((cur) => (cur === id ? null : cur)), 2000);
+    } catch {
+      // Clipboard erisimi reddedilirse fallback yok — sessizce kapan
+    }
+  };
 
   if (loading) return <LoadingSpinner message={t('notifications.loading')} size="lg" />;
 
@@ -147,22 +189,57 @@ export default function NotificationsPage() {
           <div className="space-y-2">
             {notifications.map(n => {
               const sev = SEVERITY_CONFIG[n.severity] || SEVERITY_CONFIG.info;
+              const isDraft = n.type === 'yorum_cevap_taslagi';
+              const draftText = isDraft ? extractDraftFromMessage(n.message) : null;
+              const isCopied = copiedId === n.id;
               return (
                 <div key={n.id} onClick={() => !n.read && handleMarkRead(n.id)}
                   className={`p-4 rounded-2xl border transition-all ${
                     !n.read ? `${sev.bg} cursor-pointer hover:opacity-80` : 'bg-[var(--bg-elevated)] border-[var(--border-color)] opacity-70'
                   }`}>
                   <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
                       <div className={`flex-shrink-0 p-1.5 rounded-lg ${!n.read ? sev.bg : 'bg-[var(--bg-muted)]'}`}>
-                        <span className={sev.text}>{sev.icon}</span>
+                        <span className={sev.text}>{isDraft ? <MessageSquare size={14} /> : sev.icon}</span>
                       </div>
-                      <div>
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <p className={`text-sm font-semibold ${!n.read ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>{n.title}</p>
                           {!n.read && <span className="w-2 h-2 bg-[var(--accent)] rounded-full flex-shrink-0" />}
                         </div>
-                        <p className="text-[var(--text-muted)] text-xs leading-relaxed">{n.message}</p>
+
+                        {isDraft && draftText ? (
+                          <div className="mt-1 space-y-2">
+                            {/* Yorum cevap taslagi: hem yorum + taslak hem kopyala butonu */}
+                            <p className="text-[var(--text-muted)] text-xs leading-relaxed whitespace-pre-line">
+                              {n.message.split('--- CEVAP TASLAGI ---')[0].trim()}
+                            </p>
+                            <div className="rounded-xl bg-[var(--bg-card)] border border-[var(--border-strong)] p-3 mt-2">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-semibold text-[var(--accent)] uppercase tracking-wider">
+                                  {t('notifications.draft_label')}
+                                </span>
+                                <button
+                                  onClick={(e) => handleCopyDraft(e, n.id, draftText)}
+                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                                    isCopied
+                                      ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30'
+                                      : 'bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)]'
+                                  }`}
+                                >
+                                  {isCopied ? <Check size={12} /> : <Copy size={12} />}
+                                  {isCopied ? t('notifications.copied') : t('notifications.copy_draft')}
+                                </button>
+                              </div>
+                              <p className="text-sm text-[var(--text-primary)] whitespace-pre-line leading-relaxed">
+                                {draftText}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-[var(--text-muted)] text-xs leading-relaxed whitespace-pre-line">{n.message}</p>
+                        )}
+
                         <div className="flex items-center gap-2 mt-1">
                           <span className={`text-xs px-2 py-0.5 rounded-full ${sev.bg} ${sev.text}`}>{sev.label}</span>
                           {TYPE_LABELS[n.type] && <span className="text-xs text-[var(--text-muted)]">{TYPE_LABELS[n.type]}</span>}

@@ -21,15 +21,14 @@ MODEL_CASCADE = [
     "gemini-1.5-flash",
 ]
 
-_client = None
-
-
 def get_client():
-    global _client
-    api_key = os.getenv("GEMINI_API_KEY")
-    if _client is None and api_key and api_key != "your_gemini_api_key_here":
-        _client = genai.Client(api_key=api_key)
-    return _client
+    """
+    Chat pool'undan sirayla bir key cek + per-key client cache'i kullan.
+    gemini_service'in pool infrastructure'ini kullanir — boylece chat ayri
+    pool'a baglanir, agent tick'leri quota'ya yedirse bile chat ayakta kalir.
+    """
+    from app.services.gemini_service import get_client as get_pooled_client
+    return get_pooled_client(pool="chat")
 
 
 def _build_overview(user_id: int) -> dict:

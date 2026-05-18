@@ -124,7 +124,7 @@ async def ask_stream(
         try:
             yield f"event: meta\ndata: {json.dumps({'user_id': user.id, 'started_at': _now()}, ensure_ascii=False)}\n\n"
             async for chunk in ask_gemini_stream(
-                msg.message, system_instruction, endpoint="chat.ask.stream", user_id=user.id
+                msg.message, system_instruction, endpoint="chat.ask.stream", user_id=user.id, pool="chat"
             ):
                 if chunk.get("done"):
                     full_text = "".join(full_text_parts)

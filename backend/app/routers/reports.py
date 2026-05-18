@@ -127,11 +127,11 @@ Rapor formati:
 
     sources = []
     if use_web:
-        result = await ask_gemini_with_search(prompt, system)
+        result = await ask_gemini_with_search(prompt, system, pool="analyze")
         content = result["text"]
         sources = result["sources"]
     else:
-        content = await ask_gemini(prompt, system)
+        content = await ask_gemini(prompt, system, pool="analyze")
 
     metrics = {
         "revenue": overall["total_revenue"],
@@ -232,11 +232,11 @@ async def generate_weekly_report(
 
     sources = []
     if use_web:
-        result = await ask_gemini_with_search(prompt, system)
+        result = await ask_gemini_with_search(prompt, system, pool="analyze")
         content = result["text"]
         sources = result["sources"]
     else:
-        content = await ask_gemini(prompt, system)
+        content = await ask_gemini(prompt, system, pool="analyze")
 
     metrics["web_sources"] = sources
 
@@ -299,7 +299,7 @@ async def generate_daily_stream(
         yield f"event: meta\ndata: {json.dumps({'type': 'daily', 'date': today, 'metrics': metrics}, ensure_ascii=False)}\n\n"
         parts = []
         async for chunk in ask_gemini_stream(
-            prompt, system, endpoint="reports.daily.stream", user_id=user.id,
+            prompt, system, endpoint="reports.daily.stream", user_id=user.id, pool="analyze"
         ):
             if chunk.get("done"):
                 full_text = "".join(parts)
@@ -341,7 +341,7 @@ async def generate_weekly_stream(
         yield f"event: meta\ndata: {json.dumps({'type': 'weekly', 'date': today, 'metrics': metrics}, ensure_ascii=False)}\n\n"
         parts = []
         async for chunk in ask_gemini_stream(
-            prompt, system, endpoint="reports.weekly.stream", user_id=user.id,
+            prompt, system, endpoint="reports.weekly.stream", user_id=user.id, pool="analyze"
         ):
             if chunk.get("done"):
                 full_text = "".join(parts)

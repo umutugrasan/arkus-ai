@@ -85,7 +85,7 @@ class ReviewAnalyzerAgent(BaseAgent):
                         "Sen bir e-ticaret yorum analiz uzmanisin. Kisa, "
                         "aksiyon odakli ozet yaz."
                     )
-                    content = await ask_gemini(prompt, system)
+                    content = await ask_gemini(prompt, system, endpoint="agents.review_analyzer", pool="agents")
 
                     rec = ReviewAnalysis(
                         product_id=product.id,

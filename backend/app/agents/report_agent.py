@@ -98,7 +98,7 @@ Rapor formati:
                 "Sen bir e-ticaret rapor uzmanisin. Otonom ajan sisteminin gunluk "
                 "ozetini yaziyorsun. Diger ajanlardan gelen uyari/event'leri rapora dahil et."
             )
-            content = await ask_gemini(prompt, system)
+            content = await ask_gemini(prompt, system, endpoint="agents.report", pool="agents")
 
             rep = Report(
                 user_id=user_id,

@@ -168,7 +168,7 @@ CIKTI SADECE asagidaki JSON formatinda olsun, baska metin ekleme:
         "biliyorsun. Verilen gorseli objektif degerlendir, sadece JSON dondur."
     )
 
-    result = await ask_gemini_vision(image_url, prompt, system)
+    result = await ask_gemini_vision(image_url, prompt, system, pool="vision")
     raw = result["text"]
     parsed = _try_extract_json(raw) or {}
 
@@ -248,7 +248,7 @@ CIKTI sadece JSON:
         "tavsiyeler veriyorsun. Sadece JSON dondur."
     )
 
-    result = await ask_gemini_vision(image_url, prompt, system)
+    result = await ask_gemini_vision(image_url, prompt, system, pool="vision")
     raw = result["text"]
     parsed = _try_extract_json(raw) or {}
 

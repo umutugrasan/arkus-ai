@@ -246,12 +246,12 @@ Su basliklarda analiz yap:
 
     sources, used_web = [], False
     if use_web:
-        result = await ask_gemini_with_search(prompt, system)
+        result = await ask_gemini_with_search(prompt, system, pool="analyze")
         analysis = result["text"]
         sources = result["sources"]
         used_web = result["used_search"]
     else:
-        analysis = await ask_gemini(prompt, system)
+        analysis = await ask_gemini(prompt, system, pool="analyze")
 
     return {
         "overall": overall,
