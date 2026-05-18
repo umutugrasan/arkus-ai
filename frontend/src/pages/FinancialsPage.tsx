@@ -19,7 +19,8 @@ import type {
   ExpensesResponse, CashFlowResponse, FinancialAnalyzeResponse,
 } from '../types/api';
 
-const PIE_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444'];
+// Arkus AI — sıcak gider paleti (espresso · mocha · oker · adaçayı)
+const PIE_COLORS = ['#4a3f44', '#b0826b', '#c9a05c', '#8fae94'];
 
 type Tab = 'marketplace' | 'product' | 'expenses' | 'cashflow';
 
@@ -118,14 +119,14 @@ export default function FinancialsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title={t('financials.total_revenue')} value={formatCurrency(ov?.total_revenue)} icon={<DollarSign size={18} />} accentColor="indigo" />
-        <StatCard title={t('financials.net_profit_ads')} value={formatCurrency(ov?.total_net_after_ads)} icon={<TrendingUp size={18} />} accentColor="emerald" />
-        <StatCard title={t('financials.net_margin')} value={formatPercent(ov?.overall_net_margin)} icon={<BarChart2 size={18} />} accentColor="violet" />
-        <StatCard title={t('common.roas')} value={ov?.overall_roas?.toFixed(2) ?? '—'} icon={<Zap size={18} />} accentColor="amber" />
+        <StatCard title={t('financials.total_revenue')} value={formatCurrency(ov?.total_revenue)} icon={<DollarSign size={18} />} accentColor="indigo" index={0} />
+        <StatCard title={t('financials.net_profit_ads')} value={formatCurrency(ov?.total_net_after_ads)} icon={<TrendingUp size={18} />} accentColor="emerald" index={1} />
+        <StatCard title={t('financials.net_margin')} value={formatPercent(ov?.overall_net_margin)} icon={<BarChart2 size={18} />} accentColor="violet" index={2} />
+        <StatCard title={t('common.roas')} value={ov?.overall_roas?.toFixed(2) ?? '—'} icon={<Zap size={18} />} accentColor="amber" index={3} />
       </div>
 
       {history.length > 0 && (
-        <GlassCard>
+        <GlassCard index={0}>
           <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('financials.monthly_trend')}</h3>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={history}>
@@ -136,14 +137,14 @@ export default function FinancialsPage() {
                 labelStyle={{ color: chart.tooltipText }} itemStyle={{ color: chart.tooltipText }}
                 formatter={(value) => formatCurrency(Number(value))} />
               <Legend />
-              <Line type="monotone" dataKey="revenue" name={t('financials.revenue')} stroke="#6b6266" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="profit" name={t('financials.profit')} stroke="#10b981" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="revenue" name={t('financials.revenue')} stroke="#6b6266" strokeWidth={2.5} dot={false} />
+              <Line type="monotone" dataKey="profit" name={t('financials.profit')} stroke="#7fae94" strokeWidth={2.5} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </GlassCard>
       )}
 
-      <GlassCard>
+      <GlassCard index={1}>
         <div className="overflow-x-auto -mx-1 px-1 mb-5">
           <div className="flex gap-1 bg-[var(--bg-muted)] p-1 rounded-xl w-fit min-w-full sm:min-w-0">
             {tabs.map(tb => (
@@ -255,7 +256,7 @@ export default function FinancialsPage() {
         )}
       </GlassCard>
 
-      <GlassCard>
+      <GlassCard index={2}>
         <div className="flex flex-wrap items-center gap-3 mb-4">
           <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-[var(--accent)]" /> {t('financials.ai_analysis')}</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading}

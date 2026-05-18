@@ -24,7 +24,7 @@ export default function StatCard({ title, value, icon, trend, subtitle, index = 
         boxShadow: '0 12px 28px rgba(74, 63, 68, 0.08), 0 4px 10px rgba(74, 63, 68, 0.04)',
         transition: { duration: 0.18 },
       }}
-      className="bg-[var(--bg-card)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] border border-[var(--border-color)] p-4 flex flex-col justify-between min-h-[120px] group"
+      className="bg-[var(--bg-card)] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.012)] border border-[var(--border-color)] p-5 flex flex-col justify-between min-h-[120px] group"
     >
       <div className="flex justify-between items-start">
         <div>

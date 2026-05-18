@@ -15,10 +15,12 @@ import {
   Menu,
   X,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import NavHeader from '@/components/ui/nav-header';
 import { ThemeToggle } from '@/components/ui/curtain-theme-toggle';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useI18n } from '@/context/I18nContext';
+import { staggerContainer, staggerItem } from '@/utils/motion';
 
 export default function LandingPage() {
   const { t } = useI18n();
@@ -32,9 +34,9 @@ export default function LandingPage() {
   ];
 
   const steps = [
-    { n: '1', accent: 'bg-amber-50', badge: 'bg-amber-100 text-amber-600', title: t('landing.step1_title'), desc: t('landing.step1_desc') },
-    { n: '2', accent: 'bg-blue-50', badge: 'bg-blue-100 text-blue-600', title: t('landing.step2_title'), desc: t('landing.step2_desc') },
-    { n: '3', accent: 'bg-emerald-50', badge: 'bg-emerald-100 text-emerald-600', title: t('landing.step3_title'), desc: t('landing.step3_desc') },
+    { n: '1', accent: 'bg-amber-100/60', badge: 'bg-amber-100 text-amber-700', title: t('landing.step1_title'), desc: t('landing.step1_desc') },
+    { n: '2', accent: 'bg-violet-100/60', badge: 'bg-violet-100 text-violet-600', title: t('landing.step2_title'), desc: t('landing.step2_desc') },
+    { n: '3', accent: 'bg-emerald-100/55', badge: 'bg-emerald-100 text-emerald-700', title: t('landing.step3_title'), desc: t('landing.step3_desc') },
   ];
 
   return (
@@ -44,7 +46,7 @@ export default function LandingPage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-primary)] backdrop-blur-md border-b border-[var(--border-strong)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-14 h-14 sm:w-20 sm:h-20 object-contain drop-shadow-sm" />
+            <img src="/assets/logos/logo-bird.png" alt="Arkus AI Logo" className="w-14 h-14 sm:w-20 sm:h-20 object-contain drop-shadow-sm" />
             <span className="hidden sm:inline text-3xl font-black text-[var(--text-primary)] tracking-tighter">
               Arkus
             </span>
@@ -128,7 +130,7 @@ export default function LandingPage() {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--bg-card)] border border-[var(--border-strong)] text-[var(--accent)] text-sm font-bold shadow-sm">
             <img
               src="/assets/logos/logo-bird.png"
-              alt="Arkus"
+              alt="Arkus AI"
               className="w-5 h-5 object-contain"
             />
             <span>{t('landing.tagline')}</span>
@@ -136,7 +138,7 @@ export default function LandingPage() {
 
           <h1 className="text-5xl md:text-7xl font-extrabold text-[var(--text-primary)] tracking-tight leading-tight">
             {t('landing.hero_title_1')} <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-pink-500">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-rose-400">
               {t('landing.hero_title_2')}
             </span>
           </h1>
@@ -187,9 +189,19 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={staggerContainer}
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
+          >
             {features.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="bg-[var(--bg-primary)] p-8 rounded-2xl border border-[var(--border-color)] hover:shadow-lg transition-all group">
+              <motion.div
+                key={title}
+                variants={staggerItem}
+                className="bg-[var(--bg-primary)] p-8 rounded-2xl border border-[var(--border-color)] hover:shadow-[0_14px_40px_rgba(74,63,68,0.07)] transition-all group"
+              >
                 <div className="w-14 h-14 bg-[var(--bg-card)] rounded-xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
                   <Icon className="w-7 h-7 text-[var(--accent)]" />
                 </div>
@@ -197,9 +209,9 @@ export default function LandingPage() {
                 <p className="text-[var(--text-muted)] leading-relaxed font-medium text-sm">
                   {desc}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -213,16 +225,26 @@ export default function LandingPage() {
              {t('landing.how_desc')}
            </p>
 
-           <div className="grid md:grid-cols-3 gap-8 text-left">
+           <motion.div
+             initial="hidden"
+             whileInView="visible"
+             viewport={{ once: true, amount: 0.2 }}
+             variants={staggerContainer}
+             className="grid md:grid-cols-3 gap-8 text-left"
+           >
              {steps.map(({ n, accent, badge, title, desc }) => (
-               <div key={n} className="bg-[var(--bg-card)] p-8 rounded-2xl border border-[var(--border-color)] shadow-sm relative overflow-hidden">
+               <motion.div
+                 key={n}
+                 variants={staggerItem}
+                 className="bg-[var(--bg-card)] p-8 rounded-2xl border border-[var(--border-color)] shadow-[0_8px_30px_rgba(0,0,0,0.012)] relative overflow-hidden"
+               >
                  <div className={`absolute top-0 right-0 w-24 h-24 ${accent} rounded-bl-full -z-10`}></div>
                  <div className={`w-12 h-12 ${badge} rounded-full flex items-center justify-center font-bold text-xl mb-6`}>{n}</div>
                  <h4 className="text-xl font-bold text-[var(--text-primary)] mb-2">{title}</h4>
                  <p className="text-[var(--text-muted)] text-sm font-medium">{desc}</p>
-               </div>
+               </motion.div>
              ))}
-           </div>
+           </motion.div>
         </div>
       </section>
 
@@ -239,7 +261,7 @@ export default function LandingPage() {
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-6 tracking-tight">
               {t('landing.about_title_1')}{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-rose-500 to-[var(--accent)]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-rose-400 to-[var(--accent)]">
                 {t('landing.about_title_2')}
               </span>
             </h2>
@@ -249,7 +271,13 @@ export default function LandingPage() {
           </div>
 
           {/* 3 kart: Arkis — Bağlantı — Arkus */}
-          <div className="grid md:grid-cols-3 gap-6 relative">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15 }}
+            variants={staggerContainer}
+            className="grid md:grid-cols-3 gap-6 relative"
+          >
             {/* Karturlar arasi okkıyla görsel akış (md+ ekranlarda) */}
             <div className="hidden md:flex absolute inset-y-0 left-1/3 right-1/3 items-center justify-between pointer-events-none -z-10">
               <ArrowRight className="w-6 h-6 text-[var(--text-faint)] -translate-x-3" />
@@ -257,7 +285,7 @@ export default function LandingPage() {
             </div>
 
             {/* Kart 1 — Arkış (tarih) */}
-            <div className="bg-[var(--bg-card)] p-8 rounded-2xl border border-[var(--border-color)] shadow-sm relative overflow-hidden hover:shadow-lg transition-shadow">
+            <motion.div variants={staggerItem} className="bg-[var(--bg-card)] p-8 rounded-2xl border border-[var(--border-color)] shadow-[0_8px_30px_rgba(0,0,0,0.012)] relative overflow-hidden hover:shadow-[0_14px_40px_rgba(74,63,68,0.07)] transition-shadow">
               <div className="absolute top-0 right-0 w-32 h-32 bg-amber-100 dark:bg-amber-500/10 rounded-bl-full -z-10"></div>
               <div className="w-12 h-12 bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-300 rounded-xl flex items-center justify-center mb-5">
                 <ScrollText className="w-6 h-6" />
@@ -274,10 +302,10 @@ export default function LandingPage() {
               <p className="text-xs text-[var(--text-faint)] italic border-l-2 border-amber-300 pl-3 mt-4">
                 {t('landing.about_arkis_quote')}
               </p>
-            </div>
+            </motion.div>
 
             {/* Kart 2 — Bağlantı (modern satıcı) */}
-            <div className="bg-[var(--bg-card)] p-8 rounded-2xl border border-[var(--border-color)] shadow-sm relative overflow-hidden hover:shadow-lg transition-shadow">
+            <motion.div variants={staggerItem} className="bg-[var(--bg-card)] p-8 rounded-2xl border border-[var(--border-color)] shadow-[0_8px_30px_rgba(0,0,0,0.012)] relative overflow-hidden hover:shadow-[0_14px_40px_rgba(74,63,68,0.07)] transition-shadow">
               <div className="absolute top-0 right-0 w-32 h-32 bg-rose-100 dark:bg-rose-500/10 rounded-bl-full -z-10"></div>
               <div className="w-12 h-12 bg-rose-100 dark:bg-rose-500/15 text-rose-600 dark:text-rose-300 rounded-xl flex items-center justify-center mb-5">
                 <Compass className="w-6 h-6" />
@@ -291,10 +319,10 @@ export default function LandingPage() {
               <p className="text-[var(--text-muted)] text-sm leading-relaxed">
                 {t('landing.about_bridge_desc')}
               </p>
-            </div>
+            </motion.div>
 
             {/* Kart 3 — Arkus (modern AI) */}
-            <div className="bg-[var(--bg-card)] p-8 rounded-2xl border-2 border-[var(--accent)]/40 shadow-md relative overflow-hidden hover:shadow-xl transition-shadow">
+            <motion.div variants={staggerItem} className="bg-[var(--bg-card)] p-8 rounded-2xl border-2 border-[var(--accent)]/40 shadow-[0_12px_40px_rgba(74,63,68,0.07)] relative overflow-hidden hover:shadow-[0_18px_48px_rgba(74,63,68,0.1)] transition-shadow">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent)]/15 rounded-bl-full -z-10"></div>
               <div className="w-12 h-12 bg-[var(--accent)]/15 text-[var(--accent)] rounded-xl flex items-center justify-center mb-5">
                 <Sparkles className="w-6 h-6" />
@@ -308,8 +336,8 @@ export default function LandingPage() {
               <p className="text-[var(--text-muted)] text-sm leading-relaxed">
                 {t('landing.about_arkus_desc')}
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Kapanış cümlesi */}
           <div className="mt-14 text-center max-w-2xl mx-auto">
@@ -330,7 +358,7 @@ export default function LandingPage() {
 
           <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-4 tracking-tight">
             {t('landing.contact_title')}{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-pink-500">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-rose-400">
               {t('landing.contact_subtitle')}
             </span>
           </h2>
@@ -358,7 +386,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between text-[var(--text-muted)] font-medium text-sm">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <img src="/assets/logos/logo-full.png" alt="Arkus Logo" className="h-20 object-contain opacity-90 hover:opacity-100 transition-opacity" />
+              <img src="/assets/logos/logo-full.png" alt="Arkus AI Logo" className="h-20 object-contain opacity-90 hover:opacity-100 transition-opacity" />
             </div>
             <p>{t('landing.footer_copyright')}</p>
             <div className="flex gap-4 mt-4 md:mt-0">

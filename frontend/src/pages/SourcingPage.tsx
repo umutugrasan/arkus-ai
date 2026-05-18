@@ -182,8 +182,8 @@ export default function SourcingPage() {
           ? <EmptyState title={t('sourcing.no_suppliers')} description={t('sourcing.no_suppliers_desc')} />
           : (
             <div className="grid md:grid-cols-2 gap-4">
-              {supplierList.map((s) => (
-                <GlassCard key={s.id ?? `${s.name}-${s.product}`} className={s.discount_pct > 0 ? 'border border-emerald-500/30' : ''}>
+              {supplierList.map((s, i) => (
+                <GlassCard key={s.id ?? `${s.name}-${s.product}`} index={i} className={s.discount_pct > 0 ? 'border border-emerald-500/30' : ''}>
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
@@ -276,7 +276,7 @@ export default function SourcingPage() {
 
             const shown = priceView === 'sale' ? saleItems : wholesaleItems;
 
-            const renderCard = (s: SupplierType) => {
+            const renderCard = (s: SupplierType, idx: number) => {
               const isValidUrl = s.url && (s.url.startsWith('http://') || s.url.startsWith('https://'));
               const searchDomain = s.name.toLowerCase().includes('alibaba') ? 'alibaba.com/trade/search?SearchText=' :
                                    s.name.toLowerCase().includes('aliexpress') ? 'aliexpress.com/w/wholesale-' :
@@ -285,7 +285,7 @@ export default function SourcingPage() {
 
               return (
                 <a key={s.id ?? `${s.name}-${s.discounted_price}`} href={href} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:scale-[1.01]">
-                  <GlassCard className="hover:border-[var(--accent)]/50 transition-colors cursor-pointer">
+                  <GlassCard index={idx} className="hover:border-[var(--accent)]/50 transition-colors cursor-pointer">
                     <div className="flex justify-between items-start">
                       <div className="flex-1 min-w-0 mr-4">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -413,8 +413,8 @@ export default function SourcingPage() {
 
           {alertList.length === 0
             ? <EmptyState title={t('sourcing.no_alerts')} description={t('sourcing.no_alerts_desc')} />
-            : alertList.map((a: PriceAlert) => (
-              <GlassCard key={a.id}>
+            : alertList.map((a: PriceAlert, i: number) => (
+              <GlassCard key={a.id} index={i}>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[var(--text-primary)] font-medium">{a.product_name}</p>

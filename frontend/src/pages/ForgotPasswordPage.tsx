@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, KeyRound, Zap, ArrowLeft, Eye, EyeOff, Send } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { authService } from '../services';
 import { useToast } from '../context/ToastContext';
 import { useI18n } from '../context/I18nContext';
@@ -80,14 +81,24 @@ export default function ForgotPasswordPage() {
 
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="flex flex-col items-center mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="flex flex-col items-center mb-6"
+          >
             <div className="w-14 h-14 rounded-2xl bg-[var(--accent-solid)] flex items-center justify-center shadow-2xl shadow-black/20 mb-4">
               <Zap size={26} className="text-[var(--accent-fg)]" />
             </div>
             <h1 className="text-3xl font-extrabold text-[var(--text-primary)] tracking-tighter">Arkus AI</h1>
-          </div>
+          </motion.div>
 
-          <div className="bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border-color)] p-8 animate-fade-in">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.1 }}
+            className="bg-[var(--bg-card)] rounded-2xl shadow-[0_12px_40px_rgba(74,63,68,0.08)] border border-[var(--border-color)] p-8"
+          >
             <Link to="/login" className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--accent)] mb-4">
               <ArrowLeft size={12} /> {t('auth.forgot_back')}
             </Link>
@@ -194,7 +205,7 @@ export default function ForgotPasswordPage() {
                 <p className="text-[var(--text-muted)] text-sm">{t('auth.reset_done_desc')}</p>
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

@@ -62,10 +62,10 @@ export default function HealthScorePage() {
   const metrics = score?.metrics;
 
   const gradeConfig: Record<string, { text: string; bg: string; ring: string }> = {
-    A: { text: 'text-emerald-500', bg: 'from-emerald-500/30 to-emerald-600/10', ring: '#10b981' },
-    B: { text: 'text-[var(--accent)]', bg: 'from-[var(--accent)]/25 to-[var(--accent)]/5', ring: '#6b6266' },
-    C: { text: 'text-amber-500', bg: 'from-amber-500/30 to-amber-600/10', ring: '#f59e0b' },
-    D: { text: 'text-rose-500', bg: 'from-rose-500/30 to-rose-600/10', ring: '#ef4444' },
+    A: { text: 'text-emerald-500', bg: 'from-emerald-500/20 to-emerald-600/5', ring: '#7fae94' },
+    B: { text: 'text-[var(--accent)]', bg: 'from-[var(--accent)]/20 to-[var(--accent)]/5', ring: '#6b6266' },
+    C: { text: 'text-amber-500', bg: 'from-amber-500/20 to-amber-600/5', ring: '#d9a86a' },
+    D: { text: 'text-rose-500', bg: 'from-rose-500/20 to-rose-600/5', ring: '#cf8a8a' },
   };
   const cfg = gradeConfig[grade] || gradeConfig.C;
 
@@ -76,7 +76,7 @@ export default function HealthScorePage() {
     <div className="space-y-6 animate-fade-in">
       {/* Ana Skor Kartı */}
       <div className="grid md:grid-cols-3 gap-6">
-        <GlassCard className={`md:col-span-1 bg-gradient-to-br ${cfg.bg}`}>
+        <GlassCard index={0} className={`md:col-span-1 bg-gradient-to-br ${cfg.bg}`}>
           <div className="flex flex-col items-center py-4">
             <div className="relative w-[180px] h-[180px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -98,7 +98,7 @@ export default function HealthScorePage() {
           </div>
         </GlassCard>
 
-        <GlassCard className="md:col-span-2">
+        <GlassCard index={1} className="md:col-span-2">
           <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('health.metrics')}</h3>
           <div className="grid grid-cols-2 gap-3">
             {metrics && [
@@ -120,7 +120,7 @@ export default function HealthScorePage() {
 
       {/* Kategori Breakdown */}
       {breakdown && (
-        <GlassCard>
+        <GlassCard index={2}>
           <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('health.breakdown_title')}</h3>
           <div className="space-y-3">
             {(breakdown.breakdown || []).map((item) => {
@@ -144,7 +144,7 @@ export default function HealthScorePage() {
 
       {/* Tarihçe Grafiği */}
       {historyData.length > 0 && (
-        <GlassCard>
+        <GlassCard index={3}>
           <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('health.history_title')}</h3>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={historyData}>
@@ -161,7 +161,7 @@ export default function HealthScorePage() {
       )}
 
       {/* AI Analiz */}
-      <GlassCard>
+      <GlassCard index={4}>
         <div className="flex flex-wrap items-center gap-3 mb-4">
           <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-[var(--accent)]" /> {t('health.ai_title')}</h3>
           <button onClick={handleAiAnalysis} disabled={aiLoading}

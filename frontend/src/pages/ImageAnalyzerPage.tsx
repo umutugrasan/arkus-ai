@@ -195,7 +195,7 @@ export default function ImageAnalyzerPage() {
       {tab === 'suggestions' && suggestions && (
         <div className="space-y-3">
           {suggestions.priority_actions.map((a, i) => (
-            <GlassCard key={`act-${i}-${(a.action ?? '').slice(0, 24)}`}>
+            <GlassCard key={`act-${i}-${(a.action ?? '').slice(0, 24)}`} index={i}>
               <div className="flex items-start gap-3">
                 <div className={`flex-shrink-0 p-1.5 rounded-lg text-xs font-bold ${
                   a.difficulty === 'kolay' ? 'bg-emerald-500/20 text-emerald-500' :
@@ -237,8 +237,8 @@ export default function ImageAnalyzerPage() {
         historyData && historyData.analyses.length > 0
           ? (
             <div className="space-y-3">
-              {historyData.analyses.map((a) => (
-                <GlassCard key={a.id}>
+              {historyData.analyses.map((a, i) => (
+                <GlassCard key={a.id} index={i}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[var(--text-muted)] text-xs">{formatDate(a.created_at)}</p>

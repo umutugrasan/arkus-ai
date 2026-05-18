@@ -22,7 +22,8 @@ import type {
 } from '../types/api';
 
 type SubTab = 'list' | 'pricemap' | 'track';
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+// Arkus AI — sıcak grafik paleti (espresso · mocha · oker · adaçayı · lavanta)
+const COLORS = ['#4a3f44', '#b0826b', '#c9a05c', '#8fae94', '#a99bc4'];
 
 const SELECTED_PRODUCT_KEY = 'arkus_competitor_product';
 
@@ -170,8 +171,8 @@ export default function CompetitorsPage() {
         <div className="space-y-3">
           {comps.length === 0
             ? <EmptyState title={t('competitors.not_found')} description={t('competitors.not_found_desc')} />
-            : comps.map((c) => (
-              <GlassCard key={`${c.marketplace}-${c.competitor_name}`}>
+            : comps.map((c, i) => (
+              <GlassCard key={`${c.marketplace}-${c.competitor_name}`} index={i}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -200,8 +201,8 @@ export default function CompetitorsPage() {
 
       {tab === 'pricemap' && priceMap && (
         <div className="space-y-4">
-          {Object.entries(priceMap.price_map).map(([mp, data]: [string, PriceMapEntry]) => (
-            <GlassCard key={mp}>
+          {Object.entries(priceMap.price_map).map(([mp, data]: [string, PriceMapEntry], i) => (
+            <GlassCard key={mp} index={i}>
               <div className="flex items-center gap-2 mb-3">
                 <MarketplaceBadge marketplace={mp} />
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${

@@ -257,8 +257,8 @@ export default function ListingOptimizerPage() {
             ? <GlassCard><p className="text-[var(--text-muted)] text-sm text-center py-8">{t('listing.keyword_hint')}</p></GlassCard>
             : (
               <div className="space-y-4">
-                {kbData && Object.entries(kbData).map(([group, kws]) => Array.isArray(kws) && kws.length > 0 ? (
-                  <GlassCard key={group}>
+                {kbData && Object.entries(kbData).map(([group, kws], i) => Array.isArray(kws) && kws.length > 0 ? (
+                  <GlassCard key={group} index={i}>
                     <h3 className="text-[var(--text-primary)] font-semibold mb-3 capitalize">{group.replace('_', ' ')}</h3>
                     <div className="flex flex-wrap gap-2">
                       {(kws as string[]).map((kw: string) => (
@@ -286,8 +286,8 @@ export default function ListingOptimizerPage() {
             ? <EmptyState title={t('image.no_history')} description={t('listing.no_history_desc')} />
             : (
               <div className="space-y-3">
-                {history.optimizations.map((opt) => (
-                  <GlassCard key={opt.id}>
+                {history.optimizations.map((opt, i) => (
+                  <GlassCard key={opt.id} index={i}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <p className="text-[var(--text-muted)] text-xs">{formatDate(opt.created_at)}</p>

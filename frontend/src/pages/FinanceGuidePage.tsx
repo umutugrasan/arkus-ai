@@ -75,19 +75,19 @@ export default function FinanceGuidePage() {
       {/* Satıcı Profili */}
       {profile && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <GlassCard className="bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent)]/5">
+          <GlassCard index={0} className="bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent)]/5">
             <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider">{t('finance.score')}</p>
             <p className="text-3xl font-bold text-[var(--accent)] mt-1">{profile.eligibility_score ?? '—'}</p>
           </GlassCard>
-          <GlassCard className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10">
+          <GlassCard index={1} className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10">
             <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider">{t('financials.cf_monthly_revenue')}</p>
             <p className="text-2xl font-bold text-emerald-500 mt-1">{formatCurrency(profile.monthly_revenue)}</p>
           </GlassCard>
-          <GlassCard className="bg-gradient-to-br from-[var(--accent)]/15 to-[var(--accent)]/5">
+          <GlassCard index={2} className="bg-gradient-to-br from-[var(--accent)]/15 to-[var(--accent)]/5">
             <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider">{t('financials.cf_monthly_profit')}</p>
             <p className="text-2xl font-bold text-[var(--accent)] mt-1">{formatCurrency(profile.monthly_net_profit)}</p>
           </GlassCard>
-          <GlassCard className="bg-gradient-to-br from-amber-500/20 to-amber-600/10">
+          <GlassCard index={3} className="bg-gradient-to-br from-amber-500/20 to-amber-600/10">
             <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider">{t('financials.net_margin')}</p>
             <p className="text-2xl font-bold text-amber-500 mt-1">{formatPercent(profile.net_margin_pct)}</p>
           </GlassCard>
@@ -114,7 +114,7 @@ export default function FinanceGuidePage() {
           <h3 className="text-[var(--text-primary)] font-semibold mb-3">{t('finance.options_title')}</h3>
           <div className="grid md:grid-cols-2 gap-4">
             {allOptions.map((opt, i) => (
-              <GlassCard key={`${opt.name}-${opt.provider}-${i}`} className={`relative transition-all ${opt.is_recommended ? 'border-2 border-[var(--accent-solid)] shadow-[0_0_15px_rgba(74,63,68,0.15)]' : (opt.eligible ? 'border border-emerald-500/30' : 'opacity-70')}`}>
+              <GlassCard key={`${opt.name}-${opt.provider}-${i}`} index={i} className={`relative transition-all ${opt.is_recommended ? 'border-2 border-[var(--accent-solid)] shadow-[0_0_15px_rgba(74,63,68,0.15)]' : (opt.eligible ? 'border border-emerald-500/30' : 'opacity-70')}`}>
                 {opt.is_recommended && (
                   <div className="absolute -top-3 -right-3 bg-[var(--accent-solid)] text-[var(--accent-fg)] text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
                     <Lightbulb size={12} /> {t('finance.recommended')}

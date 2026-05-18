@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useI18n } from '../context/I18nContext';
@@ -62,13 +63,23 @@ export default function LoginPage() {
       </div>
 
       <div className="relative z-10 w-full max-w-md p-4">
-        <div className="flex flex-col items-center mb-10">
-          <img src="/assets/logos/logo-bird.png" alt="Arkus Logo" className="w-32 h-32 object-contain mb-4 drop-shadow-md" />
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="flex flex-col items-center mb-10"
+        >
+          <img src="/assets/logos/logo-bird.png" alt="Arkus AI Logo" className="w-32 h-32 object-contain mb-4 drop-shadow-md" />
           <h1 className="text-5xl font-black text-[var(--text-primary)] tracking-tighter">Arkus</h1>
           <p className="text-[var(--text-muted)] text-sm mt-1 font-medium">{t('auth.tagline')}</p>
-        </div>
+        </motion.div>
 
-        <div className="bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border-color)] p-8 animate-fade-in">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.1 }}
+          className="bg-[var(--bg-card)] rounded-2xl shadow-[0_12px_40px_rgba(74,63,68,0.08)] border border-[var(--border-color)] p-8"
+        >
           <h2 className="text-xl font-bold text-[var(--text-primary)] mb-1">{t('auth.welcome')}</h2>
           <p className="text-[var(--text-muted)] text-sm mb-6">{t('auth.login_subtitle')}</p>
 
@@ -133,7 +144,7 @@ export default function LoginPage() {
               {t('auth.register')}
             </Link>
           </p>
-        </div>
+        </motion.div>
 
         <p className="text-center text-xs text-[var(--text-faint)] mt-6 font-medium">
           {t('auth.copyright')}

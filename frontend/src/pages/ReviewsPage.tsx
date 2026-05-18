@@ -187,7 +187,7 @@ export default function ReviewsPage() {
 
       {/* Sentiment + AI controls */}
       <div className="grid lg:grid-cols-3 gap-4">
-        <GlassCard className="p-5 lg:col-span-2">
+        <GlassCard index={0} className="p-5 lg:col-span-2">
           <div className="flex flex-wrap items-center gap-2 mb-4">
             <Brain size={16} className="text-[var(--accent)]" />
             <h3 className="text-[var(--text-primary)] font-semibold flex-1">{t('reviews.ai_analysis')}</h3>
@@ -237,7 +237,7 @@ export default function ReviewsPage() {
           />
         </GlassCard>
 
-        <GlassCard className="p-5">
+        <GlassCard index={1} className="p-5">
           <div className="flex items-center gap-2 mb-3">
             <Star size={16} className="text-amber-400" />
             <h3 className="text-[var(--text-primary)] font-semibold">{t('reviews.sentiment')}</h3>
@@ -286,7 +286,7 @@ export default function ReviewsPage() {
       </div>
 
       {/* Filters + Reviews list */}
-      <GlassCard className="p-5">
+      <GlassCard index={2} className="p-5">
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3 mb-4">
           <div className="w-full sm:w-auto">
             <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold mb-1">{t('common.marketplace')}</p>
@@ -367,9 +367,9 @@ export default function ReviewsPage() {
       </GlassCard>
 
       {/* Analiz Geçmişi (her zaman görünür — boşken empty state) */}
-      <GlassCard className="p-5">
+      <GlassCard index={3} className="p-5">
         <div className="flex items-center gap-2 mb-3">
-          <History size={16} className="text-cyan-400" />
+          <History size={16} className="text-[var(--accent)]" />
           <h3 className="text-[var(--text-primary)] font-semibold">{t('reviews.history')}</h3>
           <span className="text-xs text-[var(--text-muted)] ml-auto">
             {history?.total ?? 0} {t('reviews.records')}
@@ -416,7 +416,7 @@ export default function ReviewsPage() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
               <div className="flex items-center gap-3">
-                <History size={18} className="text-cyan-400" />
+                <History size={18} className="text-[var(--accent)]" />
                 <h3 className="text-lg font-semibold text-[var(--text-primary)]">
                   {selectedHistory.analysis_type === 'short' ? t('reviews.short') : selectedHistory.analysis_type === 'detailed' ? t('reviews.detailed') : selectedHistory.analysis_type} {t('reviews.title')}
                 </h3>

@@ -72,15 +72,15 @@ export default function ArbitragePage() {
     <div className="space-y-6 animate-fade-in">
       {/* Özet */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <GlassCard className="bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent)]/5">
+        <GlassCard index={0} className="bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent)]/5">
           <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider">{t('arbitrage.total_opp')}</p>
           <p className="text-4xl font-bold text-[var(--text-primary)] mt-1">{summary?.total_opportunities ?? 0}</p>
         </GlassCard>
-        <GlassCard className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10">
+        <GlassCard index={1} className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10">
           <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider">{t('arbitrage.monthly_potential')}</p>
           <p className="text-3xl font-bold text-emerald-500 mt-1">{formatCurrency(summary?.total_monthly_potential)}</p>
         </GlassCard>
-        <GlassCard className="bg-gradient-to-br from-[var(--accent)]/15 to-[var(--accent)]/5">
+        <GlassCard index={2} className="bg-gradient-to-br from-[var(--accent)]/15 to-[var(--accent)]/5">
           <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider">{t('arbitrage.biggest_gap')}</p>
           <p className="text-[var(--text-primary)] font-semibold mt-1 text-sm">{summary?.biggest_gap_product ?? '—'}</p>
         </GlassCard>
@@ -90,10 +90,10 @@ export default function ArbitragePage() {
         ? <EmptyState title={t('arbitrage.no_opp')} description={t('arbitrage.no_opp_desc')} />
         : (
           <div className="space-y-3">
-            {opportunities.map((opp) => {
+            {opportunities.map((opp, i) => {
               const isOpen = selected === opp.product_id;
               return (
-                <GlassCard key={opp.product_id} className={`cursor-pointer transition-all ${isOpen ? 'border border-[var(--accent)]/40' : 'hover:border-[var(--border-strong)]'}`}
+                <GlassCard key={opp.product_id} index={i} className={`cursor-pointer transition-all ${isOpen ? 'border border-[var(--accent)]/40' : 'hover:border-[var(--border-strong)]'}`}
                   onClick={() => handleSelect(opp.product_id)}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

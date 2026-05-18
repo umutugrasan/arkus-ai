@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Bell, CheckCheck, RefreshCw, Info, AlertTriangle, XCircle, Copy, Check, MessageSquare } from 'lucide-react';
+import { motion } from 'framer-motion';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import EmptyState from '../components/shared/EmptyState';
+import { staggerContainer, staggerItem } from '../utils/motion';
 import { notificationService } from '../services';
 import { formatDate } from '../utils/formatters';
 import { useI18n } from '../context/I18nContext';
@@ -186,14 +188,14 @@ export default function NotificationsPage() {
       {notifications.length === 0
         ? <EmptyState title={t('notifications.empty_title')} description={t('notifications.empty_desc')} />
         : (
-          <div className="space-y-2">
+          <motion.div className="space-y-2" initial="hidden" animate="visible" variants={staggerContainer}>
             {notifications.map(n => {
               const sev = SEVERITY_CONFIG[n.severity] || SEVERITY_CONFIG.info;
               const isDraft = n.type === 'yorum_cevap_taslagi';
               const draftText = isDraft ? extractDraftFromMessage(n.message) : null;
               const isCopied = copiedId === n.id;
               return (
-                <div key={n.id} onClick={() => !n.read && handleMarkRead(n.id)}
+                <motion.div key={n.id} variants={staggerItem} onClick={() => !n.read && handleMarkRead(n.id)}
                   className={`p-4 rounded-2xl border transition-all ${
                     !n.read ? `${sev.bg} cursor-pointer hover:opacity-80` : 'bg-[var(--bg-elevated)] border-[var(--border-color)] opacity-70'
                   }`}>
@@ -248,10 +250,10 @@ export default function NotificationsPage() {
                     </div>
                     <p className="text-[var(--text-muted)] text-xs flex-shrink-0">{formatDate(n.created_at)}</p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )
       }
     </div>

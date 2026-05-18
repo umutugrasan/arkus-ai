@@ -83,7 +83,7 @@ export default function ProductsPage() {
 
       {/* Top sellers + Low stock alerts */}
       <div className="grid lg:grid-cols-2 gap-4">
-        <GlassCard className="p-5">
+        <GlassCard index={0} className="p-5">
           <div className="flex items-center gap-2 mb-3">
             <Trophy size={16} className="text-amber-500" />
             <h3 className="text-[var(--text-primary)] font-semibold">{t('products.top_sellers')}</h3>
@@ -120,7 +120,7 @@ export default function ProductsPage() {
           )}
         </GlassCard>
 
-        <GlassCard className="p-5">
+        <GlassCard index={1} className="p-5">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle size={16} className="text-rose-500" />
             <h3 className="text-[var(--text-primary)] font-semibold">{t('products.low_stock_title')}</h3>
@@ -166,7 +166,7 @@ export default function ProductsPage() {
       </div>
 
       {/* Tüm ürünler */}
-      <GlassCard className="p-5">
+      <GlassCard index={2} className="p-5">
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 mb-4">
           <h3 className="text-[var(--text-primary)] font-semibold sm:flex-1">{t('products.all_products')}</h3>
           <Input

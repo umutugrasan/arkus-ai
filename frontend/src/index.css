@@ -72,20 +72,20 @@ body {
 .dark ::-webkit-scrollbar-thumb { background: #3a2f33; }
 .dark ::-webkit-scrollbar-thumb:hover { background: #4a3d42; }
 
-/* Custom Cards — token-backed (auto light/dark) */
+/* Arkus AI — premium yüzeyler: yüksek-difüzyon ambient gölge, yumuşak köşe */
 .kpi-card {
-  @apply bg-[var(--bg-card)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] border border-[var(--border-color)] p-4 flex flex-col justify-between transition-all hover:shadow-sm;
+  @apply bg-[var(--bg-card)] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.012)] border border-[var(--border-color)] p-4 flex flex-col justify-between transition-all duration-300 hover:shadow-[0_14px_40px_rgba(74,63,68,0.06)];
   min-height: 120px;
 }
 .metric-card {
-  @apply bg-[var(--bg-card)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] border border-[var(--border-color)] p-4 transition-all;
+  @apply bg-[var(--bg-card)] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.012)] border border-[var(--border-color)] p-4 transition-all duration-300;
 }
 .chart-container {
-  @apply bg-[var(--bg-card)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] border border-[var(--border-color)] p-6;
+  @apply bg-[var(--bg-card)] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.012)] border border-[var(--border-color)] p-6;
 }
 
 .glass-card {
-  @apply bg-[var(--bg-card)] backdrop-blur-md border border-[var(--border-strong)] rounded-xl shadow-sm;
+  @apply bg-[var(--bg-card)] backdrop-blur-md border border-[var(--border-color)] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.012)];
 }
 
 /* AI response box */
@@ -336,3 +336,9 @@ body {
 .dark .shadow-md,
 .dark .shadow-lg,
 .dark .shadow-xl { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important; }
+
+/* Premium kartlar — dark modda görünür ama yumuşak elevation */
+.dark .kpi-card,
+.dark .metric-card,
+.dark .chart-container,
+.dark .glass-card { box-shadow: 0 8px 26px rgba(0, 0, 0, 0.32) !important; }

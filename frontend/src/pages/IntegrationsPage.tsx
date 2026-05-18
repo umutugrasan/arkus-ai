@@ -159,7 +159,7 @@ export default function IntegrationsPage() {
         </a>
       </div>
 
-      <GlassCard>
+      <GlassCard index={0}>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
           <div className="min-w-44">
             <label className="text-[var(--text-muted)] text-xs block mb-1.5">{t('common.marketplace')}</label>
@@ -200,7 +200,7 @@ export default function IntegrationsPage() {
         )}
       </GlassCard>
 
-      <GlassCard>
+      <GlassCard index={1}>
         <div className="flex items-center justify-between gap-3 mb-4">
           <h3 className="text-[var(--text-primary)] font-semibold">{t('integrations.active_title')}</h3>
           <button

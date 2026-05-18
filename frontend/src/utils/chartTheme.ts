@@ -17,10 +17,10 @@ export function getChartTheme(isDark: boolean): ChartTheme {
         tooltipText: '#e9e1e3',
       }
     : {
-        grid: '#e5e7eb',
-        axis: '#9ca3af',
+        grid: '#ebe6dd',
+        axis: '#b3a99d',
         tooltipBg: '#ffffff',
-        tooltipBorder: '#e5e7eb',
+        tooltipBorder: '#ebe6dd',
         tooltipText: '#1e293b',
       };
 }

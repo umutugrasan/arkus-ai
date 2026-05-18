@@ -132,7 +132,7 @@ export default function ProductDetailPage() {
       )}
 
       {/* Listings tablosu */}
-      <GlassCard className="p-5">
+      <GlassCard index={0} className="p-5">
         <div className="flex items-center gap-2 mb-3">
           <ShoppingBag size={16} className="text-[var(--accent)]" />
           <h3 className="text-[var(--text-primary)] font-semibold">{t('productdetail.listings')}</h3>
@@ -189,7 +189,7 @@ export default function ProductDetailPage() {
 
       {/* Görseller */}
       {images && images.images_by_marketplace.length > 0 && (
-        <GlassCard className="p-5">
+        <GlassCard index={1} className="p-5">
           <div className="flex items-center gap-2 mb-3">
             <ImageIcon size={16} className="text-[var(--accent)]" />
             <h3 className="text-[var(--text-primary)] font-semibold">{t('productdetail.images')}</h3>

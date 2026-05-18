@@ -263,6 +263,7 @@ export default function DashboardPage() {
           icon={<DollarSign size={18} />}
           accentColor="indigo"
           subtitle={t('dashboard.last_30d')}
+          index={0}
         />
         <StatCard
           title={t('dashboard.net_profit')}
@@ -270,12 +271,14 @@ export default function DashboardPage() {
           icon={<TrendingUp size={18} />}
           accentColor="emerald"
           subtitle={t('dashboard.after_ads')}
+          index={1}
         />
         <StatCard
           title={t('dashboard.profit_margin')}
           value={formatPercent(o.overall_net_margin)}
           icon={<Percent size={18} />}
           accentColor="violet"
+          index={2}
         />
         <StatCard
           title={t('dashboard.total_sales')}
@@ -283,6 +286,7 @@ export default function DashboardPage() {
           icon={<ShoppingCart size={18} />}
           accentColor="cyan"
           subtitle={t('dashboard.units')}
+          index={3}
         />
         <StatCard
           title={t('dashboard.roas')}
@@ -290,12 +294,14 @@ export default function DashboardPage() {
           icon={<Target size={18} />}
           accentColor="amber"
           subtitle={t('dashboard.ad_return')}
+          index={4}
         />
         <StatCard
           title={t('dashboard.return_rate')}
           value={formatPercent(o.overall_return_rate)}
           icon={<RotateCcw size={18} />}
           accentColor="rose"
+          index={5}
         />
       </div>
 
@@ -457,10 +463,10 @@ export default function DashboardPage() {
       <div>
         <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4 mt-8">{t('dashboard.mp_cards')}</h3>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {mpSummaries.map((mp) => {
+          {mpSummaries.map((mp, i) => {
             const cfg = MARKETPLACES[mp.marketplace];
             return (
-              <GlassCard key={mp.marketplace} className="p-5 space-y-3">
+              <GlassCard key={mp.marketplace} index={i} className="p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className={`text-[11px] font-bold ${cfg?.textColor || 'text-[var(--text-muted)]'}`}>

@@ -100,13 +100,13 @@ export default function SettingsPage() {
       </div>
 
       {/* Language section */}
-      <GlassCard>
+      <GlassCard index={0}>
         <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('settings.language')}</h3>
         <LanguageSwitcher />
       </GlassCard>
 
       {tab === 'profile' && (
-        <GlassCard>
+        <GlassCard index={1}>
           <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('settings.profile_info')}</h3>
           <div className="space-y-4">
             {[
@@ -138,7 +138,7 @@ export default function SettingsPage() {
       )}
 
       {tab === 'security' && (
-        <GlassCard>
+        <GlassCard index={1}>
           <h3 className="text-[var(--text-primary)] font-semibold mb-4 flex items-center gap-2">
             <Lock size={16} className="text-[var(--accent)]" /> {t('settings.change_password')}
           </h3>
