@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { DollarSign, TrendingUp, BarChart2, Zap, Brain } from 'lucide-react';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
+import { motion } from 'framer-motion';
 import StatCard from '../components/shared/StatCard';
 import GlassCard from '../components/shared/GlassCard';
 import { Skeleton, SkeletonCard } from '../components/shared/Skeleton';
@@ -14,6 +15,7 @@ import { useI18n } from '../context/I18nContext';
 import { useTheme } from '../hooks/useTheme';
 import { getChartTheme } from '../utils/chartTheme';
 import { useBackgroundAnalysis } from '../context/AnalysisContext';
+import { pageVariants, staggerItem, staggerContainer } from '../utils/motion';
 import type {
   FinancialOverviewResponse, MarketplaceFinancialRow, ProductFinancialRow,
   ExpensesResponse, CashFlowResponse, FinancialAnalyzeResponse,
@@ -21,6 +23,10 @@ import type {
 
 // Arkus AI — sıcak gider paleti (espresso · mocha · oker · adaçayı)
 const PIE_COLORS = ['#4a3f44', '#b0826b', '#c9a05c', '#8fae94'];
+
+// Grafik renkleri — gelir espresso, kâr adaçayı
+const REVENUE_COLOR = '#6b6266';
+const PROFIT_COLOR  = '#7fae94';
 
 type Tab = 'marketplace' | 'product' | 'expenses' | 'cashflow';
 
@@ -50,22 +56,36 @@ export default function FinancialsPage() {
     abortRef.current = new AbortController();
     const signal = abortRef.current.signal;
 
-    Promise.all([
-      financialService.overview(signal).catch(() => null),
-      financialService.byMarketplace(signal).catch(() => ({ marketplaces: [] })),
-      financialService.byProduct(signal).catch(() => ({ products: [] })),
-      financialService.expenses(signal).catch(() => null),
-      financialService.cashFlow(signal).catch(() => null),
-    ]).then(([ov, mp, prod, exp, cf]) => {
-      if (!mountedRef.current || signal.aborted) return;
-      setOverview(ov);
-      setByMP(mp.marketplaces);
-      setByProduct(prod.products);
-      setExpenses(exp);
-      setCashFlow(cf);
-    }).finally(() => {
-      if (mountedRef.current && !signal.aborted) setLoading(false);
-    });
+    financialService.full(signal)
+      .then((data) => {
+        if (!mountedRef.current || signal.aborted) return;
+        setOverview(data.overview);
+        setByMP(data.by_marketplace.marketplaces);
+        setByProduct(data.by_product.products);
+        setExpenses(data.expenses);
+        setCashFlow(data.cash_flow);
+      })
+      .catch(() => {
+        // Yedek: konsolide endpoint patlarsa eski 5 ayri endpoint'ten dene
+        if (!mountedRef.current || signal.aborted) return;
+        Promise.all([
+          financialService.overview(signal).catch(() => null),
+          financialService.byMarketplace(signal).catch(() => ({ marketplaces: [] })),
+          financialService.byProduct(signal).catch(() => ({ products: [] })),
+          financialService.expenses(signal).catch(() => null),
+          financialService.cashFlow(signal).catch(() => null),
+        ]).then(([ov, mp, prod, exp, cf]) => {
+          if (!mountedRef.current || signal.aborted) return;
+          setOverview(ov);
+          setByMP(mp.marketplaces);
+          setByProduct(prod.products);
+          setExpenses(exp);
+          setCashFlow(cf);
+        });
+      })
+      .finally(() => {
+        if (mountedRef.current && !signal.aborted) setLoading(false);
+      });
 
     return () => {
       mountedRef.current = false;
@@ -117,158 +137,311 @@ export default function FinancialsPage() {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <motion.div
+      className="space-y-6"
+      variants={pageVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* KPI Cards */}
+      <motion.div variants={staggerItem} className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard title={t('financials.total_revenue')} value={formatCurrency(ov?.total_revenue)} icon={<DollarSign size={18} />} accentColor="indigo" index={0} />
         <StatCard title={t('financials.net_profit_ads')} value={formatCurrency(ov?.total_net_after_ads)} icon={<TrendingUp size={18} />} accentColor="emerald" index={1} />
         <StatCard title={t('financials.net_margin')} value={formatPercent(ov?.overall_net_margin)} icon={<BarChart2 size={18} />} accentColor="violet" index={2} />
         <StatCard title={t('common.roas')} value={ov?.overall_roas?.toFixed(2) ?? '—'} icon={<Zap size={18} />} accentColor="amber" index={3} />
-      </div>
+      </motion.div>
 
+      {/* ── Aylık Trend Grafiği — Dashboard stilinde AreaChart ── */}
       {history.length > 0 && (
-        <GlassCard index={0}>
-          <h3 className="text-[var(--text-primary)] font-semibold mb-4">{t('financials.monthly_trend')}</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={history}>
-              <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
-              <XAxis dataKey="month" tick={{ fill: chart.axis, fontSize: 11 }} />
-              <YAxis tick={{ fill: chart.axis, fontSize: 11 }} tickFormatter={(v: number) => `₺${(v / 1000).toFixed(0)}K`} />
-              <Tooltip contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: 8 }}
-                labelStyle={{ color: chart.tooltipText }} itemStyle={{ color: chart.tooltipText }}
-                formatter={(value) => formatCurrency(Number(value))} />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" name={t('financials.revenue')} stroke="#6b6266" strokeWidth={2.5} dot={false} />
-              <Line type="monotone" dataKey="profit" name={t('financials.profit')} stroke="#7fae94" strokeWidth={2.5} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </GlassCard>
+        <motion.div variants={staggerItem}>
+          <GlassCard index={0} className="p-5">
+            <h3 className="text-[var(--text-primary)] font-bold mb-5">{t('financials.monthly_trend')}</h3>
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={history} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                <defs>
+                  {/* Gelir gradient */}
+                  <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"  stopColor={REVENUE_COLOR} stopOpacity={0.2} />
+                    <stop offset="85%" stopColor={REVENUE_COLOR} stopOpacity={0.02} />
+                    <stop offset="100%" stopColor={REVENUE_COLOR} stopOpacity={0} />
+                  </linearGradient>
+                  {/* Kâr gradient */}
+                  <linearGradient id="gradProfit" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"  stopColor={PROFIT_COLOR} stopOpacity={0.22} />
+                    <stop offset="85%" stopColor={PROFIT_COLOR} stopOpacity={0.02} />
+                    <stop offset="100%" stopColor={PROFIT_COLOR} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+
+                <CartesianGrid
+                  stroke={chart.grid}
+                  strokeDasharray="4 4"
+                  vertical={false}
+                  strokeOpacity={0.7}
+                />
+                <XAxis
+                  dataKey="month"
+                  stroke={chart.axis}
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  dy={4}
+                />
+                <YAxis
+                  stroke={chart.axis}
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  width={52}
+                  tickFormatter={(v: number) => `₺${(v / 1000).toFixed(0)}K`}
+                />
+                <Tooltip
+                  formatter={(value, name) => [
+                    formatCurrency(Number(value)),
+                    name === 'revenue' ? t('financials.revenue') : t('financials.profit'),
+                  ]}
+                  contentStyle={{
+                    background: chart.tooltipBg,
+                    border: `1px solid ${chart.tooltipBorder}`,
+                    borderRadius: 10,
+                    fontSize: 12,
+                    boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                    padding: '8px 12px',
+                  }}
+                  labelStyle={{ color: chart.tooltipText, fontWeight: 600, marginBottom: 4 }}
+                  itemStyle={{ color: chart.tooltipText }}
+                  cursor={{ stroke: chart.grid, strokeWidth: 1.5, strokeDasharray: '3 3' }}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+                  formatter={(value) =>
+                    value === 'revenue' ? t('financials.revenue') : t('financials.profit')
+                  }
+                />
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  name="revenue"
+                  stroke={REVENUE_COLOR}
+                  fillOpacity={1}
+                  fill="url(#gradRevenue)"
+                  strokeWidth={2.5}
+                  dot={false}
+                  connectNulls={true}
+                  activeDot={{ r: 4, strokeWidth: 2, fill: REVENUE_COLOR }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="profit"
+                  name="profit"
+                  stroke={PROFIT_COLOR}
+                  fillOpacity={1}
+                  fill="url(#gradProfit)"
+                  strokeWidth={2.5}
+                  dot={false}
+                  connectNulls={true}
+                  activeDot={{ r: 4, strokeWidth: 2, fill: PROFIT_COLOR }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </GlassCard>
+        </motion.div>
       )}
 
-      <GlassCard index={1}>
-        <div className="overflow-x-auto -mx-1 px-1 mb-5">
-          <div className="flex gap-1 bg-[var(--bg-muted)] p-1 rounded-xl w-fit min-w-full sm:min-w-0">
-            {tabs.map(tb => (
-              <button key={tb.id} onClick={() => setTab(tb.id)}
-                className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${tab === tb.id ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)] shadow' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>
-                {tb.label}
-              </button>
-            ))}
+      {/* ── Sekmeli İçerik ── */}
+      <motion.div variants={staggerItem}>
+        <GlassCard index={1}>
+          {/* Tab bar */}
+          <div className="overflow-x-auto -mx-1 px-1 mb-5">
+            <div className="flex gap-1 bg-[var(--bg-muted)] p-1 rounded-xl w-fit min-w-full sm:min-w-0">
+              {tabs.map(tb => (
+                <button key={tb.id} onClick={() => setTab(tb.id)}
+                  className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    tab === tb.id
+                      ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)] shadow'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                  }`}>
+                  {tb.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {tab === 'marketplace' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-[var(--text-muted)] border-b border-[var(--border-color)]">
-                  {[t('common.marketplace'), t('financials.revenue'), t('common.net_profit'), t('common.margin'), t('common.roas'), t('common.sales')].map(h => (
-                    <th key={h} className="text-left pb-2 pr-4 font-medium">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {byMP.map((mp) => (
-                  <tr key={mp.marketplace} className="border-b border-[var(--border-color)] hover:bg-[var(--bg-elevated)] transition-colors">
-                    <td className="py-3 pr-4 text-[var(--text-primary)] font-medium capitalize">{mp.marketplace}</td>
-                    <td className="py-3 pr-4 text-[var(--text-primary)]">{formatCurrency(mp.revenue)}</td>
-                    <td className={`py-3 pr-4 font-semibold ${mp.net_after_ads >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>{formatCurrency(mp.net_after_ads)}</td>
-                    <td className="py-3 pr-4 text-[var(--text-secondary)]">{formatPercent(mp.net_margin_pct)}</td>
-                    <td className="py-3 pr-4 text-[var(--text-secondary)]">{mp.roas?.toFixed(2)}</td>
-                    <td className="py-3 text-[var(--text-secondary)]">{formatNumber(mp.sales)}</td>
+          {/* Marketplace tablosu */}
+          {tab === 'marketplace' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-[var(--text-muted)] border-b border-[var(--border-color)]">
+                    {[t('common.marketplace'), t('financials.revenue'), t('common.net_profit'), t('common.margin'), t('common.roas'), t('common.sales')].map(h => (
+                      <th key={h} className="text-left pb-2 pr-4 font-medium">{h}</th>
+                    ))}
                   </tr>
+                </thead>
+                <tbody>
+                  {byMP.map((mp) => (
+                    <tr key={mp.marketplace} className="border-b border-[var(--border-color)] hover:bg-[var(--bg-elevated)] transition-colors">
+                      <td className="py-3 pr-4 text-[var(--text-primary)] font-medium capitalize">{mp.marketplace}</td>
+                      <td className="py-3 pr-4 text-[var(--text-primary)]">{formatCurrency(mp.revenue)}</td>
+                      <td className={`py-3 pr-4 font-semibold ${mp.net_after_ads >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>{formatCurrency(mp.net_after_ads)}</td>
+                      <td className="py-3 pr-4 text-[var(--text-secondary)]">{formatPercent(mp.net_margin_pct)}</td>
+                      <td className="py-3 pr-4 text-[var(--text-secondary)]">{mp.roas?.toFixed(2)}</td>
+                      <td className="py-3 text-[var(--text-secondary)]">{formatNumber(mp.sales)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Ürün bazlı */}
+          {tab === 'product' && (
+            <motion.div
+              className="space-y-2"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+            >
+              {byProduct.slice(0, 10).map((p, i) => (
+                <motion.div
+                  key={p.id ?? `${p.name}-${i}`}
+                  variants={staggerItem}
+                  className="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-muted)] transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-[var(--text-muted)] text-xs w-5">{i + 1}</span>
+                    <div>
+                      <p className="text-[var(--text-primary)] text-sm font-medium">{p.name}</p>
+                      <p className="text-[var(--text-muted)] text-xs">{formatNumber(p.total_sales)} {t('products.units')}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className={`font-semibold text-sm ${p.total_net_profit >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>{formatCurrency(p.total_net_profit)}</p>
+                    <p className="text-[var(--text-muted)] text-xs">{formatPercent(p.net_margin_pct)} {t('common.margin').toLowerCase()}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+
+          {/* Giderler */}
+          {tab === 'expenses' && expenses && (
+            <div className="grid md:grid-cols-2 gap-6">
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={52}
+                    outerRadius={82}
+                    dataKey="value"
+                    paddingAngle={3}
+                  >
+                    {pieData.map((_, idx) => (
+                      <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} fillOpacity={0.9} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value) => formatCurrency(Number(value))}
+                    contentStyle={{
+                      background: chart.tooltipBg,
+                      border: `1px solid ${chart.tooltipBorder}`,
+                      borderRadius: 10,
+                      fontSize: 12,
+                      boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                      padding: '8px 12px',
+                    }}
+                    labelStyle={{ color: chart.tooltipText, fontWeight: 600 }}
+                    itemStyle={{ color: chart.tooltipText }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="space-y-3 self-center">
+                {Object.entries(expenses.breakdown || {}).map(([key, val], i) => (
+                  <div key={key}>
+                    <div className="flex justify-between text-sm mb-1.5">
+                      <span className="text-[var(--text-secondary)] capitalize">{key.replace('_', ' ')}</span>
+                      <span className="text-[var(--text-primary)] font-medium">
+                        {formatCurrency(val.amount)} <span className="text-[var(--text-muted)] text-xs">(%{val.pct})</span>
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-[var(--bg-muted)] rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${val.pct}%` }}
+                        transition={{ duration: 0.7, ease: 'easeOut', delay: i * 0.08 }}
+                        style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
+                      />
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {tab === 'product' && (
-          <div className="space-y-2">
-            {byProduct.slice(0, 10).map((p, i) => (
-              <div key={p.id ?? `${p.name}-${i}`} className="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-muted)] transition-colors">
-                <div className="flex items-center gap-3">
-                  <span className="text-[var(--text-muted)] text-xs w-5">{i + 1}</span>
-                  <div>
-                    <p className="text-[var(--text-primary)] text-sm font-medium">{p.name}</p>
-                    <p className="text-[var(--text-muted)] text-xs">{formatNumber(p.total_sales)} {t('products.units')}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className={`font-semibold text-sm ${p.total_net_profit >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>{formatCurrency(p.total_net_profit)}</p>
-                  <p className="text-[var(--text-muted)] text-xs">{formatPercent(p.net_margin_pct)} {t('common.margin').toLowerCase()}</p>
-                </div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          )}
 
-        {tab === 'expenses' && expenses && (
-          <div className="grid md:grid-cols-2 gap-6">
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value">
-                  {pieData.map((_, idx) => <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
-                </Pie>
-                <Tooltip formatter={(value) => formatCurrency(Number(value))}
-                  contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: 8 }}
-                  labelStyle={{ color: chart.tooltipText }} itemStyle={{ color: chart.tooltipText }} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="space-y-3">
-              {Object.entries(expenses.breakdown || {}).map(([key, val], i) => (
-                <div key={key}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-[var(--text-secondary)] capitalize">{key.replace('_', ' ')}</span>
-                    <span className="text-[var(--text-primary)] font-medium">{formatCurrency(val.amount)} <span className="text-[var(--text-muted)] text-xs">(%{val.pct})</span></span>
+          {/* Nakit Akışı */}
+          {tab === 'cashflow' && cashFlow && (
+            <motion.div
+              className="space-y-4"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+            >
+              <motion.div variants={staggerItem} className={`p-4 rounded-xl border ${cfg.bg}`}>
+                <p className={`text-lg font-bold ${cfg.text}`}>{cfg.label}</p>
+                {cashFlow.runway_months != null && (
+                  <p className="text-[var(--text-secondary)] text-sm mt-1">
+                    {t('financials.runway').replace('{months}', String(cashFlow.runway_months))}
+                  </p>
+                )}
+              </motion.div>
+              <motion.div variants={staggerItem} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { label: t('financials.cf_balance'), value: formatCurrency(cashFlow.current_balance) },
+                  { label: t('financials.cf_monthly_revenue'), value: formatCurrency(cashFlow.monthly_revenue) },
+                  { label: t('financials.cf_monthly_profit'), value: formatCurrency(cashFlow.monthly_net_profit) },
+                  { label: t('financials.cf_receivables'), value: formatCurrency(cashFlow.pending_receivables) },
+                  { label: t('financials.cf_upcoming'), value: formatCurrency(cashFlow.upcoming_expenses) },
+                ].map(m => (
+                  <div key={m.label} className="p-3 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-color)] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                    <p className="text-[var(--text-muted)] text-xs">{m.label}</p>
+                    <p className="text-[var(--text-primary)] font-semibold mt-1">{m.value}</p>
                   </div>
-                  <div className="h-1.5 bg-[var(--bg-muted)] rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${val.pct}%`, background: PIE_COLORS[i % PIE_COLORS.length] }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+        </GlassCard>
+      </motion.div>
 
-        {tab === 'cashflow' && cashFlow && (
-          <div className="space-y-4">
-            <div className={`p-4 rounded-xl border ${cfg.bg}`}>
-              <p className={`text-lg font-bold ${cfg.text}`}>{cfg.label}</p>
-              {cashFlow.runway_months != null && (
-                <p className="text-[var(--text-secondary)] text-sm mt-1">{t('financials.runway').replace('{months}', String(cashFlow.runway_months))}</p>
-              )}
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[
-                { label: t('financials.cf_balance'), value: formatCurrency(cashFlow.current_balance) },
-                { label: t('financials.cf_monthly_revenue'), value: formatCurrency(cashFlow.monthly_revenue) },
-                { label: t('financials.cf_monthly_profit'), value: formatCurrency(cashFlow.monthly_net_profit) },
-                { label: t('financials.cf_receivables'), value: formatCurrency(cashFlow.pending_receivables) },
-                { label: t('financials.cf_upcoming'), value: formatCurrency(cashFlow.upcoming_expenses) },
-              ].map(m => (
-                <div key={m.label} className="p-3 bg-[var(--bg-elevated)] rounded-xl">
-                  <p className="text-[var(--text-muted)] text-xs">{m.label}</p>
-                  <p className="text-[var(--text-primary)] font-semibold mt-1">{m.value}</p>
-                </div>
-              ))}
-            </div>
+      {/* ── AI Analiz ── */}
+      <motion.div variants={staggerItem}>
+        <GlassCard index={2}>
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1">
+              <Brain size={16} className="text-[var(--accent)]" /> {t('financials.ai_analysis')}
+            </h3>
+            <motion.button
+              onClick={handleAiAnalysis}
+              disabled={aiLoading}
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50 shadow-[0_4px_16px_rgba(74,63,68,0.2)]"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {aiLoading
+                ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> {t('common.analyzing')}</>
+                : <><Brain size={14} /> {t('common.analyze')}</>
+              }
+            </motion.button>
           </div>
-        )}
-      </GlassCard>
-
-      <GlassCard index={2}>
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <h3 className="text-[var(--text-primary)] font-semibold flex items-center gap-2 flex-1"><Brain size={16} className="text-[var(--accent)]" /> {t('financials.ai_analysis')}</h3>
-          <button onClick={handleAiAnalysis} disabled={aiLoading}
-            className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl text-sm font-medium transition-all disabled:opacity-50">
-            {aiLoading ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> {t('common.analyzing')}</> : <><Brain size={14} /> {t('common.analyze')}</>}
-          </button>
-        </div>
-        {aiAnalysis
-          ? <StreamingMarkdown content={aiAnalysis} title={t('financials.ai_analysis')} />
-          : <p className="text-[var(--text-muted)] text-sm">{t('financials.ai_desc')}</p>
-        }
-      </GlassCard>
-    </div>
+          {aiAnalysis
+            ? <StreamingMarkdown content={aiAnalysis} title={t('financials.ai_analysis')} />
+            : <p className="text-[var(--text-muted)] text-sm">{t('financials.ai_desc')}</p>
+          }
+        </GlassCard>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -139,30 +139,14 @@ Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JS
     # ── 2. Search grounding basarisizsa search'suz dene ──
     if not raw_text:
         try:
+            logger.info("Sourcing: search grounding yok, ask_gemini ile fallback...")
             raw_text = await ask_gemini(prompt, system, endpoint="sourcing_best_price")
             raw_text = (raw_text or "").strip()
             if raw_text.startswith("⚠"):
-            result = await ask_gemini_with_search(prompt, system, pool="analyze")
-            raw_text = (result.get("text") or "").strip()
-            if raw_text.startswith("\u26a0"):  # ⚠️ mock fallback geldi
-                raw_text = ""
-        except Exception as e_search:
-            logger.warning(f"ask_gemini_with_search basarisiz ({type(e_search).__name__}), search'suz deneniyor...")
-
-        # ── 2. Fallback: Search grounding basarisizsa search'suz dene ──
-        if not raw_text:
-            try:
-                logger.info("Sourcing: search grounding yok, ask_gemini ile fallback...")
-                raw_text = await ask_gemini(prompt, system, endpoint="sourcing_best_price", pool="analyze")
-                raw_text = (raw_text or "").strip()
-                if raw_text.startswith("\u26a0"):
-                    raw_text = ""
-            except Exception as e_plain:
-                logger.error(f"ask_gemini da basarisiz: {type(e_plain).__name__}: {e_plain}")
                 raw_text = ""
         except Exception as e_plain:
             logger.error(f"ask_gemini da basarisiz: {type(e_plain).__name__}: {e_plain}")
-            return []
+            raw_text = ""
 
     if not raw_text:
         return []

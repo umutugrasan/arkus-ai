@@ -13,6 +13,8 @@ const LandingPage = lazy(() => import('./pages/LandingPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
+const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const ProductsPage = lazy(() => import('./pages/ProductsPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
@@ -45,6 +47,8 @@ function AppRoutes() {
       <Route path="/login" element={<Suspense fallback={routeFallback}><LoginPage /></Suspense>} />
       <Route path="/register" element={<Suspense fallback={routeFallback}><RegisterPage /></Suspense>} />
       <Route path="/forgot-password" element={<Suspense fallback={routeFallback}><ForgotPasswordPage /></Suspense>} />
+      <Route path="/privacy" element={<Suspense fallback={routeFallback}><PrivacyPolicyPage /></Suspense>} />
+      <Route path="/terms" element={<Suspense fallback={routeFallback}><TermsOfServicePage /></Suspense>} />
       <Route path="/" element={<Suspense fallback={routeFallback}><LandingPage /></Suspense>} />
 
       {/* Protected routes — Suspense is inside Layout (sidebar stays visible) */}

@@ -45,12 +45,12 @@ export default function LandingPage() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-primary)] backdrop-blur-md border-b border-[var(--border-strong)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/assets/logos/logo-bird.png" alt="Arkus AI Logo" className="w-14 h-14 sm:w-20 sm:h-20 object-contain drop-shadow-sm" />
+          <Link to="/" aria-label="Arkus — Ana sayfa" className="flex items-center gap-3 group">
+            <img src="/assets/logos/logo-bird.png" alt="Arkus AI Logo" className="w-14 h-14 sm:w-20 sm:h-20 object-contain drop-shadow-sm group-hover:scale-105 transition-transform" />
             <span className="hidden sm:inline text-3xl font-black text-[var(--text-primary)] tracking-tighter">
               Arkus
             </span>
-          </div>
+          </Link>
 
           <div className="hidden md:block">
             <NavHeader
@@ -390,8 +390,8 @@ export default function LandingPage() {
             </div>
             <p>{t('landing.footer_copyright')}</p>
             <div className="flex gap-4 mt-4 md:mt-0">
-              <a href="#" className="hover:text-[var(--text-primary)]">{t('landing.footer_privacy')}</a>
-              <a href="#" className="hover:text-[var(--text-primary)]">{t('landing.footer_terms')}</a>
+              <Link to="/privacy" className="hover:text-[var(--text-primary)]">{t('landing.footer_privacy')}</Link>
+              <Link to="/terms" className="hover:text-[var(--text-primary)]">{t('landing.footer_terms')}</Link>
             </div>
           </div>
         </div>

@@ -229,45 +229,89 @@ def seed_db(db: Session):
             ))
     db.commit()
 
-    # 8. financials - son 3 ay agregasyon
-    months = ["2026-03", "2026-04", "2026-05"]
-    for m in months:
-        revenue = 0.0
-        cost = 0.0
-        commission = 0.0
-        shipping = 0.0
-        ad_spend = 0.0
-        for mp in marketplace_objs.values():
-            month_orders = (
-                db.query(Order)
-                .filter(Order.marketplace_name == mp.name, Order.status == "delivered")
-                .all()
-            )
-            mp_revenue = sum(o.total for o in month_orders) / len(months)
-            revenue += mp_revenue
-            commission += mp_revenue * (mp.commission_rate or 0) / 100
-            ad_spend += (mp.ad_spend_30d or 0) / len(months)
-        for product in products_by_code.values():
-            cost += (product.cost or 0) * ((product.sales_30d or 0) / len(months))
-            shipping += (product.shipping_cost or 0) * ((product.sales_30d or 0) / len(months))
+    # 8. financials — son 12 ay, gercekci sezonsal dalgalanma
+    # Temel degerleri bir kere hesapla (30-gunluk gercek satislardan)
+    base_revenue = 0.0
+    base_cost = 0.0
+    base_commission = 0.0
+    base_shipping = 0.0
+    base_ad_spend = 0.0
 
-        profit = revenue - cost - commission - shipping - ad_spend
-        margin = (profit / revenue * 100) if revenue else 0.0
-        roas = (revenue / ad_spend) if ad_spend else 0.0
+    for mp in marketplace_objs.values():
+        month_orders = (
+            db.query(Order)
+            .filter(Order.marketplace_name == mp.name, Order.status == "delivered")
+            .all()
+        )
+        mp_revenue = sum(o.total for o in month_orders)
+        base_revenue    += mp_revenue
+        base_commission += mp_revenue * (mp.commission_rate or 0) / 100
+        base_ad_spend   += mp.ad_spend_30d or 0
+
+    for product in products_by_code.values():
+        base_cost     += (product.cost or 0) * (product.sales_30d or 0)
+        base_shipping += (product.shipping_cost or 0) * (product.sales_30d or 0)
+
+    # Sezonsal carpan: yaz dususu, Q4 zirvesi, Q1 toparlanmasi
+    # 12 ay oncesinden bugune kadar (2025-06 → 2026-05)
+    from datetime import date
+    today_date = date.today()
+    seasonal_multipliers = [
+        # ay_offset: 11 ay once -> 0 ay once
+        # Gercekci e-ticaret kalipları: Q1 toparlanma, Q2 yavasan, Q3 yaz dususu, Q4 guclu
+        0.62,  # -11 ay  (Haziran onceki yil — yaz baslangiç)
+        0.58,  # -10 ay  (Temmuz — yaz zirvesi, duşuk e-ticaret)
+        0.55,  # -9  ay  (Ağustos — yaz tatil)
+        0.71,  # -8  ay  (Eylül — okul dönemi, toparlanma)
+        0.88,  # -7  ay  (Ekim — kampanya başlangıcı)
+        1.18,  # -6  ay  (Kasım — Kara Cuma / 11.11)
+        1.35,  # -5  ay  (Aralık — yılbaşı zirvesi)
+        0.78,  # -4  ay  (Ocak — yılbaşı sonrası düşüş)
+        0.82,  # -3  ay  (Şubat — Sevgililer Günü hafif artış)
+        0.90,  # -2  ay  (Mart — yavaş toparlanma)
+        0.97,  # -1  ay  (Nisan)
+        1.05,  # 0   ay  (Bu ay — mevcut)
+    ]
+
+    for offset, multiplier in enumerate(seasonal_multipliers):
+        # Hedef ay: today_date'den geriye giderek
+        months_back = 11 - offset
+        year  = today_date.year
+        month = today_date.month - months_back
+        while month <= 0:
+            month += 12
+            year  -= 1
+        month_str = f"{year:04d}-{month:02d}"
+
+        # Küçük rastgele gürültü ekle (her ay biraz farklı olsun)
+        import hashlib
+        h = int(hashlib.md5(month_str.encode()).hexdigest(), 16)
+        noise = 1.0 + ((h % 20) - 10) / 100  # ±%10 gürültü
+
+        m = multiplier * noise
+        revenue    = round(base_revenue    * m, 2)
+        cost       = round(base_cost       * m, 2)
+        commission = round(base_commission * m, 2)
+        shipping   = round(base_shipping   * m, 2)
+        ad_spend   = round(base_ad_spend   * m, 2)
+        profit     = round(revenue - cost - commission - shipping - ad_spend, 2)
+        margin     = round(profit / revenue * 100, 2) if revenue else 0.0
+        roas       = round(revenue / ad_spend, 2)  if ad_spend  else 0.0
 
         db.add(Financial(
             user_id=demo_user.id,
-            month=m,
-            revenue=round(revenue, 2),
-            cost=round(cost, 2),
-            commission=round(commission, 2),
-            shipping=round(shipping, 2),
-            ad_spend=round(ad_spend, 2),
-            calculated_profit=round(profit, 2),
-            calculated_margin=round(margin, 2),
-            calculated_roas=round(roas, 2),
+            month=month_str,
+            revenue=revenue,
+            cost=cost,
+            commission=commission,
+            shipping=shipping,
+            ad_spend=ad_spend,
+            calculated_profit=profit,
+            calculated_margin=margin,
+            calculated_roas=roas,
         ))
     db.commit()
+
 
     # 9. notifications - basit ornek (gercek tespit /generate ile yapilir)
     sample_notifs = [

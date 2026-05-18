@@ -24,6 +24,7 @@ import type {
   FinanceEligibilityResponse,
   FinanceOptionsResponse,
   FinancialAnalyzeResponse,
+  FinancialFullResponse,
   FinancialOverviewResponse,
   HealthAnalyzeResponse,
   HealthBreakdownResponse,
@@ -265,6 +266,10 @@ export const arbitrageService = {
 
 // ===================== FINANCIALS =====================
 export const financialService = {
+  full: async (signal?: AbortSignal): Promise<FinancialFullResponse> => {
+    const r = await api.get<FinancialFullResponse>('/financials/full', { signal });
+    return r.data;
+  },
   overview: async (signal?: AbortSignal): Promise<FinancialOverviewResponse> => {
     const r = await api.get<FinancialOverviewResponse>('/financials/overview', { signal });
     return r.data;
@@ -435,6 +440,10 @@ export const reportService = {
   },
   byId: async (id: number): Promise<ReportItem> => {
     const r = await api.get<ReportItem>(`/reports/${id}`);
+    return r.data;
+  },
+  delete: async (id: number) => {
+    const r = await api.delete<{ message: string; id: number }>(`/reports/${id}`);
     return r.data;
   },
   generateDailyStreamUrl: () => `${BASE_URL}/reports/daily/stream`,

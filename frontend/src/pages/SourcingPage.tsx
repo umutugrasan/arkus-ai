@@ -1,5 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Search, Bell, Trash2, Brain, Loader2 } from 'lucide-react';
+import { Search, Bell, Trash2, Brain, Loader2, History, X, Clock } from 'lucide-react';
+
+const HISTORY_KEY = 'sourcing_history_v1';
+const MAX_HISTORY = 20;
+
+interface SearchHistoryItem {
+  id: string;
+  query: string;
+  timestamp: number;
+  bestPrice: BestPriceResponse | null;
+  realSearch: RealSearchResponse | null;
+}
 import type { Supplier as SupplierType } from '../types/api';
 import GlassCard from '../components/shared/GlassCard';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -12,6 +23,13 @@ import type {
   SuppliersResponse, BestPriceResponse, SourcingOpportunitiesResponse,
   PriceAlertsResponse, PriceAlert, RealSearchResponse,
 } from '../types/api';
+
+function loadHistory(): SearchHistoryItem[] {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
+}
+function saveHistory(h: SearchHistoryItem[]) {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0, MAX_HISTORY))); } catch { /* ignore */ }
+}
 
 type Tab = 'suppliers' | 'search' | 'alerts' | 'opportunities';
 
@@ -59,6 +77,8 @@ export default function SourcingPage() {
   const [oppLoading, setOppLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [priceView, setPriceView] = useState<'sale' | 'wholesale'>('sale');
+  const [history, setHistory] = useState<SearchHistoryItem[]>(() => loadHistory());
+  const [showHistory, setShowHistory] = useState(false);
 
   // Alert form
   const [alertProduct, setAlertProduct] = useState('');
@@ -111,14 +131,29 @@ export default function SourcingPage() {
       const bestFailed = bestPriceResult.status === 'rejected';
       const webFailed = realSearchResult.status === 'rejected';
       if (bestFailed && webFailed) {
-        // Her ikisi de başarısız: tam hata
         setSearchError(getApiErrorMessage(bestPriceResult.reason, t('sourcing.search_error')));
       } else if (bestFailed) {
-        // Sadece DB tarafı patladı: kullanıcı web sonuçlarını yine görür, uyarı ver
         setSearchError(t('sourcing.partial_best_price_failed'));
       } else if (webFailed) {
-        // Sadece web araması patladı: DB sonuçları yine var, uyarı ver
         setSearchError(t('sourcing.partial_web_search_failed'));
+      }
+      // Geçmişe kaydet
+      const bp = bestPriceResult.status === 'fulfilled' ? bestPriceResult.value : null;
+      const rs = realSearchResult.status === 'fulfilled' ? realSearchResult.value : null;
+      if (bp || rs) {
+        const item: SearchHistoryItem = {
+          id: Date.now().toString(),
+          query: searchQuery.trim(),
+          timestamp: Date.now(),
+          bestPrice: bp,
+          realSearch: rs,
+        };
+        setHistory(prev => {
+          const filtered = prev.filter(h => h.query.toLowerCase() !== item.query.toLowerCase());
+          const next = [item, ...filtered].slice(0, MAX_HISTORY);
+          saveHistory(next);
+          return next;
+        });
       }
     } catch (err: unknown) {
       setSearchError(getApiErrorMessage(err, t('sourcing.search_error')));
@@ -159,6 +194,29 @@ export default function SourcingPage() {
     { id: 'opportunities' as Tab, label: `🤖 ${t('sourcing.tab_opportunities')}` },
   ];
 
+  const restoreHistory = (item: SearchHistoryItem) => {
+    setSearchQuery(item.query);
+    setBestPrice(item.bestPrice);
+    setRealSearch(item.realSearch);
+    setSearchError(null);
+    setTab('search');
+    if (item.bestPrice) {
+      const all = item.bestPrice.all_suppliers || [];
+      setPriceView(all.some(s => s.source === 'toptanbul') ? 'sale' : 'wholesale');
+    }
+    setShowHistory(false);
+  };
+
+  const deleteHistory = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setHistory(prev => { const next = prev.filter(h => h.id !== id); saveHistory(next); return next; });
+  };
+
+  const clearAllHistory = () => {
+    setHistory([]);
+    saveHistory([]);
+  };
+
   if (loading) return <LoadingSpinner message={t('sourcing.loading')} size="lg" />;
 
   const supplierList: SupplierType[] = suppliers?.suppliers || [];
@@ -166,15 +224,66 @@ export default function SourcingPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2">
-        {tabs.map(tb => (
-          <button key={tb.id} onClick={() => setTab(tb.id)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              tab === tb.id ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)]' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-            }`}>{tb.label}</button>
-        ))}
+      {/* Tabs + Geçmiş butonu */}
+      <div className="flex flex-wrap gap-2 items-center justify-between">
+        <div className="flex flex-wrap gap-2">
+          {tabs.map(tb => (
+            <button key={tb.id} onClick={() => setTab(tb.id)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                tab === tb.id ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)]' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              }`}>{tb.label}</button>
+          ))}
+        </div>
+        <button onClick={() => setShowHistory(v => !v)}
+          className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+            showHistory ? 'bg-[var(--accent-solid)] text-[var(--accent-fg)]' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+          }`}>
+          <History size={14} />
+          Geçmiş ({history.length})
+        </button>
       </div>
+
+      {/* Arama Geçmişi Paneli */}
+      {showHistory && (
+        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-lg overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)] bg-[var(--bg-elevated)]">
+            <h3 className="text-[var(--text-primary)] font-semibold text-sm flex items-center gap-2">
+              <History size={14} className="text-[var(--accent)]" /> Arama Geçmişi
+            </h3>
+            <div className="flex items-center gap-2">
+              <button onClick={clearAllHistory} className="text-xs text-rose-500 hover:text-rose-400 transition-colors px-2 py-1 rounded-lg hover:bg-rose-500/10">
+                Tümünü Sil
+              </button>
+              <button onClick={() => setShowHistory(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 rounded-lg transition-colors">
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+          <div className="max-h-80 overflow-y-auto divide-y divide-[var(--border-color)]">
+            {history.map(item => (
+              <div key={item.id} onClick={() => restoreHistory(item)}
+                className="flex items-center justify-between px-4 py-3 hover:bg-[var(--bg-elevated)] cursor-pointer transition-colors group">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Search size={13} className="text-[var(--accent)] flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-[var(--text-primary)] text-sm font-medium truncate">{item.query}</p>
+                    <p className="text-[var(--text-muted)] text-xs flex items-center gap-1 mt-0.5">
+                      <Clock size={10} />
+                      {new Date(item.timestamp).toLocaleString('tr-TR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}
+                      {item.bestPrice && <span className="ml-2 text-emerald-500">· {(item.bestPrice.all_suppliers||[]).length} sonuç</span>}
+                      {item.realSearch && <span className="ml-1 text-blue-400">· AI analiz</span>}
+                    </p>
+                  </div>
+                </div>
+                <button onClick={e => deleteHistory(item.id, e)}
+                  className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-rose-500/10 rounded-lg text-[var(--text-muted)] hover:text-rose-500 transition-all flex-shrink-0">
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Tedarikçiler */}
       {tab === 'suppliers' && (

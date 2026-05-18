@@ -1,10 +1,13 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Optional
 from datetime import datetime, timedelta
 from app.dependencies import get_current_user, get_db
 from app.db.models import Notification, Supplier, Product, Marketplace, CompetitorPriceHistory
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
+from app.agents.review_response_agent import ReviewResponseAgent
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -128,9 +131,10 @@ def mark_read(
 
 
 @router.post("/generate")
-def generate_notifications(user=Depends(get_current_user), db=Depends(get_db)):
+async def generate_notifications(user=Depends(get_current_user), db=Depends(get_db)):
     """
-    Otomatik tespit: stok uyarisi, dusuk puan, tedarikci indirimi.
+    Otomatik tespit: stok uyarisi, dusuk puan, tedarikci indirimi, rakip fiyat
+    DEGISIKLIGI ve negatif yorumlar icin AI cevap taslaklari.
     Ayni baslikta okunmamis bildirim varsa tekrar olusturulmaz (idempotent).
     """
     created = []
@@ -227,8 +231,37 @@ def generate_notifications(user=Depends(get_current_user), db=Depends(get_db)):
                     created.append(_to_dict(n))
 
     db.commit()
+
+    # 5. Negatif yorumlar icin AI cevap taslaklari (ReviewResponseAgent).
+    #    Bu daha once sadece arka plan scheduler'da tetikleniyordu; "Bildirimleri
+    #    Tara" butonunun da uretmesi icin buradan da cagiriyoruz. Gemini hata
+    #    verirse digerlerini bozmasin diye sessizce gecilir.
+    review_drafts_created = 0
+    try:
+        agent = ReviewResponseAgent()
+        agent_result = await agent.run(user.id, db)
+        review_drafts_created = agent_result.notifications_created or 0
+        if agent_result.status == "ok" and review_drafts_created > 0:
+            # Agent kendi commit'ini yapiyor, ama yine de listeye eklemek icin
+            # son review_drafts_created kayitli bildirimi al
+            recent_drafts = (
+                db.query(Notification)
+                .filter(
+                    Notification.user_id == user.id,
+                    Notification.type == "yorum_cevap_taslagi",
+                )
+                .order_by(Notification.id.desc())
+                .limit(review_drafts_created)
+                .all()
+            )
+            for n in recent_drafts:
+                created.append(_to_dict(n))
+    except Exception as e:
+        logger.warning(f"ReviewResponseAgent tetiklenemedi: {type(e).__name__}: {e}")
+
     return {
         "message": f"{len(created)} yeni bildirim olusturuldu",
         "new_count": len(created),
         "new_notifications": created,
+        "review_drafts_created": review_drafts_created,
     }

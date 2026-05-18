@@ -460,6 +460,15 @@ export const translations = {
   'common.yes': { tr: 'Evet', en: 'Yes' },
   'common.no': { tr: 'Hayır', en: 'No' },
   'common.loading_products': { tr: 'Ürünler yükleniyor…', en: 'Loading products…' },
+  'common.confirm': { tr: 'Onayla', en: 'Confirm' },
+  'common.cancel': { tr: 'İptal', en: 'Cancel' },
+  'common.delete': { tr: 'Sil', en: 'Delete' },
+
+  // ─── Reports — delete ─────────────────────────────────────
+  'reports.delete_title': { tr: 'Raporu Sil', en: 'Delete Report' },
+  'reports.delete_msg': { tr: 'Bu raporu kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.', en: 'Are you sure you want to permanently delete this report? This action cannot be undone.' },
+  'reports.delete_success': { tr: 'Rapor silindi', en: 'Report deleted' },
+  'reports.delete_failed': { tr: 'Rapor silinemedi', en: 'Failed to delete report' },
 
   // ─── Image Analyzer ───────────────────────────────────────
   'image.no_product_desc': { tr: 'Görsel analizi için önce bir pazaryeri bağlayın.', en: 'Connect a marketplace first for image analysis.' },
@@ -596,6 +605,10 @@ export const translations = {
   'finance.ai_title': { tr: 'AI Finansman Analizi', en: 'AI Financing Analysis' },
   'finance.ai_analysis_title': { tr: 'Finansman AI Analizi', en: 'Financing AI Analysis' },
   'finance.ai_hint': { tr: "KOSGEB desteği, KOBİ kredisi uygunluğu ve finansman stratejisi için Analiz Et'e tıklayın.", en: 'Click Analyze for KOSGEB support, SME loan eligibility and financing strategy.' },
+  'finance.load_failed_title': { tr: 'Finansman verileri alınamadı', en: 'Could not load finance data' },
+  'finance.load_failed': { tr: 'Sunucuya bağlanılamadı veya servis şu an cevap vermiyor. Birkaç dakika sonra tekrar deneyin.', en: 'Could not reach the server or the service is not responding. Try again in a few minutes.' },
+  'finance.partial_failed': { tr: 'Bazı finansman verileri yüklenemedi. Yenilemeyi deneyebilirsiniz.', en: 'Some finance data could not be loaded. You can try refreshing.' },
+  'finance.fallback_notice': { tr: 'AI servisine ulaşılamadığı için aşağıda sabit kredi/destek listesi gösteriliyor. Güncel oran ve şartlar için sağlayıcı kurumun web sitesini kontrol edin.', en: 'AI service could not be reached, so a static list of loans/support is shown below. Check the provider\'s website for up-to-date rates and conditions.' },
 
   // ─── Integrations ──────────────────────────────────────────
   'integrations.api_key_required': { tr: 'API key gerekli', en: 'API key required' },

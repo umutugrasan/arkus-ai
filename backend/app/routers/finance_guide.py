@@ -1,12 +1,77 @@
 from fastapi import APIRouter, Depends
+import asyncio
 import json
+import logging
 from app.dependencies import get_current_user, get_db
 from app.db.models import Financial
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
 from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
 from app.services.gemini_service import ask_gemini, ask_gemini_with_search
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
+
+# Gemini Google Search cevap vermezse / quota dolduysa kullanilan sabit kredi listesi.
+# Bu sayede /finance-guide sayfasi hicbir zaman bos / 404 / sonsuz spinner gostermez.
+_FALLBACK_FINANCE_OPTIONS = [
+    {
+        "name": "KOSGEB KOBi Destek Programi",
+        "provider": "KOSGEB",
+        "max_amount": "300.000 TL",
+        "interest": "%0 (faizsiz)",
+        "term": "24 ay",
+        "requirements": "KOBi belgesi, vergi levhasi, faaliyet 1 yil+",
+        "min_score": 50,
+        "min_monthly_revenue": 50000,
+        "url": "https://www.kosgeb.gov.tr",
+        "is_recommended": True,
+        "recommendation_reason": "Faizsiz olmasi ve KOBi e-ticaret saticilarina uygun olmasi sebebiyle ilk degerlendirilmesi gereken secenek.",
+    },
+    {
+        "name": "Halkbank Esnaf ve KOBi Kredisi",
+        "provider": "Halkbank",
+        "max_amount": "500.000 TL",
+        "interest": "Piyasa kosullarinda degisken",
+        "term": "36 ay",
+        "requirements": "Ticaret sicil, vergi levhasi, son 6 ay hesap hareketi",
+        "min_score": 60,
+        "min_monthly_revenue": 150000,
+        "url": "https://www.halkbank.com.tr",
+        "is_recommended": False,
+    },
+    {
+        "name": "Ziraat Bankasi KOBi Kredisi",
+        "provider": "Ziraat Bankasi",
+        "max_amount": "750.000 TL",
+        "interest": "Piyasa kosullarinda degisken",
+        "term": "48 ay",
+        "requirements": "Vergi levhasi, son 1 yil hesap hareketi, teminat",
+        "min_score": 65,
+        "min_monthly_revenue": 250000,
+        "url": "https://www.ziraatbank.com.tr",
+        "is_recommended": False,
+    },
+]
+
+
+def _classify_options(options: list, profile: dict) -> tuple[list, list]:
+    """min_score + min_monthly_revenue'ye gore uygun/uygun degil olarak ayir."""
+    eligible, not_eligible = [], []
+    for opt in options:
+        ok = (
+            profile["eligibility_score"] >= opt.get("min_score", 0)
+            and profile["monthly_revenue"] >= opt.get("min_monthly_revenue", 0)
+        )
+        entry = {**opt, "eligible": ok}
+        if not ok:
+            entry["reasons"] = [
+                f"Uygunluk skoru {opt.get('min_score', 0)}+ olmali.",
+                f"Aylik ciro {opt.get('min_monthly_revenue', 0):,} TL+ olmali.",
+            ]
+            not_eligible.append(entry)
+        else:
+            eligible.append(entry)
+    return eligible, not_eligible
 
 # FINANCE_OPTIONS kaldirildi. Artik gercek zamanli Gemini Google Search kullanilacak.
 
@@ -94,76 +159,52 @@ Lutfen ASAGIDAKI JSON FORMATINDA (array olarak) don, markdown veya baska metin E
   }}
 ]"""
     system = "Sen bir finans ve e-ticaret danismanisin. Web aramasiyla guncel kredi programlarini JSON olarak dondersin."
-    
+
+    options: list = []
+    source = "ai"  # 'ai' | 'fallback'
+    error: str | None = None
+
     try:
-        result = await ask_gemini_with_search(prompt, system, pool="analyze")
-        raw_text = result["text"].replace("```json", "").replace("```", "").strip()
-        import json
-        
+        # Gemini Google Search 20 sn icinde donmezse fallback'e gec.
+        result = await asyncio.wait_for(
+            ask_gemini_with_search(prompt, system, pool="analyze"),
+            timeout=20,
+        )
+        raw_text = (result.get("text") or "").replace("```json", "").replace("```", "").strip()
         try:
-            options = json.loads(raw_text)
+            options = json.loads(raw_text) if raw_text else []
         except json.JSONDecodeError:
-            # Rate limit veya JSON disi yanit durumunda fallback
-            options = [
-                {
-                    "name": "KOSGEB Mikro KOBi Kredisi (Sabit Veri)",
-                    "provider": "KOSGEB",
-                    "max_amount": "150.000 TL",
-                    "interest": "%0 (destekli)",
-                    "term": "24 ay",
-                    "requirements": "KOBi belgesi, 3 yil faaliyet",
-                    "min_score": 50,
-                    "min_monthly_revenue": 100000,
-                    "url": "https://www.kosgeb.gov.tr",
-                    "is_recommended": True,
-                    "recommendation_reason": "AI Limiti aşıldığı için varsayılan öneri gösterilmektedir."
-                },
-                {
-                    "name": "Halkbank E-Ticaret KOBi Kredisi (Sabit Veri)",
-                    "provider": "Halkbank",
-                    "max_amount": "500.000 TL",
-                    "interest": "%1.29 aylik",
-                    "term": "36 ay",
-                    "requirements": "Ticaret sicil, vergi levhasi",
-                    "min_score": 60,
-                    "min_monthly_revenue": 200000,
-                    "url": "https://www.halkbank.com.tr",
-                    "is_recommended": False
-                }
-            ]
-        
-        eligible, not_eligible = [], []
-        for opt in options:
-            ok = (
-                profile["eligibility_score"] >= opt.get("min_score", 0)
-                and profile["monthly_revenue"] >= opt.get("min_monthly_revenue", 0)
-            )
-            entry = {**opt, "eligible": ok}
-            if not ok:
-                entry["reasons"] = [
-                    f"Uygunluk skoru {opt.get('min_score', 0)}+ olmali.",
-                    f"Aylik ciro {opt.get('min_monthly_revenue', 0):,} TL+ olmali."
-                ]
-            if ok:
-                eligible.append(entry)
-            else:
-                not_eligible.append(entry)
-                
-        return eligible, not_eligible
+            options = []
+            error = "ai_invalid_json"
+    except asyncio.TimeoutError:
+        logger.warning("Finansman AI Fetch: 20s timeout, fallback'e geciliyor")
+        error = "ai_timeout"
     except Exception as e:
-        import logging
-        logging.getLogger(__name__).error(f"Finansman AI Fetch Error: {e}")
-        return [], []
+        logger.error(f"Finansman AI Fetch Error: {type(e).__name__}: {e}")
+        error = "ai_error"
+
+    # AI bos / hatali dondu → sabit listeyi kullan
+    if not isinstance(options, list) or not options:
+        options = list(_FALLBACK_FINANCE_OPTIONS)
+        source = "fallback"
+
+    eligible, not_eligible = _classify_options(options, profile)
+    # Klasifiye edilmis listelere meta bilgi ekle (frontend gostermek isteyebilir)
+    for opt in eligible + not_eligible:
+        opt.setdefault("source", source)
+    return eligible, not_eligible, source, error
 
 @router.get("/options")
 async def get_options(user=Depends(get_current_user), db=Depends(get_db)):
     profile = _get_seller_profile(db, user.id)
-    eligible, not_eligible = await _fetch_real_finance_options(profile)
+    eligible, not_eligible, source, error = await _fetch_real_finance_options(profile)
     return {
         "seller_profile": profile,
         "eligible_options": eligible,
         "not_eligible_options": not_eligible,
         "total_options": len(eligible) + len(not_eligible),
+        "data_source": source,  # "ai" | "fallback"
+        "ai_error": error,      # None | "ai_timeout" | "ai_invalid_json" | "ai_error"
     }
 
 @router.get("/eligibility")

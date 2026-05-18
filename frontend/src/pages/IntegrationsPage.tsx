@@ -10,11 +10,13 @@ import {
   RefreshCw,
   Trash2,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import GlassCard from '../components/shared/GlassCard';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import MarketplaceBadge from '../components/shared/MarketplaceBadge';
 import { storeService } from '../services';
 import { useI18n } from '../context/I18nContext';
+import { pageVariants, staggerContainer, staggerItem } from '../utils/motion';
 import type { StoreConnection, StoreConnectionsResponse } from '../types/api';
 
 interface Toast { type: 'success' | 'error'; message: string }
@@ -125,26 +127,36 @@ export default function IntegrationsPage() {
 
   if (loading) return <LoadingSpinner message={t('integrations.loading')} size="lg" />;
 
-
-
   return (
-    <div className="space-y-6 animate-fade-in max-w-4xl">
+    <motion.div
+      className="space-y-6 max-w-4xl"
+      variants={pageVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg animate-fade-in text-white ${
-          toast.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'
-        }`}>
+        <motion.div
+          initial={{ opacity: 0, y: -10, x: 20 }}
+          animate={{ opacity: 1, y: 0, x: 0 }}
+          className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-white ${
+            toast.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'
+          }`}
+        >
           {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
           {toast.message}
-        </div>
+        </motion.div>
       )}
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      {/* Header */}
+      <motion.div variants={staggerItem} className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            <PlugZap className="text-[var(--accent)]" size={24} />
+            <div className="p-2.5 bg-[var(--accent)]/10 rounded-xl ring-1 ring-[var(--accent)]/15">
+              <PlugZap className="text-[var(--accent)]" size={20} />
+            </div>
             {t('integrations.title')}
           </h2>
-          <p className="text-[var(--text-muted)] mt-1 text-sm">
+          <p className="text-[var(--text-muted)] mt-1 text-sm pl-1">
             {t('integrations.subtitle')}
           </p>
         </div>
@@ -152,106 +164,128 @@ export default function IntegrationsPage() {
           href="/marketplace-portal.html"
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--bg-card)] hover:bg-[var(--bg-muted)] border border-[var(--border-strong)] text-[var(--text-secondary)] rounded-xl text-sm font-medium transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--bg-card)] hover:bg-[var(--bg-muted)] border border-[var(--border-strong)] text-[var(--text-secondary)] rounded-xl text-sm font-medium transition-all shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
         >
           <ExternalLink size={15} />
           {t('integrations.dev_portal')}
         </a>
-      </div>
+      </motion.div>
 
-      <GlassCard index={0}>
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-          <div className="min-w-44">
-            <label className="text-[var(--text-muted)] text-xs block mb-1.5">{t('common.marketplace')}</label>
-            <select
-              value={newMP}
-              onChange={(event) => setNewMP(event.target.value)}
-              disabled={selectableMarketplaces.length === 0}
-              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--accent)] disabled:opacity-50"
-            >
-              {selectableMarketplaces.map((marketplace) => (
-                <option key={marketplace} value={marketplace}>{marketplace}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex-1 min-w-0">
-            <label className="text-[var(--text-muted)] text-xs block mb-1.5">{t('integrations.api_key_label')}</label>
-            <div className="relative">
-              <KeyRound size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
-              <input
-                value={newApiKey}
-                onChange={(event) => setNewApiKey(event.target.value)}
-                placeholder={t('integrations.api_key_placeholder')}
-                className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:border-[var(--accent)]"
-              />
+      {/* Connect form */}
+      <motion.div variants={staggerItem}>
+        <GlassCard index={0}>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
+            <div className="min-w-44">
+              <label className="text-[var(--text-muted)] text-xs block mb-1.5 font-medium">{t('common.marketplace')}</label>
+              <select
+                value={newMP}
+                onChange={(event) => setNewMP(event.target.value)}
+                disabled={selectableMarketplaces.length === 0}
+                className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--accent)] disabled:opacity-50 shadow-[0_1px_4px_rgba(0,0,0,0.04)]"
+              >
+                {selectableMarketplaces.map((marketplace) => (
+                  <option key={marketplace} value={marketplace}>{marketplace}</option>
+                ))}
+              </select>
             </div>
-          </div>
-          <button
-            onClick={handleConnect}
-            disabled={connecting || selectableMarketplaces.length === 0}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50"
-          >
-            {connecting ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />}
-            {t('integrations.connect')}
-          </button>
-        </div>
-        {selectableMarketplaces.length === 0 && (
-          <p className="text-[var(--text-muted)] text-sm mt-3">{t('integrations.all_connected')}</p>
-        )}
-      </GlassCard>
-
-      <GlassCard index={1}>
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <h3 className="text-[var(--text-primary)] font-semibold">{t('integrations.active_title')}</h3>
-          <button
-            onClick={handleSyncAll}
-            disabled={syncing || connList.length === 0}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-[var(--bg-card)] hover:bg-[var(--bg-muted)] border border-[var(--border-strong)] text-[var(--text-secondary)] rounded-xl transition-all disabled:opacity-50"
-          >
-            {syncing ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
-            {t('integrations.refresh')}
-          </button>
-        </div>
-
-        {connList.length === 0 ? (
-          <p className="text-[var(--text-muted)] text-sm">{t('integrations.none_active')}</p>
-        ) : (
-          <div className="grid gap-3 md:grid-cols-2">
-            {connList.map((connection) => (
-              <div key={connection.marketplace} className="p-4 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-color)]">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <MarketplaceBadge marketplace={connection.marketplace} />
-                    <p className="text-[var(--text-primary)] text-sm font-medium mt-3 truncate">
-                      {connection.store_name || connection.marketplace}
-                    </p>
-                    <p className="text-[var(--text-muted)] text-xs mt-1">
-                      {t('integrations.products_fetched').replace('{n}', String(connection.product_count ?? 0))}
-                    </p>
-                  </div>
-                  <span className="text-emerald-500 text-xs font-semibold">{t('integrations.active')}</span>
-                </div>
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-[var(--border-color)]">
-                  <span className="text-[var(--text-muted)] text-xs">{t('integrations.removes_data')}</span>
-                  <button
-                    onClick={() => handleDisconnect(connection.marketplace)}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg transition-colors ${
-                      confirmingDisconnect === connection.marketplace
-                        ? 'bg-rose-500 text-white hover:bg-rose-600'
-                        : 'text-rose-500 hover:bg-rose-500/10'
-                    }`}
-                  >
-                    <Trash2 size={12} />
-                    {confirmingDisconnect === connection.marketplace
-                      ? t('integrations.confirm_remove') || 'Onayla'
-                      : t('integrations.remove')}
-                  </button>
-                </div>
+            <div className="flex-1 min-w-0">
+              <label className="text-[var(--text-muted)] text-xs block mb-1.5 font-medium">{t('integrations.api_key_label')}</label>
+              <div className="relative">
+                <KeyRound size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+                <input
+                  value={newApiKey}
+                  onChange={(event) => setNewApiKey(event.target.value)}
+                  placeholder={t('integrations.api_key_placeholder')}
+                  className="w-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:border-[var(--accent)] shadow-[0_1px_4px_rgba(0,0,0,0.04)]"
+                />
               </div>
-            ))}
+            </div>
+            <motion.button
+              onClick={handleConnect}
+              disabled={connecting || selectableMarketplaces.length === 0}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50 shadow-[0_4px_16px_rgba(5,150,105,0.25)]"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {connecting ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />}
+              {t('integrations.connect')}
+            </motion.button>
           </div>
-        )}
-      </GlassCard>
-    </div>
+          {selectableMarketplaces.length === 0 && (
+            <p className="text-[var(--text-muted)] text-sm mt-3">{t('integrations.all_connected')}</p>
+          )}
+        </GlassCard>
+      </motion.div>
+
+      {/* Active connections */}
+      <motion.div variants={staggerItem}>
+        <GlassCard index={1}>
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h3 className="text-[var(--text-primary)] font-semibold">{t('integrations.active_title')}</h3>
+            <motion.button
+              onClick={handleSyncAll}
+              disabled={syncing || connList.length === 0}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-[var(--bg-card)] hover:bg-[var(--bg-muted)] border border-[var(--border-strong)] text-[var(--text-secondary)] rounded-xl transition-all disabled:opacity-50"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {syncing ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+              {t('integrations.refresh')}
+            </motion.button>
+          </div>
+
+          {connList.length === 0 ? (
+            <p className="text-[var(--text-muted)] text-sm">{t('integrations.none_active')}</p>
+          ) : (
+            <motion.div
+              className="grid gap-3 md:grid-cols-2"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+            >
+              {connList.map((connection) => (
+                <motion.div
+                  key={connection.marketplace}
+                  variants={staggerItem}
+                  className="p-4 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-color)] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.07)] transition-shadow"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <MarketplaceBadge marketplace={connection.marketplace} />
+                      <p className="text-[var(--text-primary)] text-sm font-medium mt-3 truncate">
+                        {connection.store_name || connection.marketplace}
+                      </p>
+                      <p className="text-[var(--text-muted)] text-xs mt-1">
+                        {t('integrations.products_fetched').replace('{n}', String(connection.product_count ?? 0))}
+                      </p>
+                    </div>
+                    <span className="text-emerald-500 text-xs font-semibold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      {t('integrations.active')}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-[var(--border-color)]">
+                    <span className="text-[var(--text-muted)] text-xs">{t('integrations.removes_data')}</span>
+                    <button
+                      onClick={() => handleDisconnect(connection.marketplace)}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg transition-colors ${
+                        confirmingDisconnect === connection.marketplace
+                          ? 'bg-rose-500 text-white hover:bg-rose-600'
+                          : 'text-rose-500 hover:bg-rose-500/10'
+                      }`}
+                    >
+                      <Trash2 size={12} />
+                      {confirmingDisconnect === connection.marketplace
+                        ? t('integrations.confirm_remove') || 'Onayla'
+                        : t('integrations.remove')}
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </GlassCard>
+      </motion.div>
+    </motion.div>
   );
 }

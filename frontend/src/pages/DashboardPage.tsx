@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   TrendingUp, TrendingDown, DollarSign, ShoppingCart, Target,
   Percent, RotateCcw, BarChart3, Calendar, Sparkles, RefreshCw,
@@ -20,6 +21,7 @@ import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errors';
 import { formatCurrency, formatNumber, formatPercent } from '../utils/formatters';
 import { MARKETPLACES, MP_CHART_COLORS } from '../utils/constants';
+import { pageVariants, staggerItem } from '../utils/motion';
 import { useI18n } from '../context/I18nContext';
 import { useTheme } from '../hooks/useTheme';
 import { getChartTheme } from '../utils/chartTheme';
@@ -221,13 +223,14 @@ export default function DashboardPage() {
     ? trends.daily.map((d) => {
         const item: any = { name: d.date.slice(5) };
         const record = d as Record<string, any>;
-        connectedMps.forEach(mp => { if (record[mp] !== undefined) item[mp] = Number(record[mp]); });
+        // Eksik pazaryeri değerlerini 0 ile doldur (undefined bırakmak çizgiyi koparır)
+        connectedMps.forEach(mp => { item[mp] = record[mp] !== undefined && record[mp] !== null ? Number(record[mp]) : 0; });
         return item;
       })
     : trends?.weekly?.map((w) => {
         const item: any = { name: w.week };
         const record = w as Record<string, any>;
-        connectedMps.forEach(mp => { if (record[mp] !== undefined) item[mp] = Number(record[mp]); });
+        connectedMps.forEach(mp => { item[mp] = record[mp] !== undefined && record[mp] !== null ? Number(record[mp]) : 0; });
         return item;
       }) || [];
 
@@ -238,7 +241,7 @@ export default function DashboardPage() {
   }));
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <motion.div className="space-y-6" variants={pageVariants} initial="hidden" animate="visible">
       <PageHeader
         title={t('dashboard.title')}
         subtitle={t('dashboard.subtitle')}
@@ -372,40 +375,45 @@ export default function DashboardPage() {
               />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
-                <AreaChart data={trendData}>
+                <AreaChart data={trendData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                   <defs>
                     {connectedMps.map((mp, i) => (
                       <linearGradient key={mp} id={`color${mp}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={MP_CHART_COLORS[i % MP_CHART_COLORS.length]} stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor={MP_CHART_COLORS[i % MP_CHART_COLORS.length]} stopOpacity={0}/>
+                        <stop offset="0%" stopColor={MP_CHART_COLORS[i % MP_CHART_COLORS.length]} stopOpacity={0.22}/>
+                        <stop offset="85%" stopColor={MP_CHART_COLORS[i % MP_CHART_COLORS.length]} stopOpacity={0.02}/>
+                        <stop offset="100%" stopColor={MP_CHART_COLORS[i % MP_CHART_COLORS.length]} stopOpacity={0}/>
                       </linearGradient>
                     ))}
                   </defs>
-                  <CartesianGrid stroke={chart.grid} strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" stroke={chart.axis} fontSize={11} tickLine={false} axisLine={false} />
+                  <CartesianGrid stroke={chart.grid} strokeDasharray="4 4" vertical={false} strokeOpacity={0.7} />
+                  <XAxis dataKey="name" stroke={chart.axis} fontSize={11} tickLine={false} axisLine={false} dy={4} />
                   <YAxis
                     stroke={chart.axis}
                     fontSize={11}
                     tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : String(v)}
                     tickLine={false}
                     axisLine={false}
+                    width={38}
                   />
                   <Tooltip
                     itemSorter={(item: any) => -item.value}
                     formatter={(value: any, name: any) => [
-                      formatCurrency(Number(value) || 0), 
+                      formatCurrency(Number(value) || 0),
                       MARKETPLACES[name as string]?.label || name
                     ]}
                     contentStyle={{
                       background: chart.tooltipBg,
                       border: `1px solid ${chart.tooltipBorder}`,
-                      borderRadius: 8,
+                      borderRadius: 10,
                       fontSize: 12,
+                      boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                      padding: '8px 12px',
                     }}
-                    labelStyle={{ color: chart.tooltipText }}
+                    labelStyle={{ color: chart.tooltipText, fontWeight: 600, marginBottom: 4 }}
                     itemStyle={{ color: chart.tooltipText }}
+                    cursor={{ stroke: chart.grid, strokeWidth: 1.5, strokeDasharray: '3 3' }}
                   />
-                  <Legend wrapperStyle={{ fontSize: 11 }} formatter={(value) => MARKETPLACES[value]?.label || value} />
+                  <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} formatter={(value) => MARKETPLACES[value]?.label || value} />
                   {connectedMps.map((mp, i) => (
                     <Area
                       key={mp}
@@ -414,7 +422,10 @@ export default function DashboardPage() {
                       stroke={MP_CHART_COLORS[i % MP_CHART_COLORS.length]}
                       fillOpacity={1}
                       fill={`url(#color${mp})`}
-                      strokeWidth={2}
+                      strokeWidth={2.5}
+                      dot={false}
+                      connectNulls={true}
+                      activeDot={{ r: 4, strokeWidth: 2, fill: MP_CHART_COLORS[i % MP_CHART_COLORS.length] }}
                     />
                   ))}
                 </AreaChart>
@@ -433,23 +444,34 @@ export default function DashboardPage() {
               <EmptyState title={t('dashboard.no_mp')} />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={mpBarData} layout="vertical">
-                  <CartesianGrid stroke={chart.grid} strokeDasharray="3 3" />
-                  <XAxis type="number" stroke={chart.axis} fontSize={11} />
-                  <YAxis dataKey="name" type="category" stroke={chart.axis} fontSize={11} width={80} />
+                <BarChart data={mpBarData} layout="vertical" margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+                  <CartesianGrid stroke={chart.grid} strokeDasharray="4 4" horizontal={false} strokeOpacity={0.7} />
+                  <XAxis
+                    type="number"
+                    stroke={chart.axis}
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : String(v)}
+                  />
+                  <YAxis dataKey="name" type="category" stroke={chart.axis} fontSize={11} width={82} tickLine={false} axisLine={false} />
                   <Tooltip
                     contentStyle={{
                       background: chart.tooltipBg,
                       border: `1px solid ${chart.tooltipBorder}`,
-                      borderRadius: 8,
+                      borderRadius: 10,
                       fontSize: 12,
+                      boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                      padding: '8px 12px',
                     }}
-                    labelStyle={{ color: chart.tooltipText }}
+                    formatter={(value: any) => formatCurrency(Number(value) || 0)}
+                    labelStyle={{ color: chart.tooltipText, fontWeight: 600 }}
                     itemStyle={{ color: chart.tooltipText }}
+                    cursor={{ fill: 'rgba(0,0,0,0.03)' }}
                   />
-                  <Bar dataKey="Ciro" radius={[0, 6, 6, 0]}>
+                  <Bar dataKey="Ciro" radius={[0, 7, 7, 0]} maxBarSize={28}>
                     {mpBarData.map((_, i) => (
-                      <Cell key={i} fill={MP_CHART_COLORS[i % MP_CHART_COLORS.length]} />
+                      <Cell key={i} fill={MP_CHART_COLORS[i % MP_CHART_COLORS.length]} fillOpacity={0.9} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -494,16 +516,23 @@ export default function DashboardPage() {
           })}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 function MiniMetric({ label, value, highlight = false }: { label: string; value: string | number; highlight?: boolean }) {
   return (
-    <div className={`metric-card ${highlight ? 'border-amber-200 bg-amber-50' : ''}`}>
+    <motion.div
+      variants={staggerItem}
+      className={`metric-card shadow-[0_2px_12px_rgba(0,0,0,0.05)] ${
+        highlight
+          ? 'border-amber-300/40 bg-gradient-to-br from-amber-50/80 to-amber-100/40 dark:from-amber-900/20 dark:to-amber-800/10'
+          : ''
+      }`}
+    >
       <p className="text-[10px] uppercase tracking-wider text-[var(--text-faint)] font-bold">{label}</p>
       <p className={`text-xl font-bold mt-1 ${highlight ? 'text-amber-600' : 'text-[var(--text-primary)]'}`}>{value}</p>
-    </div>
+    </motion.div>
   );
 }
 

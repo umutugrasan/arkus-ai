@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Brain, XCircle, ExternalLink, Lightbulb } from 'lucide-react';
+import { Brain, XCircle, ExternalLink, Lightbulb, AlertTriangle, RefreshCw } from 'lucide-react';
 import GlassCard from '../components/shared/GlassCard';
 import { Skeleton, SkeletonCard } from '../components/shared/Skeleton';
 import StreamingMarkdown from '../components/shared/StreamingMarkdown';
@@ -14,6 +14,7 @@ export default function FinanceGuidePage() {
   const [options, setOptions] = useState<FinanceOptionsResponse | null>(null);
   const [eligibility, setEligibility] = useState<FinanceEligibilityResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const { text: aiAnalysis, isRunning: aiLoading, startFetch } = useBackgroundAnalysis({
     type: 'finance',
@@ -22,14 +23,26 @@ export default function FinanceGuidePage() {
     navigateTo: '/finance-guide',
   });
 
-  useEffect(() => {
-    Promise.all([
+  const fetchAll = () => {
+    setLoading(true);
+    setLoadError(null);
+    Promise.allSettled([
       financeGuideService.options(),
       financeGuideService.eligibility(),
-    ]).then(([o, e]) => {
-      setOptions(o);
-      setEligibility(e);
+    ]).then(([oRes, eRes]) => {
+      if (oRes.status === 'fulfilled') setOptions(oRes.value);
+      if (eRes.status === 'fulfilled') setEligibility(eRes.value);
+      if (oRes.status === 'rejected' && eRes.status === 'rejected') {
+        setLoadError(t('finance.load_failed'));
+      } else if (oRes.status === 'rejected' || eRes.status === 'rejected') {
+        setLoadError(t('finance.partial_failed'));
+      }
     }).finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchAll();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAi = () => {
@@ -70,8 +83,40 @@ export default function FinanceGuidePage() {
   const notEligibleOpts: FinanceOption[] = options?.not_eligible_options || [];
   const allOptions = [...eligibleOpts, ...notEligibleOpts];
 
+  const isFallback = options?.data_source === 'fallback';
+
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Hata Banner'i — backend ile baglanti kopukken ya da kismi yukleme oldugunda */}
+      {loadError && (
+        <div className="flex items-start justify-between gap-3 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30">
+          <div className="flex items-start gap-3">
+            <AlertTriangle size={18} className="text-rose-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-rose-500 font-semibold text-sm">{t('finance.load_failed_title')}</p>
+              <p className="text-[var(--text-secondary)] text-sm mt-0.5">{loadError}</p>
+            </div>
+          </div>
+          <button
+            onClick={fetchAll}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-500 hover:bg-rose-600 text-white transition-colors flex-shrink-0"
+          >
+            <RefreshCw size={12} />
+            {t('common.retry')}
+          </button>
+        </div>
+      )}
+
+      {/* AI Fallback Banner — sabit veriler kullanildiginda kullaniciyi bilgilendir */}
+      {!loadError && isFallback && (
+        <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+          <AlertTriangle size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />
+          <p className="text-[var(--text-secondary)] text-sm">
+            {t('finance.fallback_notice')}
+          </p>
+        </div>
+      )}
+
       {/* Satıcı Profili */}
       {profile && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

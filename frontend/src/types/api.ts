@@ -419,6 +419,14 @@ export interface CashFlowResponse {
   monthly_history: Array<{ month: string; profit: number; revenue: number }>;
 }
 
+export interface FinancialFullResponse {
+  overview: FinancialOverviewResponse;
+  by_marketplace: { marketplaces: MarketplaceFinancialRow[] };
+  by_product: { products: ProductFinancialRow[] };
+  expenses: ExpensesResponse;
+  cash_flow: CashFlowResponse;
+}
+
 export interface FinancialAnalyzeResponse {
   overall: OverallMetrics;
   by_marketplace: Record<string, unknown>;
@@ -512,6 +520,8 @@ export interface FinanceOptionsResponse {
   eligible_options: FinanceOption[];
   not_eligible_options: FinanceOption[];
   total_options: number;
+  data_source?: 'ai' | 'fallback';
+  ai_error?: 'ai_timeout' | 'ai_invalid_json' | 'ai_error' | null;
 }
 
 export interface FinanceEligibilityResponse {

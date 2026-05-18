@@ -410,6 +410,24 @@ def list_reports(
     }
 
 
+@router.delete("/{report_id}")
+def delete_report(
+    report_id: int,
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    r = (
+        db.query(Report)
+        .filter(Report.id == report_id, Report.user_id == user.id)
+        .first()
+    )
+    if not r:
+        raise HTTPException(status_code=404, detail="Rapor bulunamadi")
+    db.delete(r)
+    db.commit()
+    return {"message": "Rapor silindi", "id": report_id}
+
+
 @router.get("/{report_id}")
 def get_report(
     report_id: int,
