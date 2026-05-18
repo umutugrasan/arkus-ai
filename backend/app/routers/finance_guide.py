@@ -96,7 +96,7 @@ Lutfen ASAGIDAKI JSON FORMATINDA (array olarak) don, markdown veya baska metin E
     system = "Sen bir finans ve e-ticaret danismanisin. Web aramasiyla guncel kredi programlarini JSON olarak dondersin."
     
     try:
-        result = await ask_gemini_with_search(prompt, system)
+        result = await ask_gemini_with_search(prompt, system, pool="analyze")
         raw_text = result["text"].replace("```json", "").replace("```", "").strip()
         import json
         
@@ -232,12 +232,12 @@ Su basliklarda analiz yap:
 
     sources, used_web = [], False
     if use_web:
-        result = await ask_gemini_with_search(prompt, system)
+        result = await ask_gemini_with_search(prompt, system, pool="analyze")
         analysis = result["text"]
         sources = result["sources"]
         used_web = result["used_search"]
     else:
-        analysis = await ask_gemini(prompt, system)
+        analysis = await ask_gemini(prompt, system, pool="analyze")
 
     return {
         "profile": profile,

@@ -108,7 +108,7 @@ Su basliklarda analiz yap:
     system = (
         "Sen bir e-ticaret uzmansin. Saticilara yorumlari analiz edip somut aksiyon onerileri sunuyorsun."
     )
-    return await ask_gemini(prompt, system)
+    return await ask_gemini(prompt, system, pool="analyze")
 
 
 def _build_analysis_prompt(reviews: List[Review], detail: str) -> tuple:
@@ -301,7 +301,7 @@ async def analyze_reviews_stream(
         parts = []
         yield f"event: meta\ndata: {json.dumps({'product_id': product_id, 'detail': detail, 'total_reviews': len(reviews)}, ensure_ascii=False)}\n\n"
         async for chunk in ask_gemini_stream(
-            prompt, system, endpoint="reviews.analyze.stream", user_id=user.id,
+            prompt, system, endpoint="reviews.analyze.stream", user_id=user.id, pool="analyze"
         ):
             if chunk.get("done"):
                 full_text = "".join(parts)

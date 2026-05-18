@@ -11,13 +11,19 @@ from app.db.database import SessionLocal
 from app.db.models import User
 from app.agents.review_analyzer_agent import ReviewAnalyzerAgent
 from app.agents.competitor_watch_agent import CompetitorWatchAgent
+from app.agents.sourcing_agent import SourcingAgent
+from app.agents.review_response_agent import ReviewResponseAgent
 from app.agents.report_agent import ReportAgent
 
 
-# Calisma sirasi onemli: once veri analizleri, sonra ozet (rapor)
+# Calisma sirasi onemli: once veri analizleri (yorum + rakip + tedarik), sonra
+# yorum cevabi taslaklari (negatif yorumlar tespit edildikten sonra), en sonda
+# tum event'leri toplayan rapor.
 AGENT_PIPELINE = [
     ReviewAnalyzerAgent(),
     CompetitorWatchAgent(),
+    SourcingAgent(),
+    ReviewResponseAgent(),
     ReportAgent(),
 ]
 

@@ -99,6 +99,13 @@ jobs:
         # Secrets'i env'e cek, gcloud --set-env-vars'a guvenle aktarmak icin
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        # Pool key havuzlari — her biri virgulle ayrilmis key listesi
+        # (Tanimsiz secret bos string olarak gelir → ilgili pool default'a fallback)
+        GEMINI_API_KEYS_AGENTS: ${{ secrets.GEMINI_API_KEYS_AGENTS }}
+        GEMINI_API_KEYS_CHAT: ${{ secrets.GEMINI_API_KEYS_CHAT }}
+        GEMINI_API_KEYS_ANALYZE: ${{ secrets.GEMINI_API_KEYS_ANALYZE }}
+        GEMINI_API_KEYS_VISION: ${{ secrets.GEMINI_API_KEYS_VISION }}
+        GEMINI_API_KEYS_DEFAULT: ${{ secrets.GEMINI_API_KEYS_DEFAULT }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         MOCK_API_URL: ${{ needs.deploy-mock-api.outputs.url }}
         CORS_ORIGINS: ${{ steps.cors.outputs.origins }}
@@ -108,6 +115,13 @@ jobs:
         ENV_VARS="^|^APP_ENV=production"
         ENV_VARS="${ENV_VARS}|JWT_SECRET=${JWT_SECRET}"
         ENV_VARS="${ENV_VARS}|GEMINI_API_KEY=${GEMINI_API_KEY}"
+        # Pool degiskenleri sadece tanimliysa env'e ekle (bos string'i bile gondersek
+        # config.py'in property'leri bos liste donder; sorun olmaz ama ekleyelim)
+        ENV_VARS="${ENV_VARS}|GEMINI_API_KEYS_AGENTS=${GEMINI_API_KEYS_AGENTS}"
+        ENV_VARS="${ENV_VARS}|GEMINI_API_KEYS_CHAT=${GEMINI_API_KEYS_CHAT}"
+        ENV_VARS="${ENV_VARS}|GEMINI_API_KEYS_ANALYZE=${GEMINI_API_KEYS_ANALYZE}"
+        ENV_VARS="${ENV_VARS}|GEMINI_API_KEYS_VISION=${GEMINI_API_KEYS_VISION}"
+        ENV_VARS="${ENV_VARS}|GEMINI_API_KEYS_DEFAULT=${GEMINI_API_KEYS_DEFAULT}"
         ENV_VARS="${ENV_VARS}|MOCK_MARKETPLACE_API_URL=${MOCK_API_URL}"
         ENV_VARS="${ENV_VARS}|DATABASE_URL=${DATABASE_URL}"
         ENV_VARS="${ENV_VARS}|CORS_ORIGINS=${CORS_ORIGINS}"

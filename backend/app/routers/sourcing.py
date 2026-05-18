@@ -109,7 +109,7 @@ Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JS
         # ── 1. Deneme: Google Search grounding ile ──
         raw_text = ""
         try:
-            result = await ask_gemini_with_search(prompt, system)
+            result = await ask_gemini_with_search(prompt, system, pool="analyze")
             raw_text = (result.get("text") or "").strip()
             if raw_text.startswith("\u26a0"):  # ⚠️ mock fallback geldi
                 raw_text = ""
@@ -120,7 +120,7 @@ Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JS
         if not raw_text:
             try:
                 logger.info("Sourcing: search grounding yok, ask_gemini ile fallback...")
-                raw_text = await ask_gemini(prompt, system, endpoint="sourcing_best_price")
+                raw_text = await ask_gemini(prompt, system, endpoint="sourcing_best_price", pool="analyze")
                 raw_text = (raw_text or "").strip()
                 if raw_text.startswith("\u26a0"):
                     raw_text = ""
@@ -288,12 +288,12 @@ Format su sekilde olsun:
     )
 
     if use_web:
-        result = await ask_gemini_with_search(prompt, system)
+        result = await ask_gemini_with_search(prompt, system, pool="analyze")
         analysis = result["text"]
         sources = result["sources"]
         used_web = result["used_search"]
     else:
-        analysis = await ask_gemini(prompt, system)
+        analysis = await ask_gemini(prompt, system, pool="analyze")
         sources = []
         used_web = False
 
@@ -361,7 +361,7 @@ Format su sekilde olsun:
         "B2B fiyatlarini bul. Sadece gercek gordugun verileri yaz, asla uydurma. "
         "Her bilgide kaynagi belirt."
     )
-    result = await ask_gemini_with_search(prompt, system)
+    result = await ask_gemini_with_search(prompt, system, pool="analyze")
 
     return {
         "query": query,

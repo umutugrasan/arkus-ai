@@ -278,12 +278,12 @@ DUSUK PUANLI URUNLER:
 
     sources, used_web = [], False
     if use_web:
-        result = await ask_gemini_with_search(context, system_instruction=system)
+        result = await ask_gemini_with_search(context, system_instruction=system, pool="analyze")
         summary = result["text"]
         sources = result["sources"]
         used_web = result["used_search"]
     else:
-        summary = await ask_gemini(context, system_instruction=system)
+        summary = await ask_gemini(context, system_instruction=system, pool="analyze")
 
     return {
         "summary": summary,
@@ -382,7 +382,7 @@ DUSUK PUAN:
         yield f"event: meta\ndata: {json.dumps({'snapshot': snapshot}, ensure_ascii=False)}\n\n"
         parts = []
         async for chunk in ask_gemini_stream(
-            context, system, endpoint="dashboard.ai_summary.stream", user_id=user.id,
+            context, system, endpoint="dashboard.ai_summary.stream", user_id=user.id, pool="analyze"
         ):
             if chunk.get("done"):
                 evt = "error" if chunk.get("error") else "done"

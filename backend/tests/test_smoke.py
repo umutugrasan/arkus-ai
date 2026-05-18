@@ -55,6 +55,12 @@ def test_agents_status(client, auth_token):
     assert r.status_code == 200
     data = r.json()
     assert "agents" in data
-    assert data["total_agents"] == 3
+    assert data["total_agents"] == 5
     agent_names = {a["name"] for a in data["agents"]}
-    assert agent_names == {"ReviewAnalyzerAgent", "CompetitorWatchAgent", "ReportAgent"}
+    assert agent_names == {
+        "ReviewAnalyzerAgent",
+        "CompetitorWatchAgent",
+        "SourcingAgent",
+        "ReviewResponseAgent",
+        "ReportAgent",
+    }
