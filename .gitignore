@@ -32,6 +32,8 @@ build/
 .vite/
 *.tsbuildinfo
 .eslintcache
+bun.lock
+bun.lockb
 
 # ─── Env / Secrets ────────────────────────────────────────────────────────────
 .env
