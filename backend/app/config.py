@@ -80,6 +80,10 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.5-flash"
 
+    # --- AliExpress Affiliate API ---
+    # Kayıt: https://portals.aliexpress.com/ → Publisher → Tools → API Access
+    ALIEXPRESS_APP_KEY: str = ""
+    ALIEXPRESS_APP_SECRET: str = ""
     # --- Gemini API key havuzlari (purpose-based pools) ---
     # Virgulle ayrilmis key listesi. Bos = ilgili pool DEFAULT'a fallback eder.
     # 429 (quota) durumunda pool icinde round-robin ile sonraki key denenir.

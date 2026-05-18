@@ -32,6 +32,8 @@ build/
 .vite/
 *.tsbuildinfo
 .eslintcache
+bun.lock
+bun.lockb
 
 # ─── Env / Secrets ────────────────────────────────────────────────────────────
 .env
@@ -50,6 +52,7 @@ build/
 *~
 .claude/
 .cursor/
+CLAUDE.md
 
 # ─── OS ───────────────────────────────────────────────────────────────────────
 .DS_Store

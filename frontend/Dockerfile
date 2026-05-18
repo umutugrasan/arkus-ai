@@ -12,7 +12,7 @@ ENV VITE_API_URL=$VITE_API_URL
 # Once sadece package dosyalarini kopyala (cache)
 COPY package.json package-lock.json* ./
 
-RUN npm ci --frozen-lockfile
+RUN npm install
 
 # Kaynak kodu kopyala
 COPY . .
