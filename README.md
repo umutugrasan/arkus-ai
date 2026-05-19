@@ -23,6 +23,9 @@ Arkus AI, birden fazla pazaryerinde (Trendyol, Hepsiburada, Amazon TR, N11) sati
 > Demo hesap: `demo@arkus.ai` / `demo123`
 
 ---
+> 🎥 **1 Dakikalik Tanitim:** [https://youtu.be/ZDZey5QvcUw](https://youtu.be/ZDZey5QvcUw)
+
+---
 
 ## ⚡ Juri Quickstart (30 saniye)
 
@@ -45,9 +48,9 @@ docker compose up -d --build
 #    - AI Chat -> "Bu ay neden karim dustu?"  (function-calling agent)
 ```
 
-> 📐 **Mimari + BTK Kriterleri Eslemesi:** [**ARCHITECTURE.md**](./ARCHITECTURE.md)
+> 📐 **Mimari:** [**ARCHITECTURE.md**](./ARCHITECTURE.md)
 >
-> 🎥 **1 Dakikalik Tanitim:** *YouTube linki teslimde eklenecek*
+
 
 ## Problem
 
@@ -375,21 +378,6 @@ arkus-ai/
 5. `POST /api/v1/notifications/generate` → otomatik bildirim tespiti (rakip fiyat, stok, vs.)
 6. `GET /api/v1/sourcing/real-search/Bluetooth Kulaklik` → Google Search ile gercek tedarikci fiyatlari
 7. `POST /api/v1/agents/run-all` → 5 ajan sirayla calisir, event flow ile rapora doner
-
-## 📊 BTK Hackathon 26 — Degerlendirme Kriterleri Eslemesi
-
-| Kriter | Puan | Arkus AI'da nerede karsiliyor | Detay |
-|---|---|---|---|
-| Kullanici Degeri | 20 | 17 modul × 93 endpoint, gercek satici problemine birebir cozum | [`ARCHITECTURE.md`](./ARCHITECTURE.md) |
-| Teknik Puan | 20 | 4-layer mimari, async FastAPI, Pydantic v2, React 19 + Vite, Cloud Run + CI/CD | [`ARCHITECTURE.md`](./ARCHITECTURE.md) |
-| Performans / Dogruluk | 10 | Gemini cascade + amac-bazli key havuzu, AI usage logging, "no fake response" politika | [`ARCHITECTURE.md`](./ARCHITECTURE.md) |
-| Agentic Yapilar | 10 | 5 otonom ajan + function-calling chat, event bus | [`ARCHITECTURE.md`](./ARCHITECTURE.md) |
-| Yenilikcilik | 10 | Conversational commerce + arbitraj + Tedarik Avcisi + Gemini Vision + Search grounding | [`ARCHITECTURE.md`](./ARCHITECTURE.md) |
-| Kullanici Dostu | 10 | SSE streaming UX, i18n TR/EN, dark mode, lazy load + framer-motion | [`ARCHITECTURE.md`](./ARCHITECTURE.md) |
-| Takim Calismasi | 10 | Net FE/BE ayrim, `types/api.ts` kontrati, git workflow, PR CI gating | git log |
-| Sunum ve Iletisim | 10 | README + ARCHITECTURE + OpenAPI auto-docs + 1dk video + canli demo (arkus.tr) | bu dosya |
-
-**Toplam mimari kanit dokumani:** [ARCHITECTURE.md](./ARCHITECTURE.md) — mermaid diagram + sequence + ERD + modul haritasi + her kritere kod referansi.
 
 ## Lisans
 
