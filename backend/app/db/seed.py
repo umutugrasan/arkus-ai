@@ -53,9 +53,36 @@ def _api_get(path: str, headers: dict = None, retries: int = 5, delay: float = 2
     raise RuntimeError(f"mock-api'ye ulasilamadi ({path}): {last_err}")
 
 
+def _seed_suppliers_only(db: Session):
+    """Ana seed gecilmis ama Supplier tablosu bossa — sadece tedarikcileri doldurur.
+    (Production DB erken seed edilmis ama Supplier'lar olusmamissa kendini onarir.)"""
+    try:
+        sup_resp = _api_get("/suppliers")
+        count = 0
+        for sup_data in sup_resp.get("suppliers", []):
+            db.add(Supplier(
+                name=sup_data.get("name"),
+                product=sup_data.get("product"),
+                current_price=sup_data.get("current_price"),
+                min_order=sup_data.get("min_order"),
+                shipping_days=sup_data.get("shipping_days"),
+                discount_pct=sup_data.get("discount_pct"),
+                last_checked_at=_now(),
+            ))
+            count += 1
+        db.commit()
+        logger.info(f"Supplier self-heal: {count} tedarikci eklendi")
+    except Exception as e:
+        db.rollback()
+        logger.warning(f"Supplier self-heal basarisiz: {type(e).__name__}: {e}")
+
+
 def seed_db(db: Session):
     # Demo kullanici varsa tekrar seed etme
     if db.query(User).filter(User.email == "demo@arkus.ai").first():
+        # Self-healing: ana seed gecmis ama Supplier tablosu bossa sadece onu doldur
+        if db.query(Supplier).count() == 0:
+            _seed_suppliers_only(db)
         return
 
     logger.info("Seeding via mock-api at %s", MOCK_API_BASE)

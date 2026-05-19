@@ -114,10 +114,12 @@ KESIN KURAL - MIN SIPARIS ADEDI:
 - Eger min_order bilgisi bulunamiyorsa o sonucu ATLA.
 
 DIGER KURALLAR:
+- EN FAZLA 6 tedarikci dön. Daha fazlasini EKLEME — yanit kisa olmali.
 - Asla hayali fiyat uydurma. Sadece gercekten gordugun fiyatlari yaz.
 - Birim fiyati TL'ye cevir; orijinali USD ise yaklasik TL karsiligini yaz.
 - Gercek satin alma linkini (url) mutlaka ekle.
 - "current_price" SADECE sayi olmali (ornek: 143.75).
+- Uzun aciklama yazma; sadece istenen JSON alanlarini doldur.
 
 Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JSON:
 [
@@ -151,19 +153,35 @@ Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JS
     if not raw_text:
         return []
 
-    # ── 3. JSON ayikla ve parse et ──
+    # ── 3. JSON ayikla ve parse et (token limitinde kirpilmis yaniti kurtar) ──
+    if "```json" in raw_text:
+        raw_text = raw_text.split("```json", 1)[1]
+    if "```" in raw_text:
+        raw_text = raw_text.rsplit("```", 1)[0]
+    raw_text = raw_text.strip()
+
+    ai_data = None
     try:
-        if "```json" in raw_text:
-            raw_text = raw_text.split("```json", 1)[1]
-        if "```" in raw_text:
-            raw_text = raw_text.rsplit("```", 1)[0]
-        raw_text = raw_text.strip()
-        m = re.search(r'\[.*\]', raw_text, re.DOTALL)
-        if m:
-            raw_text = m.group(0)
         ai_data = json.loads(raw_text)
-    except Exception as e:
-        logger.error(f"Sourcing JSON parse hatasi: {e} | raw: {raw_text[:200]}")
+    except Exception:
+        # Gemini yaniti token limitinde kirpilabilir ("Unterminated string").
+        # Dizinin son TAM nesnesine kadar kes, diziyi kapatip tekrar dene.
+        start = raw_text.find('[')
+        if start != -1:
+            body = raw_text[start:]
+            last = body.rfind('}')
+            while last > 0 and ai_data is None:
+                try:
+                    parsed = json.loads(body[:last + 1] + ']')
+                    if isinstance(parsed, list):
+                        ai_data = parsed
+                        logger.warning(f"Sourcing: kirpilmis JSON kurtarildi — {len(parsed)} kayit")
+                except Exception:
+                    pass
+                last = body.rfind('}', 0, last)
+
+    if not isinstance(ai_data, list):
+        logger.error(f"Sourcing JSON parse hatasi — kurtarilamadi | raw: {raw_text[:200]}")
         return []
 
     def _clean_price(val) -> float:

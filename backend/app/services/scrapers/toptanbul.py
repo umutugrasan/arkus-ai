@@ -159,7 +159,9 @@ async def search_toptanbul(query: str, max_results: int = 12) -> list[dict]:
     else:
         logger.info(f"Toptanbul: Direkt httpx ile Trendyol ({query})")
 
-    max_attempts = 3 if _SCRAPER_API_KEY else 1
+    # ScraperAPI render Trendyol için kararsız; 2 deneme — fazlası best_price'ı
+    # dakikalarca bekletiyor (her render ~50-75sn).
+    max_attempts = 2 if _SCRAPER_API_KEY else 1
     for attempt in range(1, max_attempts + 1):
         try:
             results = await _fetch_once(fetch_url, target_url, max_results)
