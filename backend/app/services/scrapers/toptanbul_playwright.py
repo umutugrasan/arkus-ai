@@ -13,7 +13,7 @@ def _get_proxy() -> dict | None:
     if not _SCRAPER_API_KEY:
         return None
     return {
-        "server": "http://proxy.scraperapi.com:8001",
+        "server": "http://proxy-server.scraperapi.com:8001",
         "username": "scraperapi",
         "password": _SCRAPER_API_KEY,
     }
