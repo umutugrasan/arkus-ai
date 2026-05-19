@@ -185,6 +185,8 @@ Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JS
         return []
 
     def _clean_price(val) -> float:
+        """Turkce sayi formati guvenli parse — '8.696' (binlik) != 8.696 ondalik.
+        Bkz. scrapers/toptanbul.py:_parse_price ayni heuristic."""
         s = re.sub(r'[^\d\.,]', '', str(val))
         if not s:
             return 0.0
@@ -195,6 +197,11 @@ Buldugun sonuclari ASAGIDAKI JSON dizisi formatinda don. Markdown yok, sadece JS
                 s = s.replace('.', '').replace(',', '.')
         elif ',' in s:
             s = s.replace(',', '.')
+        elif '.' in s:
+            # Sadece nokta: binlik mi ondalik mi? "8.696" -> binlik (TR)
+            parts = s.split('.')
+            if len(parts) > 2 or len(parts[-1]) == 3:
+                s = s.replace('.', '')
         try:
             return float(s)
         except ValueError:

@@ -24,18 +24,43 @@ _PRICE_RE = re.compile(r"[\d\.,]+")
 
 
 def _parse_price(text: str) -> float:
+    """
+    Turkce sayi formatini guvenli parse eder.
+    Trendyol fiyatlari "8.696 TL" (binlik ayirici=nokta) veya "8.696,50 TL"
+    (binlik=nokta, ondalik=virgul) formatinda gelir.
+    En kritik koruma: "8.696" gibi sadece nokta varsa, nokta ondalik
+    sanip 8.696 (=> ~8 TL) yapmamak. Heuristic:
+      - Birden fazla nokta varsa -> tumu binlik ayirici
+      - Tek nokta ve sondan 3 hane varsa -> binlik ayirici (Trendyol kuruslu
+        fiyat virgul kullanir, "X.XXX" kalibinda nokta her zaman binlik)
+      - Tek nokta ve sondan 1-2 hane varsa -> ondalik (orn. "8.50")
+    """
     text = text.strip().replace("\xa0", "").replace(" ", "")
     nums = _PRICE_RE.findall(text)
     if not nums:
         return 0.0
     raw = nums[0]
     if "," in raw and "." in raw:
+        # Hem nokta hem virgul: sonda hangisi ondaliksa onu koru
         if raw.rfind(".") < raw.rfind(","):
+            # "8.696,50" -> nokta binlik, virgul ondalik
             raw = raw.replace(".", "").replace(",", ".")
         else:
+            # "8,696.50" (anglo) -> virgul binlik
             raw = raw.replace(",", "")
     elif "," in raw:
+        # Sadece virgul varsa Turkce ondalik
         raw = raw.replace(",", ".")
+    elif "." in raw:
+        # Sadece nokta: binlik ayirici mi ondalik mi?
+        parts = raw.split(".")
+        if len(parts) > 2:
+            # "1.234.567" -> tumu binlik
+            raw = raw.replace(".", "")
+        elif len(parts[-1]) == 3:
+            # "8.696" -> binlik ayirici (TR'de hic kurus 3 hane olmaz)
+            raw = raw.replace(".", "")
+        # else: "8.5" / "8.50" -> ondalik, bos birak
     try:
         return float(raw)
     except ValueError:
