@@ -6,13 +6,16 @@ asyncio.create_task ile arka planda 1 saatte bir tum ajan pipeline'ini calistiri
 
 import asyncio
 import logging
-from app.agents.orchestrator import run_all_agents_for_all_users
+from app.agents.orchestrator import (
+    run_all_agents_for_all_users,
+)
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_INTERVAL_SEC = settings.AGENT_INTERVAL_SECONDS  # .env'den pydantic ile gelir
 _scheduler_task = None
+
 
 
 async def _scheduler_loop(interval: int):
@@ -46,3 +49,6 @@ def stop_scheduler():
     global _scheduler_task
     if _scheduler_task and not _scheduler_task.done():
         _scheduler_task.cancel()
+
+
+

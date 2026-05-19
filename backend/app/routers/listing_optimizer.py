@@ -544,6 +544,75 @@ def optimization_history(
     }
 
 
+@router.get("/{product_id}/optimization/{opt_id}")
+def get_optimization(
+    product_id: str,
+    opt_id: int,
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """Gecmisteki tek bir optimizasyon kaydini AI cagrisi yapmadan yeniden uretir.
+    Frontend 'Gecmis' sekmesinden bir kayda tiklayinca eski sonucu detayli gosterir."""
+    row = _resolve_product(db, user.id, product_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Urun bulunamadi")
+    product, mp = row
+
+    rec = (
+        db.query(ListingOptimization)
+        .filter(
+            ListingOptimization.id == opt_id,
+            ListingOptimization.product_id == product.id,
+        )
+        .first()
+    )
+    if not rec:
+        raise HTTPException(status_code=404, detail="Optimizasyon kaydi bulunamadi")
+
+    keywords = rec.keywords or []
+    original_title = rec.original_title or product.name
+    optimized_title = rec.optimized_title or original_title
+    rules = MARKETPLACE_RULES.get(mp.name, MARKETPLACE_RULES["trendyol"])
+
+    orig_analysis = _analyze_title(original_title, mp.name, keywords)
+    new_analysis = _analyze_title(optimized_title, mp.name, keywords)
+    diff = _diff_titles(original_title, optimized_title)
+
+    return {
+        "id": rec.id,
+        "product_id": product_id,
+        "target_marketplace": mp.name,
+        "comparison": {
+            "original": {"title": original_title, "analysis": orig_analysis},
+            "optimized": {"title": optimized_title, "analysis": new_analysis},
+            "seo_score_delta": new_analysis["seo_score"] - orig_analysis["seo_score"],
+            "diff": diff,
+        },
+        "keywords": keywords,
+        "description": rec.description or "",
+        "description_length": len(rec.description or ""),
+        "description_ok": rules["description_min"] <= len(rec.description or "") <= rules["description_max"],
+        # improvements / expected_impact AI ciktisi — DB'de saklanmadigi icin bos doner.
+        "improvements": [],
+        "expected_impact": "",
+        "primary_keyword": keywords[0] if keywords else None,
+        "web_sources": [],
+        "used_web_search": False,
+        "marketplace_rules": rules,
+        "ready_to_apply": (
+            new_analysis["seo_score"] > 70
+            and new_analysis["in_hard_limit"]
+            and not new_analysis["banned_hits"]
+        ),
+        "publish_note": (
+            "Bu kayit gecmisten yeniden acildi. Baslik ve aciklamayi pazaryeri "
+            "panelinden manuel kopyalayabilirsiniz."
+        ),
+        "raw_ai_output": None,
+        "created_at": rec.created_at,
+    }
+
+
 @router.get("/{product_id}/analyze-current")
 def analyze_current_listing(
     product_id: str,

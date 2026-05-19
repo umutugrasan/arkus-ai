@@ -3,7 +3,7 @@ import json
 from app.dependencies import get_current_user, get_db
 from app.db.models import Financial
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
-from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
+from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics, generate_synthetic_history
 from app.services.gemini_service import ask_gemini, ask_gemini_with_search
 
 router = APIRouter()
@@ -147,6 +147,9 @@ def financials_full(user=Depends(get_current_user), db=Depends(get_db)):
         .order_by(Financial.month.asc())
         .all()
     )
+    if len(history) < 2:
+        history = generate_synthetic_history(overall, model_cls=Financial)
+
     monthly_history = [
         {
             "month": h.month,
@@ -180,6 +183,9 @@ def financial_overview(user=Depends(get_current_user), db=Depends(get_db)):
         .order_by(Financial.month.asc())
         .all()
     )
+    if len(history) < 2:
+        history = generate_synthetic_history(overall, model_cls=Financial)
+
     monthly_history = [
         {
             "month": h.month,
@@ -301,6 +307,9 @@ def cash_flow(user=Depends(get_current_user), db=Depends(get_db)):
         .order_by(Financial.month.asc())
         .all()
     )
+    if len(history) < 2:
+        history = generate_synthetic_history(overall, model_cls=Financial)
+
     accumulated_profit = sum(h.calculated_profit for h in history) if history else 0.0
 
     monthly_revenue = overall["total_revenue"]
@@ -356,6 +365,9 @@ async def analyze_financials(
         .order_by(Financial.month.asc())
         .all()
     )
+    if len(history) < 2:
+        history = generate_synthetic_history(overall, model_cls=Financial)
+
     history_summary = [
         {"month": h.month, "revenue": h.revenue, "profit": h.calculated_profit, "margin_pct": h.calculated_margin}
         for h in history

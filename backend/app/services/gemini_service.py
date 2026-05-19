@@ -29,15 +29,45 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 
-MODEL_CASCADE = [
-    settings.GEMINI_MODEL,
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
+# ─── Havuz-bazli model deneme sirasi ─────────────────────────────────────────
+# Her havuz kendi tercih ettigi modelle BASLAR, ardindan desteklenen TUM diger
+# modelleri sirayla dener — boylece hicbir havuz tek modele kisitli kalmaz, bir
+# model tukenince digerine gecer. Listede yalnizca bu projede limiti > 0 olan
+# modeller var; 0/0 olan (desteklenmeyen) gemini-2.0-flash / 2.0-flash-lite /
+# *-pro ve kaldirilan gemini-1.5-flash KASITLI olarak YOK — olu modelin 429'u
+# saglam key'i haksiz yere bench'lemesin.
+
+def _dedup(seq: List[str]) -> List[str]:
+    """Sirayi koruyarak tekrarlari atar (bos degerleri de eler)."""
+    seen: set = set()
+    return [m for m in seq if m and not (m in seen or seen.add(m))]
+
+
+_AGENTS_MODEL = settings.GEMINI_MODEL                                  # agents/vision birincil — sart: 2.5-flash
+_FAST_MODEL = os.getenv("GEMINI_MODEL_FAST", "gemini-3.1-flash-lite")   # chat/analyze birincil — yuksek RPD
+# Ek desteklenen text modelleri (virgulle, .env > GEMINI_MODELS_EXTRA ile genisletilebilir).
+_EXTRA_MODELS = [
+    m.strip() for m in
+    os.getenv("GEMINI_MODELS_EXTRA", "gemini-2.5-flash-lite,gemini-3-flash-preview").split(",")
+    if m.strip()
 ]
-# Default model duplicate olursa siralamayi koru ama tekrari at
-_seen: set = set()
-MODEL_CASCADE = [m for m in MODEL_CASCADE if not (m in _seen or _seen.add(m))]
+
+# Desteklenen TUM modeller — havuzun birincili tukenince sirayla buradaki herkes denenir.
+_ALL_MODELS = _dedup([_AGENTS_MODEL, _FAST_MODEL, *_EXTRA_MODELS])
+
+# Havuz → model deneme sirasi: once havuzun tercih ettigi model, sonra kalan TUM modeller.
+POOL_MODELS: Dict[str, List[str]] = {
+    "agents":  _dedup([_AGENTS_MODEL, *_ALL_MODELS]),
+    "chat":    _dedup([_FAST_MODEL,   *_ALL_MODELS]),
+    "analyze": _dedup([_FAST_MODEL,   *_ALL_MODELS]),
+    "vision":  _dedup([_AGENTS_MODEL, *_ALL_MODELS]),
+    "default": _dedup([_FAST_MODEL,   *_ALL_MODELS]),
+}
+
+
+def _models_for_pool(pool: str) -> List[str]:
+    """Havuza ait model deneme sirasini dondurur (taninmayan havuz → default)."""
+    return POOL_MODELS.get(pool) or POOL_MODELS["default"]
 
 
 # ─── Pool state (module-level, thread-safe) ──────────────────────────────────
@@ -48,8 +78,8 @@ _pool_keys: Dict[str, List[str]] = {}
 _pool_iters: Dict[str, Any] = {}
 # key → genai.Client instance (cached)
 _clients_by_key: Dict[str, Any] = {}
-# key → cooldown bitis timestamp (429 yiyen key gecici black-list)
-_key_cooldown: Dict[str, float] = {}
+# (key, model) → cooldown bitis timestamp (429 yiyen key+model gecici black-list)
+_key_model_cooldown: Dict[Tuple[str, str], float] = {}
 # Threading lock — pool init + iterator advance + client cache thread-safe
 _lock = threading.Lock()
 
@@ -92,40 +122,32 @@ def _ensure_pools() -> None:
                 _init_pools_locked()
 
 
-def _is_key_cooled_down(key: str) -> bool:
-    """429 cooldown'da mi?"""
-    until = _key_cooldown.get(key, 0.0)
+def _is_model_cooled_down(key: str, model: str) -> bool:
+    """Bu key ve model 429 cooldown'da mi?"""
+    until = _key_model_cooldown.get((key, model), 0.0)
     if until > time.time():
         return True
     if until and until <= time.time():
-        # Cooldown bitti, kayittan dustur
-        _key_cooldown.pop(key, None)
+        _key_model_cooldown.pop((key, model), None)
     return False
 
 
-def _mark_key_429(key: str) -> None:
-    """Bu key'i 60sn kara listeye al."""
-    _key_cooldown[key] = time.time() + _KEY_COOLDOWN_SECONDS
-    logger.warning(f"Gemini key ...{key[-6:]} 429 → {_KEY_COOLDOWN_SECONDS}s cooldown")
+def _mark_model_429(key: str, model: str) -> None:
+    """Bu key ve modeli 60sn kara listeye al."""
+    _key_model_cooldown[(key, model)] = time.time() + _KEY_COOLDOWN_SECONDS
+    logger.warning(f"Gemini key ...{key[-6:]} model {model} 429 → {_KEY_COOLDOWN_SECONDS}s cooldown")
 
 
 def _next_key_from_pool(pool: str) -> Optional[str]:
-    """Pool'dan cooldown'da OLMAYAN sirakaki key'i dondur. Hepsi cooldown'daysa None."""
+    """Pool'dan siradaki key'i dondur (round-robin)."""
     _ensure_pools()
     keys = _pool_keys.get(pool) or _pool_keys.get("default") or []
     if not keys:
         return None
-    # Tum key'ler cooldown'da mi diye baktiktan sonra iterator'i ilerlet
-    tried = 0
     it = _pool_iters.get(pool) or _pool_iters.get("default")
     if it is None:
         return None
-    while tried < len(keys):
-        candidate = next(it)
-        if not _is_key_cooled_down(candidate):
-            return candidate
-        tried += 1
-    return None  # Hepsi cooldown
+    return next(it)
 
 
 def _get_client_for_key(key: str):
@@ -202,8 +224,8 @@ def _try_pool(pool: str, call_fn) -> Tuple[Optional[Any], Optional[str], Optiona
     """
     2-katmanli cascade:
       DIS:  pool icindeki her key icin (cooldown'da olmayan)
-      IC:   her model icin (MODEL_CASCADE)
-    429 → key'i 60sn kara listeye al, sonraki key'e gec
+      IC:   her model icin (havuza ait POOL_MODELS sirasi)
+    429 → modeli 60sn kara listeye al, sonraki modele gec
     503 → ayni key + 1sn bekle + 1 retry; basarisizsa sonraki model
     404 → sonraki model
     Diger hata → log + sonraki model
@@ -222,35 +244,29 @@ def _try_pool(pool: str, call_fn) -> Tuple[Optional[Any], Optional[str], Optiona
     while keys_tried_count < pool_size:
         key = _next_key_from_pool(pool)
         if not key:
-            # Tum key'ler cooldown'da; default pool'a fallback dene (eger zaten orada degilsek)
-            if pool != "default":
-                logger.info(f"Pool '{pool}' tukendi/cooldown'da, default pool deneniyor")
-                return _try_pool("default", call_fn)
             break
         keys_tried_count += 1
         client = _get_client_for_key(key)
 
-        for model in MODEL_CASCADE:
+        for model in _models_for_pool(pool):
+            if _is_model_cooled_down(key, model):
+                continue
+
             for attempt in range(2):  # 503 icin 1 retry
                 try:
                     return call_fn(client, model), model, None
                 except Exception as e:
                     last_err = e
                     if _is_quota_error(e):
-                        # 429 → bu key i 60sn dondur, sonraki key'e atla
-                        _mark_key_429(key)
-                        break  # ic model loop'u kir, ic key loop'unda devam
+                        # 429 → bu model i 60sn dondur, sonraki modele atla
+                        _mark_model_429(key, model)
+                        break  # ic model loop'una devam (sonraki modele gec)
                     if _is_unavailable_error(e) and attempt == 0:
                         logger.warning(f"Gemini {model} 503, 1sn sonra retry...")
                         time.sleep(1.0)
                         continue
                     logger.warning(f"Gemini key ...{key[-6:]} model {model} failed: {type(e).__name__}: {e}")
                     break  # sonraki model
-            else:
-                continue  # for else: tum attempt'ler tukendi, sonraki modele gec
-            # 429 break'i icin: dis donguden cik
-            if _is_quota_error(last_err):
-                break
 
     # Tum pool key'leri tukendi (cooldown veya hata). Default pool'a fallback
     # dene (eger zaten oradaysak degil ve default'ta key varsa).
@@ -336,8 +352,10 @@ async def ask_gemini_stream(
         keys_tried += 1
         client = _get_client_for_key(key)
 
-        # Bu key icin model cascade
-        for model in MODEL_CASCADE:
+        # Bu key icin model cascade (havuza gore)
+        for model in _models_for_pool(pool):
+            if _is_model_cooled_down(key, model):
+                continue
             try:
                 kwargs = {"model": model, "contents": full_prompt}
                 if config is not None:
@@ -357,14 +375,11 @@ async def ask_gemini_stream(
             except Exception as e:
                 last_err = e
                 if _is_quota_error(e):
-                    # 429 → bu key cooldown, sonraki key'e gec (model loop'undan cik)
-                    _mark_key_429(key)
-                    break
+                    # 429 → bu model cooldown, sonraki modele gec
+                    _mark_model_429(key, model)
+                    continue
                 logger.warning(f"Gemini stream ...{key[-6:]} model {model} failed: {type(e).__name__}: {e}")
                 continue
-        # 429 icin dis donguye cik, sonraki key dene
-        if last_err and _is_quota_error(last_err):
-            continue
 
     # Tum pool key'leri tukendi (cooldown/hata). Default'a fallback dene.
     if pool != "default" and _pool_keys.get("default"):

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Zap, CheckCircle2, XCircle, BarChart2, Loader2, AlertCircle } from 'lucide-react';
 import GlassCard from '../components/shared/GlassCard';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -7,6 +7,7 @@ import EmptyState from '../components/shared/EmptyState';
 import { imageAnalyzerService, productService } from '../services';
 import { formatDate } from '../utils/formatters';
 import { useI18n } from '../context/I18nContext';
+import { useBackgroundAnalysis } from '../context/AnalysisContext';
 import type { TranslationKey } from '../i18n';
 import type { ImageAnalyzeResponse, ImageSuggestionsResponse, ImageHistoryResponse, ProductListItem } from '../types/api';
 
@@ -19,11 +20,30 @@ export default function ImageAnalyzerPage() {
   const [customImageUrl, setCustomImageUrl] = useState('');
   const [tab, setTab] = useState<Tab>('analyze');
   const [loading, setLoading] = useState(true);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<ImageAnalyzeResponse | null>(null);
-  const [suggestions, setSuggestions] = useState<ImageSuggestionsResponse | null>(null);
   const [historyData, setHistoryData] = useState<ImageHistoryResponse | null>(null);
   const didInit = useRef(false);
+
+  // Analiz/oneri arka planda calisir — kullanici baska sayfaya gecse bile iptal olmaz,
+  // sonuc AnalysisContext'te saklanir ve sayfaya donulunce geri yuklenir.
+  const analyzeJob = useBackgroundAnalysis({
+    type: 'image', id: selectedProductId, label: 'Görsel Analiz', navigateTo: '/image-analyzer',
+  });
+  const suggestJob = useBackgroundAnalysis({
+    type: 'image_suggestions', id: selectedProductId, label: 'Görsel Önerileri', navigateTo: '/image-analyzer',
+  });
+
+  const analyzing = analyzeJob.isRunning || suggestJob.isRunning;
+
+  // Context metin sakladigi icin sonuclar JSON string olarak tutulur, burada geri cozulur.
+  const analysis = useMemo<ImageAnalyzeResponse | null>(() => {
+    if (!analyzeJob.text) return null;
+    try { return JSON.parse(analyzeJob.text) as ImageAnalyzeResponse; } catch { return null; }
+  }, [analyzeJob.text]);
+
+  const suggestions = useMemo<ImageSuggestionsResponse | null>(() => {
+    if (!suggestJob.text) return null;
+    try { return JSON.parse(suggestJob.text) as ImageSuggestionsResponse; } catch { return null; }
+  }, [suggestJob.text]);
 
   const scoreLabel = (key: string) => {
     const translated = t(`image.score.${key}` as TranslationKey);
@@ -48,28 +68,29 @@ export default function ImageAnalyzerPage() {
 
   useEffect(() => {
     if (!selectedProductId) return;
-    setAnalysis(null); setSuggestions(null);
     imageAnalyzerService.history(selectedProductId).then(setHistoryData).catch(() => {});
   }, [selectedProductId]);
 
-  const handleAnalyze = async () => {
+  const handleAnalyze = () => {
     if (!selectedProductId) return;
-    setAnalyzing(true);
-    try {
-      const res = await imageAnalyzerService.analyze(selectedProductId, customImageUrl || undefined);
-      setAnalysis(res);
-      setTab('analyze');
-    } finally { setAnalyzing(false); }
+    setTab('analyze');
+    analyzeJob.startFetch(
+      async () => JSON.stringify(
+        await imageAnalyzerService.analyze(selectedProductId, customImageUrl || undefined),
+      ),
+      { onDone: () => setTab('analyze') },
+    );
   };
 
-  const handleSuggestions = async () => {
+  const handleSuggestions = () => {
     if (!selectedProductId) return;
-    setAnalyzing(true);
-    try {
-      const res = await imageAnalyzerService.suggestions(selectedProductId, customImageUrl || undefined);
-      setSuggestions(res);
-      setTab('suggestions');
-    } finally { setAnalyzing(false); }
+    setTab('suggestions');
+    suggestJob.startFetch(
+      async () => JSON.stringify(
+        await imageAnalyzerService.suggestions(selectedProductId, customImageUrl || undefined),
+      ),
+      { onDone: () => setTab('suggestions') },
+    );
   };
 
   if (loading) return <LoadingSpinner message={t('common.loading_products')} size="lg" />;

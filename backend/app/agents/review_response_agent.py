@@ -11,7 +11,9 @@ VERİ KAYNAGI:
   - `Product` tablosu (kullaniciya ait product_code listesi)
   - `Notification` tablosu (taslak ciktilari burada saklanir — yeni tablo aclamaz)
 
-AI ÇAĞRISI: yorum basina 1, pool="agents" (chat veya analyze pool'unu yutmasin).
+AI ÇAĞRISI: yorum basina 1, pool="default" — bu havuz yuksek RPD'li model
+  (gemini-3.1-flash-lite, RPD 500) ile baslar. Boylece taslak uretimi, kit olan
+  gemini-2.5-flash kotasini (RPD 20) tuketmez; o kota gercek analiz ajanlarina kalir.
 
 IDEMPOTENCY:
   - Notification baslignda review_id gomulur; ayni yorum icin tekrar uretilmez.
@@ -39,7 +41,7 @@ class ReviewResponseAgent(BaseAgent):
     name = "ReviewResponseAgent"
 
     LOOKBACK_DAYS = 7                  # son 7 gunden eski yorumlara cevap uretme
-    MAX_DRAFTS_PER_TICK = 5            # quota korumasi: tick basina max 5 AI cagrisi
+    MAX_DRAFTS_PER_DAY = 3             # quota korumasi: gunluk max 3 AI cagrisi
     NEGATIVE_RATING_THRESHOLD = 2      # rating <= 2 = negatif
 
     async def run(self, user_id: int, db, events_in: list = None) -> AgentResult:
@@ -85,6 +87,21 @@ class ReviewResponseAgent(BaseAgent):
                 if p.product_code and p.product_code not in products_by_code:
                     products_by_code[p.product_code] = p.name
 
+            # Bugun kac taslak olusturulmus kontrol et
+            today_prefix = datetime.now().strftime("%Y-%m-%d")
+            drafts_today = db.query(Notification).filter(
+                Notification.user_id == user_id,
+                Notification.type == "yorum_cevap_taslagi",
+                Notification.created_at.like(f"{today_prefix}%")
+            ).count()
+
+            remaining_quota = max(0, self.MAX_DRAFTS_PER_DAY - drafts_today)
+            if remaining_quota <= 0:
+                return AgentResult(
+                    agent_name=self.name, status="ok",
+                    details={"note": f"Gunluk taslak uretim limiti ({self.MAX_DRAFTS_PER_DAY}) doldu."},
+                )
+
             # Idempotency: hangi review_id'ler icin zaten unread bildirim var?
             existing_titles = {
                 n.title for n in db.query(Notification.title).filter(
@@ -99,7 +116,7 @@ class ReviewResponseAgent(BaseAgent):
             details: Dict[str, Any] = {"drafts": []}
 
             for review in negative_reviews:
-                if drafts_created >= self.MAX_DRAFTS_PER_TICK:
+                if drafts_created >= remaining_quota:
                     break
 
                 product_name = products_by_code.get(review.product_code, review.product_code)
@@ -130,7 +147,7 @@ class ReviewResponseAgent(BaseAgent):
                     draft = await ask_gemini(
                         prompt, system,
                         endpoint="agents.review_response",
-                        pool="agents",
+                        pool="default",
                     )
                 except Exception as ai_err:
                     # AI hata verdi; bu yorumu skip et, digerine gec

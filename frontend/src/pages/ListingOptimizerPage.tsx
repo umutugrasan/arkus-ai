@@ -72,6 +72,17 @@ export default function ListingOptimizerPage() {
     } finally { setActionLoading(false); }
   };
 
+  // Gecmis sekmesinden bir kayda tiklayinca eski optimizasyon sonucunu yeniden acar.
+  const handleOpenHistory = async (optId: number) => {
+    if (!selectedProduct) return;
+    setActionLoading(true);
+    try {
+      const res = await listingOptimizerService.getOptimization(selectedProduct, optId);
+      setOptimizeResult(res);
+      setTab('optimize');
+    } finally { setActionLoading(false); }
+  };
+
   if (loading) return <LoadingSpinner message={t('common.loading_products')} size="lg" />;
   if (products.length === 0) return <EmptyState title={t('competitors.no_product')} description={t('listing.no_product_desc')} />;
 
@@ -287,7 +298,7 @@ export default function ListingOptimizerPage() {
             : (
               <div className="space-y-3">
                 {history.optimizations.map((opt, i) => (
-                  <GlassCard key={opt.id} index={i}>
+                  <GlassCard key={opt.id} index={i} hover onClick={() => handleOpenHistory(opt.id)}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <p className="text-[var(--text-muted)] text-xs">{formatDate(opt.created_at)}</p>

@@ -17,6 +17,8 @@ const TYPE_LABELS: Record<string, string> = {
   financials: 'Finansal Analiz',
   health: 'Sağlık Analizi',
   finance: 'Finansman Analizi',
+  image: 'Görsel Analiz',
+  image_suggestions: 'Görsel Önerileri',
 };
 
 function JobBadge({ job, onDismiss }: { job: AnalysisJobMeta; onDismiss: () => void }) {

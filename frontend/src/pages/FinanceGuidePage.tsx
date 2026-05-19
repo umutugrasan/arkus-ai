@@ -15,6 +15,7 @@ export default function FinanceGuidePage() {
   const [eligibility, setEligibility] = useState<FinanceEligibilityResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [aiRefreshing, setAiRefreshing] = useState(false);
 
   const { text: aiAnalysis, isRunning: aiLoading, startFetch } = useBackgroundAnalysis({
     type: 'finance',
@@ -52,6 +53,15 @@ export default function FinanceGuidePage() {
     });
   };
 
+  // Kredi seceneklerini Gemini Google Search ile guncelle — arka planda, sayfa donmaz.
+  const handleAiRefresh = () => {
+    setAiRefreshing(true);
+    financeGuideService.options(true)
+      .then(setOptions)
+      .catch(() => {})
+      .finally(() => setAiRefreshing(false));
+  };
+
   if (loading) {
     return (
       <div className="space-y-6 animate-fade-in">
@@ -83,7 +93,9 @@ export default function FinanceGuidePage() {
   const notEligibleOpts: FinanceOption[] = options?.not_eligible_options || [];
   const allOptions = [...eligibleOpts, ...notEligibleOpts];
 
-  const isFallback = options?.data_source === 'fallback';
+  // Fallback uyarisi yalnizca AI denenip basarisiz oldugunda gosterilir.
+  // Varsayilan hizli yuklemede (AI hic denenmedi) uyari cikmaz.
+  const isFallback = options?.data_source === 'fallback' && !!options?.ai_error;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -156,7 +168,14 @@ export default function FinanceGuidePage() {
       {/* Kredi Seçenekleri */}
       {allOptions.length > 0 && (
         <div>
-          <h3 className="text-[var(--text-primary)] font-semibold mb-3">{t('finance.options_title')}</h3>
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <h3 className="text-[var(--text-primary)] font-semibold">{t('finance.options_title')}</h3>
+            <button onClick={handleAiRefresh} disabled={aiRefreshing}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-elevated)] hover:bg-[var(--bg-muted)] border border-[var(--border-strong)] text-[var(--text-secondary)] rounded-lg text-xs font-medium transition-all disabled:opacity-50 flex-shrink-0">
+              <RefreshCw size={12} className={aiRefreshing ? 'animate-spin' : ''} />
+              {aiRefreshing ? t('finance.refresh_ai_loading') : t('finance.refresh_ai')}
+            </button>
+          </div>
           <div className="grid md:grid-cols-2 gap-4">
             {allOptions.map((opt, i) => (
               <GlassCard key={`${opt.name}-${opt.provider}-${i}`} index={i} className={`relative transition-all ${opt.is_recommended ? 'border-2 border-[var(--accent-solid)] shadow-[0_0_15px_rgba(74,63,68,0.15)]' : (opt.eligible ? 'border border-emerald-500/30' : 'opacity-70')}`}>

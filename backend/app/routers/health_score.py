@@ -3,7 +3,7 @@ import json
 from app.dependencies import get_current_user, get_db
 from app.db.models import Financial, Product, Marketplace
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
-from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics
+from app.services.calculator import calculate_marketplace_metrics, calculate_overall_metrics, generate_synthetic_history
 from app.services.gemini_service import ask_gemini, ask_gemini_with_search
 
 router = APIRouter()
@@ -113,6 +113,9 @@ def _calculate_scores(db, user_id):
         .order_by(Financial.month.asc())
         .all()
     )
+    if len(history) < 2:
+        history = generate_synthetic_history(overall, model_cls=Financial)
+
     unique_products = (
         db.query(Product.product_code)
         .filter(Product.user_id == user_id)
@@ -250,9 +253,19 @@ def score_history(user=Depends(get_current_user), db=Depends(get_db)):
         .order_by(Financial.month.asc())
         .all()
     )
+    
+    current_total, current_scores, metrics = _calculate_scores(db, user.id)
+    
+    if len(rows) < 2:
+        overall = {
+            "total_revenue": metrics["total_revenue_30d"],
+            "total_net_after_ads": metrics["monthly_net_profit"],
+            "overall_net_margin": metrics["net_margin"],
+            "overall_roas": 0,
+            "total_ad_spend": 0,
+        }
+        rows = generate_synthetic_history(overall, model_cls=Financial)
 
-    # Sabit kismi: bugunku hesabi tek sefer cikar
-    current_total, current_scores, _ = _calculate_scores(db, user.id)
     static_part = (
         current_scores["yorum_puani"]
         + current_scores["pazaryeri_cesitliligi"]

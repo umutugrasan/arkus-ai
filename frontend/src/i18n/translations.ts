@@ -313,6 +313,7 @@ export const translations = {
   // ─── Notifications ─────────────────────────────────────────
   'notifications.title': { tr: 'Bildirimler', en: 'Notifications' },
   'notifications.scan': { tr: 'Bildirimleri Tara', en: 'Scan Notifications' },
+  'notifications.auto_draft_note': { tr: 'Olumsuz yorumlara cevap taslakları her gün otomatik olarak arka planda hazırlanır — aşağıda hazır gelir.', en: 'Reply drafts for negative reviews are prepared automatically in the background every day — they appear ready below.' },
   'notifications.mark_all': { tr: 'Tümünü Oku', en: 'Mark All Read' },
   'notifications.unread_count': { tr: 'okunmamış', en: 'unread' },
   'notifications.loading': { tr: 'Bildirimler yükleniyor…', en: 'Loading notifications…' },
@@ -609,6 +610,8 @@ export const translations = {
   'finance.load_failed': { tr: 'Sunucuya bağlanılamadı veya servis şu an cevap vermiyor. Birkaç dakika sonra tekrar deneyin.', en: 'Could not reach the server or the service is not responding. Try again in a few minutes.' },
   'finance.partial_failed': { tr: 'Bazı finansman verileri yüklenemedi. Yenilemeyi deneyebilirsiniz.', en: 'Some finance data could not be loaded. You can try refreshing.' },
   'finance.fallback_notice': { tr: 'AI servisine ulaşılamadığı için aşağıda sabit kredi/destek listesi gösteriliyor. Güncel oran ve şartlar için sağlayıcı kurumun web sitesini kontrol edin.', en: 'AI service could not be reached, so a static list of loans/support is shown below. Check the provider\'s website for up-to-date rates and conditions.' },
+  'finance.refresh_ai': { tr: 'Güncel kredileri AI ile getir', en: 'Fetch latest credits with AI' },
+  'finance.refresh_ai_loading': { tr: 'Güncel krediler aranıyor…', en: 'Searching latest credits…' },
 
   // ─── Integrations ──────────────────────────────────────────
   'integrations.api_key_required': { tr: 'API key gerekli', en: 'API key required' },

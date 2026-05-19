@@ -173,3 +173,55 @@ def calculate_arbitrage(product_id: str, listings: list):
         "profit_gap_per_item": round(best["net_per_item"] - worst["net_per_item"], 2),
         "monthly_opportunity": round(best["monthly_net_profit"] - worst["monthly_net_profit"], 2),
     }
+
+
+def generate_synthetic_history(overall: dict, model_cls=None):
+    """
+    Kullanicinin yeterli gecmis verisi yoksa (or: 1 aydan az),
+    su anki metriklerinden geriye donuk sezonsal (synthetic) bir trend uretir.
+    Eger model_cls (or: Financial) verilirse, o siniftan objeler doner.
+    """
+    from datetime import date
+    import hashlib
+    
+    base_revenue = overall.get("total_revenue", 0)
+    base_profit = overall.get("total_net_after_ads", 0)
+    base_margin = overall.get("overall_net_margin", 0)
+    base_roas = overall.get("overall_roas", 0)
+    ad_spend = overall.get("total_ad_spend", 0)
+    
+    today_date = date.today()
+    seasonal_multipliers = [
+        0.62, 0.58, 0.55, 0.71, 0.88, 1.18, 1.35, 0.78, 0.82, 0.90, 0.97, 1.05
+    ]
+    
+    history_list = []
+    for offset, multiplier in enumerate(seasonal_multipliers):
+        months_back = 11 - offset
+        year = today_date.year
+        month = today_date.month - months_back
+        while month <= 0:
+            month += 12
+            year -= 1
+        month_str = f"{year:04d}-{month:02d}"
+        
+        h = int(hashlib.md5(month_str.encode()).hexdigest(), 16)
+        noise = 1.0 + ((h % 20) - 10) / 100
+        
+        m = multiplier * noise
+        
+        data = {
+            "month": month_str,
+            "revenue": round(base_revenue * m, 2),
+            "calculated_profit": round(base_profit * m, 2),
+            "calculated_margin": base_margin,
+            "calculated_roas": base_roas,
+            "ad_spend": round(ad_spend * m, 2)
+        }
+        
+        if model_cls:
+            history_list.append(model_cls(**data))
+        else:
+            history_list.append(data)
+            
+    return history_list

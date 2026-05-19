@@ -139,6 +139,12 @@ class Settings(BaseSettings):
     # --- Agent scheduler ---
     AGENT_INTERVAL_SECONDS: int = 3600
 
+    # --- Gunluk otonom cevap taslagi uretimi ---
+    # AGENT_INTERVAL_SECONDS'tan bagimsiz: gunde bir kez negatif yorumlara cevap
+    # taslaklarini arka planda uretir (tam ajan pipeline'ini calistirmaz, quota dostu).
+    DAILY_DRAFT_ENABLED: bool = True
+    DAILY_DRAFT_INTERVAL_SECONDS: int = 86400  # 24 saat
+
     # --- Logging ---
     LOG_LEVEL: str = "INFO"
     LOG_FORMAT: Literal["json", "text"] = "json"

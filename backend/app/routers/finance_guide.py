@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 import asyncio
 import json
 import logging
+from urllib.parse import urlparse
 from app.dependencies import get_current_user, get_db
 from app.db.models import Financial
 from app.services.marketplace_api import fetch_store_info, fetch_all_marketplaces
@@ -75,6 +76,49 @@ def _classify_options(options: list, profile: dict) -> tuple[list, list]:
 
 # FINANCE_OPTIONS kaldirildi. Artik gercek zamanli Gemini Google Search kullanilacak.
 
+# Saglayici adi -> dogrulanmis resmi sayfa. AI'nin urettigi uydurma/var olmayan derin
+# linkler yerine bu guvenilir adresler kullanilir; boylece "Basvur" butonu 404 vermez.
+PROVIDER_OFFICIAL_URLS = {
+    "kosgeb": "https://www.kosgeb.gov.tr",
+    "halkbank": "https://www.halkbank.com.tr",
+    "ziraat": "https://www.ziraatbank.com.tr",
+    "is bankasi": "https://www.isbank.com.tr",
+    "isbank": "https://www.isbank.com.tr",
+    "is bankas": "https://www.isbank.com.tr",
+    "garanti": "https://www.garantibbva.com.tr",
+    "vakifbank": "https://www.vakifbank.com.tr",
+    "vakif": "https://www.vakifbank.com.tr",
+    "yapi kredi": "https://www.yapikredi.com.tr",
+    "akbank": "https://www.akbank.com",
+    "kgf": "https://www.kgf.com.tr",
+    "kredi garanti": "https://www.kgf.com.tr",
+    "denizbank": "https://www.denizbank.com",
+    "teb": "https://www.teb.com.tr",
+    "qnb": "https://www.qnb.com.tr",
+    "finansbank": "https://www.qnb.com.tr",
+    "tarim kredi": "https://www.tarimkredi.org.tr",
+    "tubitak": "https://www.tubitak.gov.tr",
+    "ttgv": "https://www.ttgv.org.tr",
+}
+
+
+def _canonical_url(provider: str, ai_url) -> str:
+    """Saglayici adina gore dogrulanmis resmi URL dondurur.
+    Eslesme yoksa AI url'i yalnizca gecerli bir https adresi ise korunur, aksi halde bos."""
+    p = (provider or "").strip().lower()
+    for key, official in PROVIDER_OFFICIAL_URLS.items():
+        if key in p:
+            return official
+    url = (ai_url or "").strip() if isinstance(ai_url, str) else ""
+    if url.startswith("https://"):
+        try:
+            parsed = urlparse(url)
+            if parsed.scheme == "https" and parsed.netloc:
+                return url
+        except Exception:
+            pass
+    return ""
+
 def _calc_eligibility_score(net_margin, monthly_revenue, positive_months, total_months):
     """
     Finansman uygunluk skoru (0-100). 4 bilesen:
@@ -132,7 +176,11 @@ def _get_seller_profile(db, user_id: int) -> dict:
     }
 
 
-async def _fetch_real_finance_options(profile):
+async def _fetch_real_finance_options(profile, use_ai: bool = True):
+    """Finansman seceneklerini getirir.
+    use_ai=False → AI cagrisi yapilmadan aninda sabit (gercek) liste doner; sayfa hizli acilir.
+    use_ai=True  → Gemini Google Search ile guncel kredileri ceker, 12 sn'de donmezse fallback.
+    """
     score = profile["eligibility_score"]
     revenue = profile["monthly_revenue"]
     
@@ -164,40 +212,43 @@ Lutfen ASAGIDAKI JSON FORMATINDA (array olarak) don, markdown veya baska metin E
     source = "ai"  # 'ai' | 'fallback'
     error: str | None = None
 
-    try:
-        # Gemini Google Search 20 sn icinde donmezse fallback'e gec.
-        result = await asyncio.wait_for(
-            ask_gemini_with_search(prompt, system, pool="analyze"),
-            timeout=20,
-        )
-        raw_text = (result.get("text") or "").replace("```json", "").replace("```", "").strip()
+    if use_ai:
         try:
-            options = json.loads(raw_text) if raw_text else []
-        except json.JSONDecodeError:
-            options = []
-            error = "ai_invalid_json"
-    except asyncio.TimeoutError:
-        logger.warning("Finansman AI Fetch: 20s timeout, fallback'e geciliyor")
-        error = "ai_timeout"
-    except Exception as e:
-        logger.error(f"Finansman AI Fetch Error: {type(e).__name__}: {e}")
-        error = "ai_error"
+            # Gemini Google Search 12 sn icinde donmezse fallback'e gec.
+            result = await asyncio.wait_for(
+                ask_gemini_with_search(prompt, system, pool="analyze"),
+                timeout=12,
+            )
+            raw_text = (result.get("text") or "").replace("```json", "").replace("```", "").strip()
+            try:
+                options = json.loads(raw_text) if raw_text else []
+            except json.JSONDecodeError:
+                options = []
+                error = "ai_invalid_json"
+        except asyncio.TimeoutError:
+            logger.warning("Finansman AI Fetch: 12s timeout, fallback'e geciliyor")
+            error = "ai_timeout"
+        except Exception as e:
+            logger.error(f"Finansman AI Fetch Error: {type(e).__name__}: {e}")
+            error = "ai_error"
 
-    # AI bos / hatali dondu → sabit listeyi kullan
+    # AI kapali / bos / hatali dondu → sabit (gercek) listeyi kullan
     if not isinstance(options, list) or not options:
         options = list(_FALLBACK_FINANCE_OPTIONS)
         source = "fallback"
 
     eligible, not_eligible = _classify_options(options, profile)
-    # Klasifiye edilmis listelere meta bilgi ekle (frontend gostermek isteyebilir)
+    # Meta bilgi + dogrulanmis basvuru URL'i (uydurma derin linkleri resmi sayfayla degistir)
     for opt in eligible + not_eligible:
         opt.setdefault("source", source)
+        opt["url"] = _canonical_url(opt.get("provider", ""), opt.get("url"))
     return eligible, not_eligible, source, error
 
 @router.get("/options")
-async def get_options(user=Depends(get_current_user), db=Depends(get_db)):
+async def get_options(use_ai: bool = False, user=Depends(get_current_user), db=Depends(get_db)):
+    # use_ai=False (varsayilan): sayfa aninda acilir. use_ai=true: guncel kredileri AI ceker.
     profile = _get_seller_profile(db, user.id)
-    eligible, not_eligible, source, error = await _fetch_real_finance_options(profile)
+    eligible, not_eligible, source, error = await _fetch_real_finance_options(profile, use_ai=use_ai)
     return {
         "seller_profile": profile,
         "eligible_options": eligible,

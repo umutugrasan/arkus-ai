@@ -318,8 +318,10 @@ export const healthScoreService = {
 
 // ===================== FINANCE GUIDE =====================
 export const financeGuideService = {
-  options: async (): Promise<FinanceOptionsResponse> => {
-    const r = await api.get<FinanceOptionsResponse>('/finance-guide/options');
+  // useAi=false (varsayilan): aninda sabit liste — sayfa hizli acilir.
+  // useAi=true: Gemini Google Search ile guncel krediler (yavas, arka planda cagrilmali).
+  options: async (useAi = false): Promise<FinanceOptionsResponse> => {
+    const r = await api.get<FinanceOptionsResponse>(`/finance-guide/options?use_ai=${useAi}`);
     return r.data;
   },
   eligibility: async (): Promise<FinanceEligibilityResponse> => {
@@ -419,6 +421,15 @@ export const notificationService = {
     }>('/notifications/generate');
     return r.data;
   },
+  generateDrafts: async () => {
+    const r = await api.post<{
+      message: string;
+      new_count: number;
+      new_notifications: NotificationItem[];
+      review_drafts_created: number;
+    }>('/notifications/generate-drafts');
+    return r.data;
+  },
 };
 
 // ===================== REPORTS =====================
@@ -473,6 +484,13 @@ export const listingOptimizerService = {
   },
   history: async (id: string): Promise<ListingHistoryResponse> => {
     const r = await api.get<ListingHistoryResponse>(`/listing-optimizer/${encodeURIComponent(id)}/history`);
+    return r.data;
+  },
+  // Gecmisteki tek bir optimizasyon kaydini detayli getirir (AI cagrisi yapmaz).
+  getOptimization: async (id: string, optId: number): Promise<OptimizeResponse> => {
+    const r = await api.get<OptimizeResponse>(
+      `/listing-optimizer/${encodeURIComponent(id)}/optimization/${optId}`,
+    );
     return r.data;
   },
   analyzeCurrent: async (id: string, target_marketplace?: string): Promise<AnalyzeCurrentResponse> => {

@@ -58,6 +58,7 @@ export default function NotificationsPage() {
   const [filter, setFilter] = useState<FilterType>('all');
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [generatingDrafts, setGeneratingDrafts] = useState(false);
   const [markingAll, setMarkingAll] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
@@ -120,6 +121,24 @@ export default function NotificationsPage() {
     } finally { setGenerating(false); }
   };
 
+  const handleGenerateDrafts = async () => {
+    setGeneratingDrafts(true);
+    try {
+      const res = await notificationService.generateDrafts();
+      if (res.message) {
+         // Show a simple alert if we hit the limit or generated drafts.
+         // Actually, let's just fetch notifications to show the new ones.
+         // And maybe alert the message so user knows about limit.
+         if (res.new_count === 0 && res.review_drafts_created === 0) {
+            alert(res.message);
+         }
+      }
+      await fetchNotifications();
+    } catch (e) {
+      alert("Taslak oluşturulurken hata oluştu.");
+    } finally { setGeneratingDrafts(false); }
+  };
+
   const filters: { id: FilterType; label: string }[] = [
     { id: 'all', label: t('notifications.filter_all') },
     { id: 'unread', label: `${t('notifications.filter_unread')} (${unreadCount})` },
@@ -166,6 +185,11 @@ export default function NotificationsPage() {
               {t('notifications.mark_all')}
             </button>
           )}
+          <button onClick={handleGenerateDrafts} disabled={generatingDrafts}
+            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30 rounded-xl transition-all disabled:opacity-50">
+            {generatingDrafts ? <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" /> : <MessageSquare size={14} />}
+            Cevap Taslağı Oluştur
+          </button>
           <button onClick={handleGenerate} disabled={generating}
             className="flex items-center gap-1.5 px-3 py-2 text-sm bg-[var(--accent-solid)] hover:bg-[var(--accent-solid-hover)] text-[var(--accent-fg)] rounded-xl transition-all disabled:opacity-50">
             {generating ? <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> : <RefreshCw size={14} />}

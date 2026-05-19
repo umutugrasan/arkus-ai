@@ -232,18 +232,25 @@ async def generate_notifications(user=Depends(get_current_user), db=Depends(get_
 
     db.commit()
 
-    # 5. Negatif yorumlar icin AI cevap taslaklari (ReviewResponseAgent).
-    #    Bu daha once sadece arka plan scheduler'da tetikleniyordu; "Bildirimleri
-    #    Tara" butonunun da uretmesi icin buradan da cagiriyoruz. Gemini hata
-    #    verirse digerlerini bozmasin diye sessizce gecilir.
+    return {
+        "message": f"{len(created)} yeni bildirim olusturuldu",
+        "new_count": len(created),
+        "new_notifications": created,
+    }
+
+@router.post("/generate-drafts")
+async def generate_drafts(user=Depends(get_current_user), db=Depends(get_db)):
+    """
+    Sadece negatif yorumlar icin AI cevap taslaklarini manuel olarak olusturur.
+    Gunluk kota 3 taslaktir.
+    """
+    created = []
     review_drafts_created = 0
     try:
         agent = ReviewResponseAgent()
         agent_result = await agent.run(user.id, db)
         review_drafts_created = agent_result.notifications_created or 0
         if agent_result.status == "ok" and review_drafts_created > 0:
-            # Agent kendi commit'ini yapiyor, ama yine de listeye eklemek icin
-            # son review_drafts_created kayitli bildirimi al
             recent_drafts = (
                 db.query(Notification)
                 .filter(
@@ -256,11 +263,20 @@ async def generate_notifications(user=Depends(get_current_user), db=Depends(get_
             )
             for n in recent_drafts:
                 created.append(_to_dict(n))
+        elif agent_result.status == "ok" and review_drafts_created == 0:
+             note = agent_result.details.get("note", "Yeni taslak olusturulamadi.")
+             return {
+                 "message": note,
+                 "new_count": 0,
+                 "new_notifications": [],
+                 "review_drafts_created": 0,
+             }
     except Exception as e:
-        logger.warning(f"ReviewResponseAgent tetiklenemedi: {type(e).__name__}: {e}")
+        logger.warning(f"ReviewResponseAgent manuel tetiklenemedi: {type(e).__name__}: {e}")
+        raise HTTPException(status_code=500, detail="Taslak olusturma sirasinda hata olustu.")
 
     return {
-        "message": f"{len(created)} yeni bildirim olusturuldu",
+        "message": f"{review_drafts_created} yeni cevap taslagi olusturuldu",
         "new_count": len(created),
         "new_notifications": created,
         "review_drafts_created": review_drafts_created,
